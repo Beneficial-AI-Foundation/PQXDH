@@ -32,8 +32,6 @@ failure: `none` means the ciphertext or AD was tampered with.
 Reference: Bhargavan et al., §2.1 and §2.5 assumption (3).
 -/
 
-import Mathlib.Tactic.TypeStar
-
 /-! ## AEAD structure -/
 
 /-- Abstract Authenticated Encryption with Associated Data.
@@ -50,7 +48,7 @@ import Mathlib.Tactic.TypeStar
       or fail (`none`) if authentication fails
     - `correctness`: decrypting an honestly encrypted ciphertext with the
       correct key and AD always succeeds -/
-structure AEAD (K PT CT AD : Type*) where
+structure AEAD (K PT CT AD : Type _) where
   /-- Encrypt a plaintext with associated data under the given key. -/
   encrypt : K → PT → AD → CT
   /-- Decrypt a ciphertext with associated data under the given key.
@@ -64,14 +62,14 @@ structure AEAD (K PT CT AD : Type*) where
 
 /-- AEAD correctness: decrypting an honestly encrypted ciphertext
     with the same key and associated data recovers the plaintext. -/
-theorem AEAD_decrypt_encrypt {K PT CT AD : Type*} (aead : AEAD K PT CT AD)
+theorem AEAD_decrypt_encrypt {K PT CT AD : Type _} (aead : AEAD K PT CT AD)
     (k : K) (pt : PT) (ad : AD) :
     aead.decrypt k (aead.encrypt k pt ad) ad = some pt :=
   aead.correctness k pt ad
 
 /-- If Alice and Bob share the same session key and associated data,
     Bob can decrypt Alice's ciphertext. -/
-theorem AEAD_agree {K PT CT AD : Type*} (aead : AEAD K PT CT AD)
+theorem AEAD_agree {K PT CT AD : Type _} (aead : AEAD K PT CT AD)
     (k_a k_b : K) (pt : PT) (ad_a ad_b : AD) (ct : CT)
     (h_key : k_a = k_b) (h_ad : ad_a = ad_b)
     (h_enc : ct = aead.encrypt k_a pt ad_a) :

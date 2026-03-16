@@ -11,7 +11,7 @@ Protocol proofs (X3DH, PQXDH) import only this file.
 import Mathlib.GroupTheory.GroupAction.Defs
 import Mathlib.Algebra.Order.Ring.Nat
 
-variable {G : Type*} [AddCommGroup G]
+variable {G : Type _} [AddCommGroup G]
 
 /-- Abstract Diffie-Hellman: DH(a, B) = [a]B in an additive commutative group. -/
 noncomputable def DH (a : ℕ) (B : G) : G := a • B

@@ -98,7 +98,7 @@ import PQXDHLean.DH
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 
-variable {G : Type*} [AddCommGroup G]
+variable {G : Type _} [AddCommGroup G]
 
 /-! ## Key pairs
 
@@ -106,7 +106,7 @@ A key pair is a private scalar and the corresponding public key `[scalar]G`.
 -/
 
 /-- A key pair: private scalar and public point. -/
-structure KeyPair (G : Type*) [AddCommGroup G] where
+structure KeyPair (G : Type _) [AddCommGroup G] where
   priv : ℕ
   pub : G
   gen : G
@@ -185,7 +185,7 @@ a single session key SK. Since the DH tuples are equal (by `X3DH_agree`),
 the derived session keys are equal.
 -/
 
-variable {SK : Type*}
+variable {SK : Type _}
 
 /-- Alice's session key: KDF applied to her four DH values. -/
 noncomputable def X3DH_SK_Alice
@@ -230,14 +230,18 @@ the handshake is complete: both parties are authenticated and share
 a secret session key.
 -/
 
-variable {PT CT_aead : Type*}
+variable {PT CT_aead : Type _}
 
 /-- X3DH handshake correctness: Bob can decrypt Alice's first message.
 
     This is the end-to-end correctness theorem for X3DH. It composes:
     1. DH agreement (`X3DH_agree`)
     2. Session key agreement (`X3DH_session_key_agree`, via KDF)
-    3. AEAD correctness (`AEAD_agree`) -/
+    3. AEAD correctness (`AEAD_agree`)
+
+    The associated data is AD = (IKₐ, IKᵦ) as specified in Figure 1 of
+    Bhargavan et al. This binds the ciphertext to both parties' identities,
+    preventing key-mismatch attacks. -/
 theorem X3DH_handshake_correct
     (kdf : KDF (G × G × G × G) SK)
     (aead : AEAD SK PT CT_aead (G × G))
@@ -250,13 +254,12 @@ theorem X3DH_handshake_correct
     (hSPKᵦ : SPKᵦ = DH spkᵦ G₀)
     (hOPKᵦ : OPKᵦ = DH opkᵦ G₀)
     (msg : PT)
-    (ad : G × G)
     (ct : CT_aead)
     (h_enc : ct = aead.encrypt
-      (X3DH_SK_Alice kdf ikₐ ekₐ IKᵦ SPKᵦ OPKᵦ) msg ad) :
+      (X3DH_SK_Alice kdf ikₐ ekₐ IKᵦ SPKᵦ OPKᵦ) msg (IKₐ, IKᵦ)) :
     aead.decrypt
-      (X3DH_SK_Bob kdf ikᵦ spkᵦ opkᵦ IKₐ EKₐ) ct ad = some msg := by
+      (X3DH_SK_Bob kdf ikᵦ spkᵦ opkᵦ IKₐ EKₐ) ct (IKₐ, IKᵦ) = some msg := by
   have h_sk := X3DH_session_key_agree kdf G₀
     ikₐ ekₐ ikᵦ spkᵦ opkᵦ hIKₐ hEKₐ hIKᵦ hSPKᵦ hOPKᵦ
   rw [h_enc, h_sk]
-  exact aead.correctness _ msg ad
+  exact aead.correctness _ msg _

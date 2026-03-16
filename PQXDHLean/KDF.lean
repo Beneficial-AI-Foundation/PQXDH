@@ -33,6 +33,6 @@ import Mathlib.Tactic.TypeStar
 
     Operations:
     - `derive`: deterministically map input material to a key -/
-structure KDF (I K : Type*) where
+structure KDF (I K : Type _) where
   /-- Derive a key from input material. -/
   derive : I → K
