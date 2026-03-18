@@ -105,27 +105,30 @@ variable {G : Type _} [AddCommGroup G]
 A key pair is a private scalar and the corresponding public key `[scalar]G`.
 -/
 
-/-- A key pair: private scalar and public point. -/
+-- ANCHOR: X3DHKeyPair
 structure KeyPair (G : Type _) [AddCommGroup G] where
   priv : ℕ
   pub : G
   gen : G
   pub_eq : pub = DH priv gen
+-- ANCHOR_END: X3DHKeyPair
 
 /-! ## X3DH shared secret computation
 
 Alice's and Bob's views of the four DH values.
 -/
 
-/-- The four DH outputs computed by Alice. -/
+-- ANCHOR: X3DH_Alice
 noncomputable def X3DH_Alice
     (ikₐ ekₐ : ℕ) (IKᵦ SPKᵦ OPKᵦ : G) : G × G × G × G :=
   (DH ikₐ SPKᵦ, DH ekₐ IKᵦ, DH ekₐ SPKᵦ, DH ekₐ OPKᵦ)
+-- ANCHOR_END: X3DH_Alice
 
-/-- The four DH outputs computed by Bob. -/
+-- ANCHOR: X3DHBob
 noncomputable def X3DH_Bob
     (ikᵦ spkᵦ opkᵦ : ℕ) (IKₐ EKₐ : G) : G × G × G × G :=
   (DH spkᵦ IKₐ, DH ikᵦ EKₐ, DH spkᵦ EKₐ, DH opkᵦ EKₐ)
+-- ANCHOR_END: X3DHBob
 
 /-! ## Correctness
 
@@ -133,7 +136,7 @@ The core theorem: if all public keys are honestly generated from the
 same generator G, then Alice and Bob compute identical DH tuples.
 -/
 
-/-- X3DH correctness: Alice and Bob compute the same four DH values. -/
+-- ANCHOR: X3DHCorrectness
 theorem X3DH_agree
     (G₀ : G)
     (ikₐ ekₐ ikᵦ spkᵦ opkᵦ : ℕ)
@@ -147,6 +150,7 @@ theorem X3DH_agree
     X3DH_Bob ikᵦ spkᵦ opkᵦ IKₐ EKₐ := by
   subst hIKₐ; subst hEKₐ; subst hIKᵦ; subst hSPKᵦ; subst hOPKᵦ
   simp only [X3DH_Alice, X3DH_Bob, DH_comm]
+--ANCHOR_END: X3DHCorrectness
 
 /-! ## Without one-time prekey
 
@@ -187,19 +191,21 @@ the derived session keys are equal.
 
 variable {SK : Type _}
 
-/-- Alice's session key: KDF applied to her four DH values. -/
+-- ANCHOR: X3DHSKAlice
 noncomputable def X3DH_SK_Alice
     (kdf : KDF (G × G × G × G) SK)
     (ikₐ ekₐ : ℕ) (IKᵦ SPKᵦ OPKᵦ : G) : SK :=
   kdf.derive (X3DH_Alice ikₐ ekₐ IKᵦ SPKᵦ OPKᵦ)
+-- ANCHOR_END: X3DHSKAlice
 
-/-- Bob's session key: KDF applied to his four DH values. -/
+-- ANCHOR: X3DHSKBob
 noncomputable def X3DH_SK_Bob
     (kdf : KDF (G × G × G × G) SK)
     (ikᵦ spkᵦ opkᵦ : ℕ) (IKₐ EKₐ : G) : SK :=
   kdf.derive (X3DH_Bob ikᵦ spkᵦ opkᵦ IKₐ EKₐ)
+-- ANCHOR_END: X3DHSKBob
 
-/-- Session key agreement: Alice and Bob derive the same session key. -/
+-- ANCHOR: X3DHSessionKeyAgreement
 theorem X3DH_session_key_agree
     (kdf : KDF (G × G × G × G) SK)
     (G₀ : G)
@@ -214,6 +220,7 @@ theorem X3DH_session_key_agree
     X3DH_SK_Bob kdf ikᵦ spkᵦ opkᵦ IKₐ EKₐ := by
   simp only [X3DH_SK_Alice, X3DH_SK_Bob,
     X3DH_agree G₀ ikₐ ekₐ ikᵦ spkᵦ opkᵦ hIKₐ hEKₐ hIKᵦ hSPKᵦ hOPKᵦ]
+-- ANCHOR_END: X3DHSessionKeyAgreement
 
 /-! ## Handshake: first authenticated message
 
@@ -232,16 +239,7 @@ a secret session key.
 
 variable {PT CT_aead : Type _}
 
-/-- X3DH handshake correctness: Bob can decrypt Alice's first message.
-
-    This is the end-to-end correctness theorem for X3DH. It composes:
-    1. DH agreement (`X3DH_agree`)
-    2. Session key agreement (`X3DH_session_key_agree`, via KDF)
-    3. AEAD correctness (`AEAD_agree`)
-
-    The associated data is AD = (IKₐ, IKᵦ) as specified in Figure 1 of
-    Bhargavan et al. This binds the ciphertext to both parties' identities,
-    preventing key-mismatch attacks. -/
+-- ANCHOR: X3DHHandshakeCorrectness
 theorem X3DH_handshake_correct
     (kdf : KDF (G × G × G × G) SK)
     (aead : AEAD SK PT CT_aead (G × G))
@@ -263,3 +261,4 @@ theorem X3DH_handshake_correct
     ikₐ ekₐ ikᵦ spkᵦ opkᵦ hIKₐ hEKₐ hIKᵦ hSPKᵦ hOPKᵦ
   rw [h_enc, h_sk]
   exact aead.correctness _ msg _
+-- ANCHOR_END: X3DHHandshakeCorrectness

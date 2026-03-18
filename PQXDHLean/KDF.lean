@@ -25,14 +25,7 @@ import Mathlib.Tactic.TypeStar
 
 /-! ## KDF structure -/
 
-/-- Abstract Key Derivation Function.
-
-    Parameterized by:
-    - `I`: input type (e.g. concatenation of DH outputs)
-    - `K`: key type (derived session key)
-
-    Operations:
-    - `derive`: deterministically map input material to a key -/
+-- ANCHOR: KDFStructure
 structure KDF (I K : Type _) where
-  /-- Derive a key from input material. -/
   derive : I → K
+-- ANCHOR_END: KDFStructure

@@ -14,5 +14,10 @@ name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.29.0-rc6"
 
+[[require]]
+name = "subverso"
+git = "https://github.com/leanprover/subverso"
+rev = "no-modules/4539e605ff834c35ecc0bcd0b7daec69163fd9f0"
+
 [[lean_lib]]
 name = "PQXDHLean"

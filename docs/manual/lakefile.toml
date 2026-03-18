@@ -1,0 +1,14 @@
+name = "X3DH Protocol in Lean"
+defaultTargets = ["Docs", "docs"]
+
+[[require]]
+name = "verso"
+git = "https://github.com/leanprover/verso"
+rev = "v4.28.0"
+
+[[lean_lib]]
+name = "Docs"
+
+[[lean_exe]]
+name = "docs"
+root = "Main"

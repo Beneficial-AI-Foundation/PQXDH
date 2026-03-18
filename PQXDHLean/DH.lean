@@ -13,25 +13,36 @@ import Mathlib.Algebra.Order.Ring.Nat
 
 variable {G : Type _} [AddCommGroup G]
 
-/-- Abstract Diffie-Hellman: DH(a, B) = [a]B in an additive commutative group. -/
+-- ANCHOR: DHDef
 noncomputable def DH (a : ℕ) (B : G) : G := a • B
+-- ANCHOR_END: DHDef
 
 /-! ## Core properties -/
 
+-- ANCHOR: DHComm
 theorem DH_comm (a b : ℕ) (P : G) :
     DH a (DH b P) = DH b (DH a P) := by
   simp only [DH, ← mul_nsmul', Nat.mul_comm]
+-- ANCHOR_END: DHComm
 
+-- ANCHOR: DHAssoc
 theorem DH_assoc (a b : ℕ) (B : G) :
     DH a (DH b B) = DH (a * b) B := by
   simp only [DH, ← mul_nsmul']
+-- ANCHOR_END: DHAssoc
 
+-- ANCHOR: DHZero
 theorem DH_zero (B : G) : DH 0 B = (0 : G) := by
   exact zero_nsmul B
+-- ANCHOR_END: DHZero
 
+-- ANCHOR: DHOne
 theorem DH_one (B : G) : DH 1 B = B := by
   exact one_nsmul B
+-- ANCHOR_END: DHOne
 
+-- ANCHOR: DHAdd
 theorem DH_add (a b : ℕ) (B : G) :
     DH (a + b) B = DH a B + DH b B := by
   exact add_nsmul B a b
+-- ANCHOR_END: DHAdd

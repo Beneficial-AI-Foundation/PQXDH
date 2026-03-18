@@ -34,41 +34,24 @@ Reference: Bhargavan et al., §2.1 and §2.5 assumption (3).
 
 /-! ## AEAD structure -/
 
-/-- Abstract Authenticated Encryption with Associated Data.
-
-    Parameterized by:
-    - `K`:  key type (session key from KDF)
-    - `PT`: plaintext type
-    - `CT`: ciphertext type
-    - `AD`: associated data type
-
-    Operations:
-    - `encrypt`: given key, plaintext, and associated data, produce a ciphertext
-    - `decrypt`: given key, ciphertext, and associated data, recover the plaintext
-      or fail (`none`) if authentication fails
-    - `correctness`: decrypting an honestly encrypted ciphertext with the
-      correct key and AD always succeeds -/
+-- ANCHOR: AEADStructure
 structure AEAD (K PT CT AD : Type _) where
-  /-- Encrypt a plaintext with associated data under the given key. -/
   encrypt : K → PT → AD → CT
-  /-- Decrypt a ciphertext with associated data under the given key.
-      Returns `none` if authentication fails (wrong key or tampered data). -/
   decrypt : K → CT → AD → Option PT
-  /-- Correctness: honest encrypt/decrypt round-trips successfully. -/
   correctness : ∀ (k : K) (pt : PT) (ad : AD),
     decrypt k (encrypt k pt ad) ad = some pt
+-- ANCHOR_END: AEADStructure
 
 /-! ## Correctness theorems -/
 
-/-- AEAD correctness: decrypting an honestly encrypted ciphertext
-    with the same key and associated data recovers the plaintext. -/
+-- ANCHOR: AEADDecryptEncrypt
 theorem AEAD_decrypt_encrypt {K PT CT AD : Type _} (aead : AEAD K PT CT AD)
     (k : K) (pt : PT) (ad : AD) :
     aead.decrypt k (aead.encrypt k pt ad) ad = some pt :=
   aead.correctness k pt ad
+-- ANCHOR_END: AEADDecryptEncrypt
 
-/-- If Alice and Bob share the same session key and associated data,
-    Bob can decrypt Alice's ciphertext. -/
+-- ANCHOR: AEADAgree
 theorem AEAD_agree {K PT CT AD : Type _} (aead : AEAD K PT CT AD)
     (k_a k_b : K) (pt : PT) (ad_a ad_b : AD) (ct : CT)
     (h_key : k_a = k_b) (h_ad : ad_a = ad_b)
@@ -76,3 +59,4 @@ theorem AEAD_agree {K PT CT AD : Type _} (aead : AEAD K PT CT AD)
     aead.decrypt k_b ct ad_b = some pt := by
   subst h_key; subst h_ad; subst h_enc
   exact aead.correctness k_a pt ad_a
+-- ANCHOR_END: AEADAgree
