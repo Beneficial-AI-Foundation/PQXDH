@@ -12,7 +12,7 @@ lake build
 lake build pqxdhdocs
 
 # Generate blueprint HTML (outputs to _out/blueprint/)
-./tools/make-blueprint.sh
+./scripts/build-blueprint.sh
 ```
 
 ## Project Overview
@@ -54,3 +54,7 @@ Uses Verso framework with anchor-based code extraction:
 - All primitives are generic over types (e.g., DH works over any `AddCommGroup`)
 - Each primitive structure includes correctness axioms used in downstream proofs
 - X3DH protocol theorems compose primitive correctness properties
+
+## Commit Guidelines
+
+- Update documentation (README.md, CLAUDE.md) with every commit to keep it in sync with code changes
