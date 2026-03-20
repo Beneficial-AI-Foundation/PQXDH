@@ -12,12 +12,22 @@ maxSynthPendingDepth = 3
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
-rev = "v4.29.0-rc6"
+rev = "v4.29.0-rc3"
 
 [[require]]
-name = "subverso"
-git = "https://github.com/leanprover/subverso"
-rev = "no-modules/4539e605ff834c35ecc0bcd0b7daec69163fd9f0"
+name = "verso"
+git = "https://github.com/ejgallego/verso"
+rev = "bp"
 
 [[lean_lib]]
 name = "PQXDHLean"
+
+[[lean_lib]]
+name = "PQXDHDocs"
+srcDir = "docs"
+
+[[lean_exe]]
+name = "pqxdhdocs"
+srcDir = "docs"
+root = "PQXDHDocsMain"
+supportInterpreter = true

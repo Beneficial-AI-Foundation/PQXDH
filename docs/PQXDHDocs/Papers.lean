@@ -6,7 +6,7 @@ Author: David Thrane Christiansen
 import VersoManual
 open Verso.Genre.Manual
 
-namespace Docs
+namespace PQXDHDocs
 
 
 -- Here, `inlines!` is a macro that parses a string constant into Verso inline elements

@@ -3,7 +3,7 @@ open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open Verso.Code.External
 
-set_option verso.exampleProject "../.."
+set_option verso.exampleProject "."
 set_option verso.exampleModule "PQXDHLean.X3DH"
 
 #doc (Manual) "The X3DH Protocol" =>

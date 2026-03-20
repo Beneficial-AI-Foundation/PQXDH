@@ -27,7 +27,7 @@ This is an initial specification — not a complete formalization. We declare al
 
 ## Building
 
-Requires [Lean 4](https://lean-lang.org/) (v4.29.0-rc6) and [Mathlib](https://github.com/leanprover-community/mathlib4).
+Requires [Lean 4](https://lean-lang.org/) (v4.29.0-rc3) and [Mathlib](https://github.com/leanprover-community/mathlib4).
 
 ```bash
 lake build
@@ -35,14 +35,21 @@ lake build
 
 ## Documentation
 
-The `docs/manual/` directory contains a [Verso](https://github.com/leanprover/verso)-based literate document with prose explanations and verified code excerpts.
+The `docs/` directory contains a [Verso](https://github.com/leanprover/verso)-based literate document with prose explanations and verified code excerpts.
+
+To build the documentation blueprint:
 
 ```bash
-cd docs/manual
-lake build
+./tools/make-blueprint.sh
 ```
 
-The generated HTML is output to `docs/manual/_out/html-multi/`.
+To view the generated documentation locally:
+
+```bash
+python3 -m http.server 8080 -d _out/blueprint
+```
+
+Then open http://localhost:8080 in your browser.
 
 ## License
 

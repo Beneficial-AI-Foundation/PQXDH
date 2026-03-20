@@ -6,13 +6,13 @@ Author: David Thrane Christiansen
 
 import VersoManual
 
-import Docs.Papers
-import Docs.DocFeatures
-import Docs.DocDH
-import Docs.DocKDF
-import Docs.DocAEAD
-import Docs.DocKEM
-import Docs.DocX3DH
+import PQXDHDocs.Papers
+import PQXDHDocs.DocFeatures
+import PQXDHDocs.DocDH
+import PQXDHDocs.DocKDF
+import PQXDHDocs.DocAEAD
+import PQXDHDocs.DocKEM
+import PQXDHDocs.DocX3DH
 
 -- This gets access to most of the manual genre
 open Verso.Genre Manual
@@ -25,14 +25,11 @@ open Verso.Genre.Manual.InlineLean
 -- This gets access to tools for showing Lean code that's loaded from external modules.
 open Verso.Code.External
 
-open Docs
-
 set_option pp.rawOnError true
 
 -- This is the source of code examples to be shown in the document. It should be relative to the
--- current Lake workspace. One good way to set up the files is in a Git repository that contains one
--- Lake package for example code and another for the docs, as sibling directories.
-set_option verso.exampleProject "../../../PQXDHLean/Examples"
+-- current Lake workspace.
+set_option verso.exampleProject "."
 
 -- This is the module that will be consulted for example code. It can be overridden using the
 -- `(module := ...)` argument to most elements that show code.
@@ -58,8 +55,8 @@ in [Bhargavan et al.](https://www.usenix.org/system/files/usenixsecurity24-bharg
 
 The source code is available on [GitHub](https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH/tree/christiano/pqxdh).
 
-{include 1 Docs.DocDH}
-{include 1 Docs.DocKDF}
-{include 1 Docs.DocAEAD}
-{include 1 Docs.DocKEM}
-{include 1 Docs.DocX3DH}
+{include 1 PQXDHDocs.DocDH}
+{include 1 PQXDHDocs.DocKDF}
+{include 1 PQXDHDocs.DocAEAD}
+{include 1 PQXDHDocs.DocKEM}
+{include 1 PQXDHDocs.DocX3DH}
