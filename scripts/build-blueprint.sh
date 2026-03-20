@@ -4,7 +4,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ./tools/make-blueprint.sh [OUTPUT_ROOT]
+Usage: ./scripts/build-blueprint.sh [OUTPUT_ROOT]
 
 Build the X3DH documentation blueprint artifacts.
 
@@ -34,12 +34,12 @@ cd "$(dirname "$0")/.."
 out_root="${1:-_out/blueprint}"
 mkdir -p "$out_root"
 
-echo "[make-blueprint] building pqxdhdocs executable"
+echo "[build-blueprint] building pqxdhdocs executable"
 lake build pqxdhdocs
 
-echo "[make-blueprint] generating blueprint -> ${out_root}"
+echo "[build-blueprint] generating blueprint -> ${out_root}"
 ".lake/build/bin/pqxdhdocs" --output "$out_root"
 
-echo "[make-blueprint] done"
-echo "[make-blueprint] output:"
+echo "[build-blueprint] done"
+echo "[build-blueprint] output:"
 readlink -f "$out_root"

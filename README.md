@@ -40,7 +40,7 @@ The `docs/` directory contains a [Verso](https://github.com/leanprover/verso)-ba
 To build the documentation blueprint:
 
 ```bash
-./tools/make-blueprint.sh
+./scripts/build-blueprint.sh
 ```
 
 To view the generated documentation locally:
