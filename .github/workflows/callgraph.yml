@@ -2,17 +2,12 @@ name: Call Graph
 
 on:
   push:
-    branches: [master, add-callgraph-workflow] # TODO: remove feature branch before merge
+    branches: [master]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  group: "callgraph"
+  cancel-in-progress: true
 
 jobs:
   callgraph:
@@ -21,3 +16,40 @@ jobs:
       project_path: '.'
       github_url: https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH
       github_branch: master
+      deploy_mode: subpath
+      subpath: callgraph
+
+  cache-callgraph:
+    name: Cache Call Graph
+    needs: callgraph
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download callgraph viewer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: callgraph-viewer
+          path: callgraph
+
+      - name: Fix asset paths for project Pages subpath
+        run: |
+          if [ -f callgraph/index.html ]; then
+            sed -i 's|"/callgraph/|"/signal-shot-PQXDH/callgraph/|g' callgraph/index.html
+            sed -i 's|href="/assets/|href="/signal-shot-PQXDH/callgraph/assets/|g' callgraph/index.html
+            sed -i 's|src="/assets/|src="/signal-shot-PQXDH/callgraph/assets/|g' callgraph/index.html
+            echo "Fixed asset paths for /signal-shot-PQXDH/ project Pages"
+          fi
+
+      - name: Verify callgraph files
+        run: |
+          if [ -f callgraph/index.html ]; then
+            echo "Callgraph ready for caching ($(ls callgraph | wc -l) files)"
+          else
+            echo "index.html not found"
+            exit 1
+          fi
+
+      - name: Save callgraph to cache
+        uses: actions/cache/save@v4
+        with:
+          path: callgraph
+          key: callgraph-${{ github.sha }}-${{ github.run_id }}
