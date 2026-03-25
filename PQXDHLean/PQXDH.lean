@@ -11,10 +11,10 @@ Reference: Bhargavan et al. §2.1–§2.3, Figure 1.
 ## Protocol overview (Figure 1)
 
 Bob publishes a prekey bundle to the server:
-  - IKᵦ     = [ikᵦ]G    (long-term identity key)
-  - SPKᵦ    = [spkᵦ]G   (signed prekey, rotated periodically)
+  - IKᵦ     = [ikᵦ]·G    (long-term identity key)
+  - SPKᵦ    = [spkᵦ]·G   (signed prekey, rotated periodically)
   - Sig_ᵦ               (signature over SPKᵦ using ikᵦ — authenticates SPK)
-  - OPKᵦ    = [opkᵦ]G   (one-time prekey, consumed after single use)
+  - OPKᵦ    = [opkᵦ]·G   (one-time prekey, consumed after single use)
   - PQSPK_ᵦ             (KEM public key, post-quantum signed prekey)
   - PQSig_ᵦ             (signature over PQSPK_ᵦ using ikᵦ)
 
@@ -54,12 +54,10 @@ Bob publishes the classical X3DH keys plus a PQ-KEM public key (PQSPK),
 each signed prekey accompanied by a signature under Bob's identity key.
 -/
 
-/-- Bob's prekey bundle including the post-quantum KEM public key
-and signatures authenticating the signed prekeys.
-
-In the real protocol, `sig_spk` is Bob's signature over SPKᵦ using
-his identity signing key, and `sig_pqspk` is Bob's signature over
-PQSPK. Alice verifies both before proceeding. -/
+/-- §2.3, p. 472 and Figure 1, p. 471: Bob's prekey bundle including the
+post-quantum KEM public key and signatures authenticating the signed prekeys.
+"In the initial message to Alex, Blake includes PQSPKᵦᵖᵏ and
+sign(PQSPKᵦᵖᵏ, IKᵦˢᵏ)." (§2.3, item 2, p. 472) -/
 structure PQXDHBundle (G PK_kem S_sig : Type _) [AddCommGroup G] where
   IKᵦ : G            -- long-term identity public key
   SPKᵦ : G           -- signed prekey (medium-term)
@@ -74,13 +72,9 @@ Alice must verify the signatures on SPKᵦ and PQSPK before
 using the bundle. This prevents a malicious server from
 substituting Bob's signed prekeys. -/
 
-/-- Alice verifies Bob's bundle signatures before proceeding.
-Returns `true` iff both the SPK signature and the PQSPK signature
-are valid under Bob's identity public key.
-
-In practice, the messages signed are encodings of SPKᵦ and PQSPK;
-we abstract over the encoding via the `encode_spk` and `encode_pqspk`
-functions. -/
+/-- Figure 1, p. 471 "Verify signatures": Alice verifies Bob's bundle
+signatures before proceeding. Returns `true` iff both the SPK signature
+and the PQSPK signature are valid under Bob's identity public key. -/
 def PQXDHBundle.verify_signatures
     {PK_sig SK_sig M S_sig PK_kem : Type _}
     (bundle : PQXDHBundle G PK_kem S_sig)
@@ -96,10 +90,10 @@ Alice computes the four classical DH values plus the KEM shared secret.
 The five values are concatenated and fed to the KDF.
 -/
 
-/-- Alice's view of the PQXDH key exchange:
-four DH values plus the KEM encapsulation output (ct, ss).
-
-Precondition: Alice has already verified the bundle signatures. -/
+/-- §2.3, p. 472 and Figure 1, p. 471: Alice's view of the PQXDH key exchange.
+Four DH values plus the KEM encapsulation output (ct, ss).
+"When computing the session secret, Alex also computes CT, SS ← KEM.encaps(PQSPKᵦᵖᵏ)
+and concatenates SS to the X3DH Key Derivation Function input." (§2.3, item 3) -/
 noncomputable def PQXDH_Alice
     {PK_kem SK_kem CT SS S_sig : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
@@ -112,8 +106,10 @@ noncomputable def PQXDH_Alice
   let kem_out := kem.encaps bundle.PQSPK
   (dh, kem_out)
 
-/-- Bob's view of the PQXDH key exchange:
-four DH values plus the KEM decapsulation of ct. -/
+/-- §2.3, p. 472 and Figure 1, p. 471: Bob's view of the PQXDH key exchange.
+Four DH values plus the KEM decapsulation of ct.
+"Blake uses their private key to compute SS = KEM.decaps(CT, PQSPKᵦˢᵏ)
+and also concatenates it to the X3DH Key Derivation Function input." (§2.3, item 5) -/
 noncomputable def PQXDH_Bob
     {PK_kem SK_kem CT SS : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
@@ -141,7 +137,8 @@ shared secret.
 
 variable {SK : Type _}
 
-/-- Alice derives the PQXDH session key. -/
+/-- Figure 1, p. 471: Alice derives the PQXDH session key
+SK_B = kdf((SPKᵦᵖᵏ)^{IKₐˢᵏ} ‖ (IKᵦᵖᵏ)^{EKₐˢᵏ} ‖ (SPKᵦᵖᵏ)^{EKₐˢᵏ} ‖ SS). -/
 noncomputable def PQXDH_SK_Alice
     {PK_kem SK_kem CT SS S_sig : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
@@ -150,7 +147,8 @@ noncomputable def PQXDH_SK_Alice
   let (dh, (_, ss)) := PQXDH_Alice kem ikₐ ekₐ bundle
   kdf.derive (dh, ss)
 
-/-- Bob derives the PQXDH session key. -/
+/-- Figure 1, p. 471: Bob derives the PQXDH session key
+SKₐ = kdf((IKₐᵖᵏ)^{SPKᵦˢᵏ} ‖ (EKₐᵖᵏ)^{IKᵦˢᵏ} ‖ (EKₐᵖᵏ)^{SPKᵦˢᵏ} ‖ SS). -/
 noncomputable def PQXDH_SK_Bob
     {PK_kem SK_kem CT SS : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
@@ -167,6 +165,10 @@ KEM encapsulation/decapsulation, and verified signatures, Alice
 and Bob derive the same session key. This extends `X3DH_agree`
 with the KEM component. -/
 
+/-- §2.1, p. 470 and Figure 1, p. 471: PQXDH functional correctness.
+Under honest key generation and correct KEM encaps/decaps,
+Alice and Bob derive the same session key (SKₐ = SK_B).
+Extends `X3DH_agree` with the KEM component. -/
 theorem PQXDH_agree
     {PK_kem SK_kem CT SS S_sig : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
@@ -203,7 +205,12 @@ variable {PK_sig SK_sig : Type _}
 variable {M S_sig : Type _}
 variable {SK_session PT CT_aead AD : Type _}
 
-/-- Theorem 1 (§3.1): symbolic security in the Dolev-Yao model. -/
+/-- Theorem 1, §5.2 p. 479: "PQXDH in the symbolic model provides peer-
+authentication, forward secrecy, resistance to key compromise impersonation,
+session independence and resistance to 'harvest now decrypt later' attacks
+in case of a DH break down. In addition, it also provides data agreement
+over the shared pre-key used."
+No computational hardness hypotheses needed. Verified by ProVerif (Theorems 7–9, Appendix A). -/
 theorem PQXDH_symbolic_security
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (kdf : KDF ((G × G × G × G) × SS) SK_session)
@@ -223,7 +230,11 @@ Under gapDH + ROM + IND-CPA/INT-CTXT + EUF-CMA, PQXDH provides
 message secrecy and peer authentication with identity/key agreement
 (modulo X25519 subgroup elements). -/
 
-/-- Theorem 2 (§3.2): classical computational security. -/
+/-- Theorem 2, §5.2 p. 479: "If X25519 satisfies the gapDH assumption, the KDF
+is a Random Oracle, if the AEAD is IND-CPA+INT-CTXT and if the signature scheme
+is EUF-CMA, then PQXDH guarantees both the secrecy of the sent message, as-well-as
+peer-authentication with agreement over identities, OPK and SPK used, modulo the
+subgroup elements of X25519." Verified by CryptoVerif. -/
 theorem PQXDH_classical_security
     (G₀ : G)
     (kem : KEM PK_kem SK_kem CT_kem SS)
@@ -247,7 +258,10 @@ Under IND-CCA (KEM) + PRF (KDF) + IND-CPA/INT-CTXT (AEAD) +
 EUF-CMA (at time of exchange), the session key remains secret
 even if DH is broken later. No DH assumption is required. -/
 
-/-- Theorem 3 (§3.2): post-quantum computational security. -/
+/-- Theorem 3, §5.2 p. 479: "Under IND-CCA for the KEM, if the KDF is a PRF and
+the final AEAD is IND-CPA+INT-CTXT, as long as the signature scheme was unforgeable
+when some key exchange was completed, secrecy of the derived key still holds in the
+future." No DH assumption required. Verified by CryptoVerif. -/
 theorem PQXDH_postquantum_security
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (kdf : KDF ((G × G × G × G) × SS) SK_session)
@@ -268,7 +282,8 @@ theorem PQXDH_postquantum_security
 Kyber-1024 satisfies Semi-Honest Collision Resistance under the
 Random Oracle Model for its internal hash functions. -/
 
-/-- Theorem 5 (§4): Kyber SH-CR. -/
+/-- Theorem 5, §5.3.2 p. 480: "If the hash functions used in the Kyber design
+are modeled as Random Oracles, Kyber is SH-CR." -/
 theorem Kyber_SH_CR
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (h_hash_rom : KEM_InternalHash_ROM PK_kem SK_kem CT_kem SS kem) :
@@ -280,7 +295,9 @@ theorem Kyber_SH_CR
 Under the classical assumptions plus SH-CR for the KEM, PQXDH
 provides extended peer authentication with agreement over PQSPK. -/
 
-/-- Theorem 6 (§4): KEM public key agreement. -/
+/-- Theorem 6, §5.3.2 p. 480: "Under similar hypothesis as Theorem 2, PQXDH
+also guarantees the agreement over the PQSPK used provided the KEM is SH-CR."
+Strengthens Theorem 2's `PeerAuth` to `PeerAuthPQ`. -/
 theorem PQXDH_KEM_pubkey_agreement
     (G₀ : G)
     (kem : KEM PK_kem SK_kem CT_kem SS)

@@ -30,9 +30,9 @@ complexity bounds, we model each hardness assumption as an opaque
 truth is axiomatically assumed when needed.
 
 The paper uses two complementary verification approaches:
-  - **Symbolic model (ProVerif):** Dolev-Yao adversary, perfect
+  - Symbolic model (ProVerif): Dolev-Yao adversary, perfect
     cryptography, trace-based properties (correspondence assertions).
-  - **Computational model (CryptoVerif):** game-based reductions,
+  - Computational model (CryptoVerif): game-based reductions,
     advantage bounds, concrete assumptions on primitives.
 -/
 import PQXDHLean.DH
@@ -42,17 +42,17 @@ import PQXDHLean.KEM
 
 /-! ## Signature scheme -/
 
-/-- A key pair for a signature scheme, coupling a public verification
-key with the corresponding signing key. -/
+/-- §2.5, p. 472 assumption 2: A key pair for a signature scheme, coupling
+a public verification key with the corresponding signing key. -/
 structure SigKeyPair (PK_sig SK_sig : Type _) where
   pk : PK_sig
   sk : SK_sig
 
-/-- Abstract digital signature scheme (e.g. XEdDSA over Curve25519).
-Parameterized by public key, secret key, message, and signature types.
-
-Correctness requires that honestly generated signatures verify
-under the matching public key. -/
+/-- §2.5, p. 472 assumption 2 and Figure 1, p. 471: Abstract digital signature
+scheme. The paper uses "the signature Sig (XEdDSA), is EUF-CMA" (§2.5, p. 472).
+In Figure 1, Alice verifies "sign(SPKᵦᵖᵏ, IKᵦˢᵏ), sign(PQSPKᵦᵖᵏ, IKᵦˢᵏ)".
+Correctness requires that honestly generated signatures verify under the matching
+public key. Concrete instantiation: XEdDSA over Curve25519. -/
 structure Sig (PK_sig SK_sig M S : Type _) where
   keygen : SigKeyPair PK_sig SK_sig
   sign : SK_sig → M → S
@@ -66,38 +66,36 @@ The paper analyzes PQXDH under two adversary models:
   - A computational (game-based) model for CryptoVerif analysis.
 -/
 
-/-- The Dolev-Yao adversary model (symbolic/ProVerif).
+/-- §3.1, p. 473 and §3.4, p. 474: The Dolev-Yao adversary model (symbolic/ProVerif).
 
 A marker type indicating the analysis is carried out in the symbolic
 model, where:
   - The adversary controls the network (active MitM): it can
     intercept, inject, replay, and modify all messages.
-  - Cryptographic primitives are **ideal black boxes** — the
+  - Cryptographic primitives are ideal black boxes — the
     adversary cannot break encryption, forge signatures, or invert
     hashes except by using the appropriate key.
   - The adversary may compromise long-term keys at any time
     (adaptive corruption).
 
-Security properties are expressed as **correspondence assertions**:
+Security properties are expressed as correspondence assertions:
   "if event A occurred (e.g. Bob completed a session with Alice),
    then event B must have occurred (e.g. Alice initiated it)."
 
 In the post-quantum extension, the adversary is additionally given
-the power to **break DH** (compute discrete logs) at some point in
+the power to break DH (compute discrete logs) at some point in
 time, modeling a future quantum computer. Security of sessions
 completed *before* this point is then analyzed.
 
-Since all primitives are ideal, **no computational hardness
-assumptions** appear as hypotheses in the symbolic model.
+Since all primitives are ideal, no computational hardness
+assumptions appear as hypotheses in the symbolic model.
 Theorem 1 depends only on the protocol logic. -/
 inductive DolevYao where
   | mk
 
-/-- Oracle queries available to the adversary in the computational
-authenticated key exchange (AKE) security game. This models the
-interface between the adversary and the challenger in CryptoVerif.
-
-Reference: §3.2 of the paper (CryptoVerif game formulation). -/
+/-- §3.2, p. 473 and §3.5, p. 475: Oracle queries available to the adversary
+in the computational authenticated key exchange (AKE) security game.
+This models the interface between the adversary and the challenger in CryptoVerif. -/
 inductive AKE_Query where
   /-- Initiate a new protocol session between two identified parties.
       Returns a session handle. -/
@@ -116,7 +114,7 @@ inductive AKE_Query where
       The adversary must guess which. -/
   | Test
 
-/-- Freshness condition for the AKE security game.
+/-- §3.3, p. 473–474: Freshness condition for the AKE security game.
 
 A test session is *fresh* if the adversary has not trivially obtained
 the answer. Specifically, a session between Alice (initiator) and
@@ -146,13 +144,13 @@ opaque `Prop`s parameterized by the relevant primitive, with
 documentation describing the game structure.
 -/
 
-/-- §2.5 Assumption 1.A: the gap Diffie-Hellman (gapDH) problem is
+/-- §2.5, p. 472, assumption 1.A: the gap Diffie-Hellman (gapDH) problem is
 hard on X25519.
 
-**Game:** The challenger samples a, b ←$ ℤ_q and gives the adversary
-(G, [a]G, [b]G) plus access to a DDH oracle (which, on input
+Game: The challenger samples a, b ←$ ℤ_q and gives the adversary
+(G, [a]·G, [b]·G) plus access to a DDH oracle (which, on input
 (U, V, W), returns whether W = DH(u, V) for the unknown u).
-The adversary must compute [ab]G.
+The adversary must compute [ab]·G.
 
 gapDH is stronger than CDH (the DDH oracle helps) but the protocol
 proof requires it because CryptoVerif uses DDH-like transitions
@@ -162,10 +160,10 @@ Security means: no efficient adversary computes the answer with
 non-negligible probability. -/
 opaque GapDH_Hard (G : Type _) [AddCommGroup G] (gen : G) : Prop
 
-/-- §2.5 Assumption 1.B: the KEM is IND-CCA (indistinguishable under
-chosen-ciphertext attack).
+/-- §2.5, p. 472, assumption 1.B: the KEM is IND-CCA (indistinguishable under
+chosen-ciphertext attack). "Or the PQ-KEM (Kyber1024) is IND-CCA".
 
-**Game:**
+Game:
   1. Challenger runs (pk, sk) ← KEM.keygen.
   2. Challenger computes (ss₀, ct*) ← KEM.encaps(pk), samples ss₁ ←$ SS.
   3. Challenger flips coin b ∈ {0,1}, gives adversary (pk, ct*, ssᵦ).
@@ -177,9 +175,9 @@ Security means: |Pr[b' = b] − 1/2| is negligible.
 Concrete instantiation: Kyber-1024 (ML-KEM), secure under Module-LWE. -/
 opaque KEM_IND_CCA (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS) : Prop
 
-/-- §2.5 Assumption 2 (classical variant): the KDF is a Random Oracle.
+/-- §2.5, p. 473, assumption 4: the KDF is a Random Oracle (classical variant).
 
-**Model:** The KDF is replaced by a truly random function — for each
+Model: The KDF is replaced by a truly random function — for each
 new input, the output is sampled uniformly at random; repeated queries
 with the same input return the same output.
 
@@ -190,10 +188,10 @@ a tighter reduction.
 Concrete instantiation: HKDF-SHA-256 (RFC 5869). -/
 opaque KDF_RandomOracle (I K : Type _) (kdf : KDF I K) : Prop
 
-/-- §2.5 Assumption 2 (post-quantum variant): the KDF is a PRF
+/-- §2.5, p. 473 and §3.5, p. 475: the KDF is a PRF (post-quantum variant).
 (pseudorandom function).
 
-**Game:**
+Game:
   1. Challenger samples a key k ←$ K and flips coin b ∈ {0,1}.
   2. If b = 0, the oracle returns KDF.derive(k, ·).
      If b = 1, the oracle returns a truly random function f(·).
@@ -207,18 +205,18 @@ Quantum Random Oracle Model (QROM). PRF suffices for the
 post-quantum secrecy guarantee. -/
 opaque KDF_PRF (I K : Type _) (kdf : KDF I K) : Prop
 
-/-- §2.5 Assumption 3: the AEAD scheme is IND-CPA + INT-CTXT.
+/-- §2.5, p. 472, assumption 3: the AEAD scheme is IND-CPA + INT-CTXT.
 
 This is a conjunction of two standard security notions:
 
-**IND-CPA (indistinguishability under chosen-plaintext attack):**
+IND-CPA (indistinguishability under chosen-plaintext attack):
   Adversary chooses two plaintexts; receives encryption of one
   (chosen by coin flip); must guess which. Security means the
   advantage is negligible.
 
-**INT-CTXT (integrity of ciphertext):**
+INT-CTXT (integrity of ciphertext):
   Adversary has access to an encryption oracle; must produce a
-  *new* valid ciphertext (one not output by the oracle). Security
+  new valid ciphertext (one not output by the oracle). Security
   means the probability of success is negligible.
 
 Together, IND-CPA + INT-CTXT imply IND-CCA2 (Bellare & Namprempre).
@@ -226,10 +224,10 @@ Together, IND-CPA + INT-CTXT imply IND-CCA2 (Bellare & Namprempre).
 Concrete instantiation: AES-256-CBC + HMAC in Encrypt-Then-MAC mode. -/
 opaque AEAD_IND_CPA_INT_CTXT (K PT CT AD : Type _) (aead : AEAD K PT CT AD) : Prop
 
-/-- §2.5 Assumption 4: the signature scheme is EUF-CMA (existentially
+/-- §2.5, p. 472, assumption 2: the signature scheme is EUF-CMA (existentially
 unforgeable under chosen-message attack).
 
-**Game:**
+Game:
   1. Challenger runs (pk, sk) ← Sig.keygen, gives pk to adversary.
   2. Adversary adaptively queries a signing oracle Sign(sk, ·),
      receiving signatures on messages of its choice.
@@ -241,7 +239,7 @@ Concrete instantiation: XEdDSA over Curve25519. -/
 opaque Sig_EUF_CMA (PK_sig SK_sig M S : Type _) (sig : Sig PK_sig SK_sig M S) : Prop
 
 /-- Temporal qualification for a cryptographic assumption: the
-assumption held **at the time the key exchange completed**, but
+assumption held at the time the key exchange completed, but
 may have been broken since (e.g. by a quantum computer).
 
 In Theorem 3, the paper requires that the signature scheme was
@@ -273,22 +271,22 @@ correctly under sk must be the one honestly generated for the
 matching public key.
 -/
 
-/-- Definition 1 (§4): Semi-Honest Collision Resistance (SH-CR).
+/-- Definition 1, §5.3.1, p. 480: Semi-Honest Collision Resistance (SH-CR).
 
-**Game (2 phases):**
+Game (2 phases):
 
-  **Setup:** Challenger runs (pk, sk) ← KEM.keygen.
+  Setup: Challenger runs (pk, sk) ← KEM.keygen.
 
-  **Phase 1:** Adversary receives sk (the "semi-honest" party's
+  Phase 1: Adversary receives sk (the "semi-honest" party's
   compromised secret key). Adversary outputs an arbitrary public
   key pk' (possibly ≠ pk).
 
-  **Challenge:** Challenger computes (ss, ct) ← KEM.encaps(pk').
+  Challenge: Challenger computes (ss, ct) ← KEM.encaps(pk').
   Adversary receives ct.
 
-  **Phase 2:** Adversary outputs ct'.
+  Phase 2: Adversary outputs ct'.
 
-  **Winning condition:** ct' ≠ ct ∧ KEM.decaps(sk, ct') = ss.
+  Winning condition: ct' ≠ ct ∧ KEM.decaps(sk, ct') = ss.
 
 That is: the adversary, knowing sk, finds a *different* ciphertext
 ct' that decapsulates (under the honest sk) to the same shared
@@ -306,7 +304,7 @@ Formally:
 -/
 opaque KEM_SH_CR (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS) : Prop
 
-/-- §4, Theorem 5 hypothesis: Kyber's internal hash functions (H, G,
+/-- §5.3.2, p. 480, Theorem 5 hypothesis: Kyber's internal hash functions (H, G,
 XOF) behave as Random Oracles.
 
 This is distinct from `KDF_RandomOracle` — it concerns the hash
@@ -344,8 +342,8 @@ as part of authentication — the matching session has the same
 parameter values.
 -/
 
-/-- Message secrecy in the AKE security game.
-
+/-- §3.3, p. 474 "Confidentiality" and §3.5, p. 475:
+Message secrecy in the AKE security game.
 The session key derived by PQXDH is indistinguishable from random
 for any adversary that:
   - Controls the network (active MitM).
@@ -361,8 +359,8 @@ opaque MessageSecrecy (G : Type _) [AddCommGroup G]
     (I K : Type _) (kdf : KDF I K)
     (fresh : Freshness) : Prop
 
-/-- Peer authentication with identity and key agreement.
-
+/-- §3.3, p. 474 "Mutual Authentication" and Theorem 1, §5.2 p. 479:
+Peer authentication with identity and key agreement.
 If Bob completes a PQXDH session believing he is talking to Alice,
 then Alice initiated a matching session with Bob, and both agree on:
   - Identity keys: IKₐ, IKᵦ  (both parties know who they're talking to)
@@ -372,11 +370,11 @@ then Alice initiated a matching session with Bob, and both agree on:
 This subsumes "data agreement over the shared pre-key" (which the
 paper lists as property (6) of Theorem 1).
 
-This is a **correspondence assertion** in the ProVerif sense, or
-an **authentication with agreement** property in the CryptoVerif
+This is a correspondence assertion in the ProVerif sense, or
+an authentication with agreement property in the CryptoVerif
 game.
 
-**Caveat (Theorem 2):** In X25519, which has cofactor 8, agreement
+Caveat (Theorem 2): In X25519, which has cofactor 8, agreement
 on DH values holds only modulo the small subgroup of order 8. The
 paper notes this explicitly: "modulo the subgroup elements of
 X25519." -/
@@ -384,9 +382,8 @@ opaque PeerAuth (G : Type _) [AddCommGroup G]
     (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS)
     (I K : Type _) (kdf : KDF I K) : Prop
 
-/-- Extended peer authentication: `PeerAuth` plus agreement over
-the post-quantum signed prekey (PQSPK / KEM public key).
-
+/-- Theorem 6, §5.3.2 p. 480: Extended peer authentication — `PeerAuth` plus
+agreement over the post-quantum signed prekey (PQSPK / KEM public key).
 Standard `PeerAuth` (Theorem 2) does NOT guarantee PQSPK agreement.
 A malicious server could substitute PQSPK without detection (the
 re-encapsulation attack). This stronger property requires the
@@ -405,8 +402,9 @@ theorem PeerAuthPQ_implies_PeerAuth
     PeerAuth G PK SK_kem CT SS kem I K kdf := by
   sorry
 
-/-- Forward secrecy: even if all long-term identity keys (IKₐ, IKᵦ)
-are compromised **after** a session completes, the session key
+/-- §2.4, p. 472 "Forward secrecy" and Theorem 1, §5.2 p. 479:
+Forward secrecy — even if all long-term identity keys (IKₐ, IKᵦ)
+are compromised after a session completes, the session key
 remains indistinguishable from random.
 
 This holds because the session key depends on ephemeral keys (EKₐ)
@@ -419,11 +417,12 @@ completes do not violate freshness. -/
 opaque ForwardSecrecy (G : Type _) [AddCommGroup G]
     (I K : Type _) (kdf : KDF I K) : Prop
 
-/-- Resistance to Key Compromise Impersonation (KCI).
+/-- §2.4, p. 472 "Resistance to key compromise impersonation" and Theorem 1, §5.2 p. 479:
+Resistance to Key Compromise Impersonation (KCI).
 
 If Alice's long-term identity key ikₐ is compromised, an attacker
 can impersonate Alice to others (since they have her signing key).
-However, the attacker **cannot** impersonate *Bob to Alice* — Alice
+However, the attacker cannot impersonate Bob to Alice — Alice
 can still authenticate Bob, because authenticating Bob requires
 Bob's identity key ikᵦ (via DH2), which the attacker does not have.
 
@@ -435,7 +434,8 @@ does not violate freshness (only `Corrupt(Alice) ∧ Corrupt(Bob)`
 before completion violates freshness). -/
 opaque KCI_Resistance (G : Type _) [AddCommGroup G] : Prop
 
-/-- Session independence: the session key of one session is
+/-- §2.4, p. 472 "Session independence" and Theorem 1, §5.2 p. 479:
+Session independence — the session key of one session is
 independent of all other session keys.
 
 Compromise of a session key SK_i (via `RevealSessionKey`) does not
@@ -448,7 +448,8 @@ cannot distinguish the test session's key from random. -/
 opaque SessionIndependence (G : Type _) [AddCommGroup G]
     (I K : Type _) (kdf : KDF I K) : Prop
 
-/-- Harvest-Now-Decrypt-Later (HNDL) resistance.
+/-- §2.4, p. 472 "HNDL protection" and Theorem 3, §5.2 p. 479:
+Harvest-Now-Decrypt-Later (HNDL) resistance.
 
 A *passive* quantum adversary who records all ciphertexts today
 (including DH public keys and KEM ciphertexts) cannot recover

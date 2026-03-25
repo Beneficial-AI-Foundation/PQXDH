@@ -101,6 +101,12 @@ then Alice and Bob derive the same PQXDH session key.
 :::proof "PQXDH-agree"
 By substitution of key generation equations, DH commutativity,
 and the KEM encaps/decaps consistency hypothesis.
+
+```
+subst hIKₐ; subst hEKₐ; subst hIKᵦ; subst hSPKᵦ; subst hOPKᵦ; subst hBundle
+simp only [PQXDH_SK_Alice, PQXDH_SK_Bob, PQXDH_Alice, PQXDH_Bob,
+           DH_comm, hEncaps, hDecaps]
+```
 :::
 
 # Theorem 1 — Symbolic security (ProVerif)
@@ -119,6 +125,10 @@ In the Dolev-Yao model, PQXDH provides:
 
 :::proof "PQXDH-symbolic-security"
 ProVerif verification of correspondence assertions (Theorems 7, 8, 9 in the paper appendix).
+
+```
+sorry  -- Computational reduction verified by ProVerif
+```
 :::
 
 # Theorem 2 — Classical computational security (CryptoVerif)
@@ -134,6 +144,10 @@ Note: this does NOT guarantee agreement over PQSPK (see Theorem 6).
 
 :::proof "PQXDH-classical-security"
 CryptoVerif game-based reduction.
+
+```
+sorry  -- Computational reduction verified by CryptoVerif
+```
 :::
 
 # Theorem 3 — Post-quantum computational security (CryptoVerif)
@@ -151,6 +165,10 @@ even if DH is broken later. No DH assumption is required.
 CryptoVerif game-based reduction. The `HeldAtExchange` wrapper
 reflects that the signature scheme only needs to have been secure
 when the session was established.
+
+```
+sorry  -- Computational reduction verified by CryptoVerif
+```
 :::
 
 # Theorem 5 — Kyber is SH-CR (§4)
@@ -163,6 +181,10 @@ under the Random Oracle Model for its internal hash functions.
 :::proof "Kyber-SH-CR"
 Reduction to collision/preimage resistance of Kyber's internal
 hash functions under the ROM assumption.
+
+```
+sorry  -- Reduction verified by CryptoVerif
+```
 :::
 
 # Theorem 6 — KEM public key agreement (§4)
@@ -176,4 +198,8 @@ This strengthens Theorem 2's PeerAuth to {uses "PeerAuthPQ-implies-PeerAuth"}[Pe
 :::proof "PQXDH-KEM-pubkey-agreement"
 By combining {uses "PQXDH-classical-security"}[Theorem 2's] authentication
 with {uses "Kyber-SH-CR"}[SH-CR] to additionally bind PQSPK.
+
+```
+sorry  -- Computational reduction verified by CryptoVerif
+```
 :::

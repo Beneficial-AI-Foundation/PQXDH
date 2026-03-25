@@ -152,6 +152,10 @@ PeerAuthPQ implies PeerAuth: PQSPK agreement is strictly stronger.
 
 :::proof "PeerAuthPQ-implies-PeerAuth"
 PeerAuthPQ adds one more agreed parameter on top of PeerAuth.
+
+```
+sorry  -- Follows from the definitions of PeerAuthPQ and PeerAuth
+```
 :::
 
 :::definition "ForwardSecrecy" (lean := "ForwardSecrecy") (parent := "security_properties")

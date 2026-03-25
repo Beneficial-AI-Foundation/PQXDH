@@ -41,6 +41,10 @@ This is the key property that makes X3DH work: Alice and Bob compute the same sh
 
 :::proof "DH-comm"
 By commutativity of natural number multiplication and the `mul_nsmul'` lemma.
+
+```
+simp only [DH, ← mul_nsmul', Nat.mul_comm]
+```
 :::
 
 :::theorem "DH-assoc" (lean := "DH_assoc") (parent := "dh_properties")
@@ -49,6 +53,10 @@ DH is associative — `DH(a, DH(b, B)) = DH(a * b, B)`.
 
 :::proof "DH-assoc"
 By the `mul_nsmul'` lemma.
+
+```
+simp only [DH, ← mul_nsmul']
+```
 :::
 
 :::theorem "DH-zero" (lean := "DH_zero") (parent := "dh_properties")
@@ -56,7 +64,9 @@ Scalar zero yields the identity element.
 :::
 
 :::proof "DH-zero"
-By `zero_nsmul`.
+```
+exact zero_nsmul B
+```
 :::
 
 :::theorem "DH-one" (lean := "DH_one") (parent := "dh_properties")
@@ -64,7 +74,9 @@ Scalar one is the identity operation.
 :::
 
 :::proof "DH-one"
-By `one_nsmul`.
+```
+exact one_nsmul B
+```
 :::
 
 :::theorem "DH-add" (lean := "DH_add") (parent := "dh_properties")
@@ -72,5 +84,7 @@ DH distributes over scalar addition.
 :::
 
 :::proof "DH-add"
-By `add_nsmul`.
+```
+exact add_nsmul B a b
+```
 :::

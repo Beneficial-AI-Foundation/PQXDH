@@ -59,6 +59,10 @@ Decrypting an honestly encrypted ciphertext with the same key and associated dat
 
 :::proof "AEAD-decrypt-encrypt"
 Follows directly from the `correctness` field of the AEAD structure.
+
+```
+aead.correctness k pt ad
+```
 :::
 
 :::theorem "AEAD-agree" (lean := "AEAD_agree") (parent := "aead_correctness")
@@ -67,4 +71,9 @@ If Alice and Bob share the same session key and associated data, Bob can decrypt
 
 :::proof "AEAD-agree"
 By substitution of equal keys and associated data, then applying `correctness`.
+
+```
+subst h_key; subst h_ad; subst h_enc
+exact aead.correctness k_a pt ad_a
+```
 :::

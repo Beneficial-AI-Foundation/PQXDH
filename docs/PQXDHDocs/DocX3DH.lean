@@ -58,6 +58,11 @@ If all public keys are generated from the same generator, then Alice and Bob com
 
 :::proof "X3DH-agree"
 By substitution of the key generation equations and DH commutativity.
+
+```
+subst hIKₐ; subst hEKₐ; subst hIKᵦ; subst hSPKᵦ; subst hOPKᵦ
+simp only [X3DH_Alice, X3DH_Bob, DH_comm]
+```
 :::
 
 # Session key derivation
@@ -80,6 +85,11 @@ Alice and Bob derive the same session key.
 
 :::proof "X3DH-session-key-agree"
 By {uses "X3DH-agree"}[] and congruence through the KDF.
+
+```
+simp only [X3DH_SK_Alice, X3DH_SK_Bob,
+  X3DH_agree G₀ ikₐ ekₐ ikᵦ spkᵦ opkᵦ hIKₐ hEKₐ hIKᵦ hSPKᵦ hOPKᵦ]
+```
 :::
 
 # Handshake: first authenticated message
@@ -106,4 +116,11 @@ and AEAD correctness.
 
 :::proof "X3DH-handshake-correct"
 By rewriting with {uses "X3DH-session-key-agree"}[] and applying AEAD correctness.
+
+```
+have h_sk := X3DH_session_key_agree kdf G₀
+  ikₐ ekₐ ikᵦ spkᵦ opkᵦ hIKₐ hEKₐ hIKᵦ hSPKᵦ hOPKᵦ
+rw [h_enc, h_sk]
+exact aead.correctness _ msg _
+```
 :::

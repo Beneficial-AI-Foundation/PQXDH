@@ -66,4 +66,8 @@ If encapsulation produces (ct, ss), then decapsulation with the corresponding se
 
 :::proof "KEM-decaps-encaps"
 Follows directly from the `correctness` field of the KEM structure.
+
+```
+kem.correctness pk sk ct ss h
+```
 :::
