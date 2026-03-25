@@ -2,7 +2,7 @@ name: Call Graph
 
 on:
   push:
-    branches: [master]
+    branches: [master, add-callgraph-workflow] # TODO: remove feature branch before merge
   workflow_dispatch:
 
 concurrency:
