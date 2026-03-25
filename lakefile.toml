@@ -15,19 +15,9 @@ scope = "leanprover-community"
 rev = "v4.29.0-rc3"
 
 [[require]]
-name = "verso"
-git = "https://github.com/ejgallego/verso"
-rev = "bp"
+name = "subverso"
+git = "https://github.com/leanprover/subverso.git"
+rev = "no-modules/69981335508430ec0fc09241f535aa353c1e978e"
 
 [[lean_lib]]
 name = "PQXDHLean"
-
-[[lean_lib]]
-name = "PQXDHDocs"
-srcDir = "docs"
-
-[[lean_exe]]
-name = "pqxdhdocs"
-srcDir = "docs"
-root = "PQXDHDocsMain"
-supportInterpreter = true

@@ -12,7 +12,7 @@ Defaults:
   OUTPUT_ROOT = _out/blueprint
 
 Artifacts:
-  - pqxdhdocs (X3DH Protocol documentation)
+  - docs (X3DH Protocol documentation)
 EOF
 }
 
@@ -34,12 +34,17 @@ cd "$(dirname "$0")/.."
 out_root="${1:-_out/blueprint}"
 mkdir -p "$out_root"
 
-echo "[build-blueprint] building pqxdhdocs executable"
-lake build pqxdhdocs
+echo "[build-blueprint] building docs executable"
+lake -d docs build docs
 
 echo "[build-blueprint] generating blueprint -> ${out_root}"
-".lake/build/bin/pqxdhdocs" --output "$out_root"
+"docs/.lake/build/bin/docs" --output "$out_root"
 
 echo "[build-blueprint] done"
 echo "[build-blueprint] output:"
 readlink -f "$out_root"
+echo ""
+echo "To serve the documentation locally:"
+echo "  python3 -m http.server 8080 -d $out_root"
+echo ""
+echo "Then open http://localhost:8080 in your browser."

@@ -1,0 +1,14 @@
+name = "PQXDHDocs"
+defaultTargets = ["PQXDHDocs", "docs"]
+
+[[require]]
+name = "verso"
+git = "https://github.com/ejgallego/verso"
+rev = "bp"
+
+[[lean_lib]]
+name = "PQXDHDocs"
+
+[[lean_exe]]
+name = "docs"
+root = "Main"
