@@ -45,6 +45,10 @@ jobs:
         run: |
           lake build
 
+      - name: Build API docs
+        run: |
+          lake build PQXDHLean:docs
+
       - name: Build Verso docs
         run: |
           lake -d docs build docs
@@ -53,15 +57,52 @@ jobs:
         run: |
           docs/.lake/build/bin/docs --output site
 
-      - name: Add root index redirect
+      - name: Copy API docs to site
         run: |
-          cat > site/index.html << 'REDIRECT'
+          mkdir -p site/api
+          cp -r .lake/build/doc/* site/api/
+
+      - name: Add root landing page
+        run: |
+          cat > site/index.html << 'EOF'
           <!DOCTYPE html>
-          <html>
-          <head><meta http-equiv="refresh" content="0;url=html-multi/"></head>
-          <body><a href="html-multi/">X3DH in Lean Documentation</a></body>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>PQXDH Lean Formalization</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; max-width: 700px; margin: 60px auto; padding: 0 20px; color: #333; line-height: 1.6; }
+              h1 { margin-bottom: 0.3em; }
+              .subtitle { color: #666; margin-top: 0; }
+              .links { list-style: none; padding: 0; margin-top: 2em; }
+              .links li { margin: 1em 0; }
+              .links a { font-size: 1.15em; text-decoration: none; color: #0366d6; }
+              .links a:hover { text-decoration: underline; }
+              .links .desc { display: block; color: #666; font-size: 0.9em; margin-top: 0.2em; }
+            </style>
+          </head>
+          <body>
+            <h1>PQXDH Lean Formalization</h1>
+            <p class="subtitle">Formal verification of the Post-Quantum Extended Diffie-Hellman protocol</p>
+            <ul class="links">
+              <li>
+                <a href="html-multi/">X3DH in Lean &mdash; Documentation</a>
+                <span class="desc">Protocol specification with verified code examples</span>
+              </li>
+              <li>
+                <a href="api/">API Reference</a>
+                <span class="desc">Auto-generated documentation for all definitions and theorems</span>
+              </li>
+              <li>
+                <a href="callgraph/">Call Graph</a>
+                <span class="desc">Interactive dependency and verification status viewer</span>
+              </li>
+            </ul>
+            <p><a href="https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH">Source on GitHub</a></p>
+          </body>
           </html>
-          REDIRECT
+          EOF
 
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4
