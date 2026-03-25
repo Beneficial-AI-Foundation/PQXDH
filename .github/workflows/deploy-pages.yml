@@ -53,6 +53,16 @@ jobs:
         run: |
           docs/.lake/build/bin/docs --output site
 
+      - name: Add root index redirect
+        run: |
+          cat > site/index.html << 'REDIRECT'
+          <!DOCTYPE html>
+          <html>
+          <head><meta http-equiv="refresh" content="0;url=html-multi/"></head>
+          <body><a href="html-multi/">X3DH in Lean Documentation</a></body>
+          </html>
+          REDIRECT
+
       - name: Upload docs artifact
         uses: actions/upload-artifact@v4
         with:
