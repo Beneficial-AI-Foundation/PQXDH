@@ -6,8 +6,6 @@ Author: David Thrane Christiansen
 
 import VersoManual
 
-import PQXDHDocs.Papers
-import PQXDHDocs.DocFeatures
 import PQXDHDocs.DocDH
 import PQXDHDocs.DocKDF
 import PQXDHDocs.DocAEAD
@@ -35,10 +33,10 @@ set_option verso.exampleProject "."
 -- `(module := ...)` argument to most elements that show code.
 set_option verso.exampleModule "PQXDHLean.X3DH"
 
-#doc (Manual) "X3DH in Lean" =>
+#doc (Manual) "PQXDH in Lean" =>
 %%%
 authors := ["Christiano Braga"]
-shortTitle := "X3DH in Lean"
+shortTitle := "PQXDH in Lean"
 %%%
 
 The PQXDH (Post-Quantum Extended Diffie-Hellman) protocol is an extension of X3DH that adds post-quantum
