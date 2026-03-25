@@ -1,15 +1,23 @@
+import Verso
 import VersoManual
+import VersoBlueprint
+import PQXDHLean.KEM
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open Verso.Code.External
-
-set_option verso.exampleProject "."
-set_option verso.exampleModule "PQXDHLean.KEM"
+open Informal
+set_option doc.verso true
+set_option pp.rawOnError true
 
 #doc (Manual) "Key Encapsulation Mechanism" =>
-%%%
-tag := "kem"
-%%%
+
+:::group "kem"
+KEM scheme
+:::
+
+:::group "kem_correctness"
+Correctness properties of KEM.
+:::
 
 A KEM provides a way for two parties to establish a shared secret
 using public-key cryptography. One party encapsulates (producing a
@@ -35,34 +43,27 @@ being sampled internally).
 
 # Structure
 
-The {anchorTerm KEMStructure}`KEM` structure is parameterized by public key type `PK`,
+The `KEM` structure is parameterized by public key type `PK`,
 secret key type `SK_kem`, ciphertext type `CT`, and shared secret type `SS`.
 
 It provides three operations: `encaps` produces a ciphertext and shared secret from a public key,
 `decaps` recovers the shared secret from a ciphertext using the secret key, and the built-in
 `correctness` field guarantees that honest encaps/decaps round-trips successfully.
 
-:::paragraph
-```anchor KEMStructure
+```
 structure KEM (PK SK_kem CT SS : Type _) where
   encaps : PK → CT × SS
   decaps : SK_kem → CT → SS
   correctness : ∀ (pk : PK) (sk : SK_kem) (ct : CT) (ss : SS),
     encaps pk = (ct, ss) → decaps sk ct = ss
 ```
-:::
 
 # Correctness theorem
 
-{anchorTerm KEMDecapsEncaps}`KEM_decaps_encaps`: if encapsulation produces (ct, ss), then
-decapsulation with the corresponding secret key recovers ss.
+:::theorem "KEM-decaps-encaps" (lean := "KEM_decaps_encaps") (parent := "kem_correctness")
+If encapsulation produces (ct, ss), then decapsulation with the corresponding secret key recovers ss.
+:::
 
-:::paragraph
-```anchor KEMDecapsEncaps
-theorem KEM_decaps_encaps {PK SK_kem CT SS : Type _} (kem : KEM PK SK_kem CT SS)
-    (pk : PK) (sk : SK_kem) (ct : CT) (ss : SS)
-    (h : kem.encaps pk = (ct, ss)) :
-    kem.decaps sk ct = ss :=
-  kem.correctness pk sk ct ss h
-```
+:::proof "KEM-decaps-encaps"
+Follows directly from the `correctness` field of the KEM structure.
 :::

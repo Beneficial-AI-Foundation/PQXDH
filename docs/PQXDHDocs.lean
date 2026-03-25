@@ -6,3 +6,5 @@ import PQXDHDocs.DocKDF
 import PQXDHDocs.DocAEAD
 import PQXDHDocs.DocKEM
 import PQXDHDocs.DocX3DH
+import PQXDHDocs.DocSecurityDefs
+import PQXDHDocs.DocPQXDH

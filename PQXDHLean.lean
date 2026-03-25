@@ -4,6 +4,5 @@ import PQXDHLean.AEAD
 import PQXDHLean.KEM
 import PQXDHLean.X3DH
 import PQXDHLean.Examples.X3DHExample
-import PQXDHLean.MainResult.SecurityDefs
-import PQXDHLean.MainResult.PQXDH
-import PQXDHLean.MainResult.MainTheorems
+import PQXDHLean.SecurityDefs
+import PQXDHLean.PQXDH

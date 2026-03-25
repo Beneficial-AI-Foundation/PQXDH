@@ -5,33 +5,23 @@ Author: David Thrane Christiansen
 -/
 
 import VersoManual
+import VersoBlueprint
 
 import PQXDHDocs.DocDH
 import PQXDHDocs.DocKDF
 import PQXDHDocs.DocAEAD
 import PQXDHDocs.DocKEM
 import PQXDHDocs.DocX3DH
+import PQXDHDocs.DocSecurityDefs
+import PQXDHDocs.DocPQXDH
 
--- This gets access to most of the manual genre
 open Verso.Genre Manual
-
--- This gets access to Lean code that's in code blocks, elaborated in the same process and
--- environment as Verso. Here, they're used to have the text refer to Verso code used in the text's
--- own source.
 open Verso.Genre.Manual.InlineLean
-
--- This gets access to tools for showing Lean code that's loaded from external modules.
 open Verso.Code.External
+open Informal
 
+set_option doc.verso true
 set_option pp.rawOnError true
-
--- This is the source of code examples to be shown in the document. It should be relative to the
--- current Lake workspace.
-set_option verso.exampleProject "."
-
--- This is the module that will be consulted for example code. It can be overridden using the
--- `(module := ...)` argument to most elements that show code.
-set_option verso.exampleModule "PQXDHLean.X3DH"
 
 #doc (Manual) "PQXDH in Lean" =>
 %%%
@@ -40,16 +30,17 @@ shortTitle := "PQXDH in Lean"
 %%%
 
 The PQXDH (Post-Quantum Extended Diffie-Hellman) protocol is an extension of X3DH that adds post-quantum
-resistance via a Key Encapsulation Mechanism (KEM). In the current state of this formalization we focus
-on X3DH, as it is a central component of PQXDH: X3DH provides the classical Diffie-Hellman core on top
-of which the post-quantum KEM layer is composed. Understanding and verifying X3DH first is therefore
-a necessary stepping stone toward the full PQXDH protocol.
+resistance via a Key Encapsulation Mechanism (KEM). This formalization covers both the X3DH classical
+core and the full PQXDH protocol with its post-quantum KEM layer, following the description in
+[Bhargavan et al.](https://www.usenix.org/system/files/usenixsecurity24-bhargavan.pdf) (USENIX Security 2024).
 
-This is an initial specification — not a complete formalization.
-We declare algebraic (dependent-typed) signatures for the main components of the protocol.
-There is no attacker model, and no security properties are stated or proved.
-The main purpose is to show how the protocol can be specified in a way that is close to the description
-in [Bhargavan et al.](https://www.usenix.org/system/files/usenixsecurity24-bhargavan.pdf), and to show how the different components (DH, KDF, AEAD) fit together.
+The formalization includes:
+- Abstract algebraic definitions for the cryptographic primitives (DH, KDF, AEAD, KEM).
+- The X3DH protocol with its functional correctness and handshake theorems.
+- The full PQXDH protocol extending X3DH with a KEM component.
+- Security definitions: adversary models, hardness assumptions, and protocol properties.
+- The main security theorems (Theorems 1–3, 5–6) from the paper, stated with their
+  cryptographic hypotheses.
 
 The source code is available on [GitHub](https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH/tree/christiano/pqxdh).
 
@@ -58,3 +49,9 @@ The source code is available on [GitHub](https://github.com/Beneficial-AI-Founda
 {include 1 PQXDHDocs.DocAEAD}
 {include 1 PQXDHDocs.DocKEM}
 {include 1 PQXDHDocs.DocX3DH}
+{include 1 PQXDHDocs.DocSecurityDefs}
+{include 1 PQXDHDocs.DocPQXDH}
+
+{blueprint_graph}
+
+{bp_summary}

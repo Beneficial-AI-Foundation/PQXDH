@@ -1,15 +1,23 @@
+import Verso
 import VersoManual
+import VersoBlueprint
+import PQXDHLean.DH
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open Verso.Code.External
-
-set_option verso.exampleProject "."
-set_option verso.exampleModule "PQXDHLean.DH"
+open Informal
+set_option doc.verso true
+set_option pp.rawOnError true
 
 #doc (Manual) "Diffie-Hellman" =>
-%%%
-tag := "dh"
-%%%
+
+:::group "dh"
+Diffie-Hellman
+:::
+
+:::group "dh_properties"
+Core algebraic properties of DH.
+:::
 
 Abstract Diffie-Hellman over any additive commutative group.
 
@@ -20,61 +28,49 @@ mentioned. Protocol proofs (X3DH, PQXDH) import only this file.
 
 # Definition
 
-{anchorTerm DHDef}`DH` is defined as scalar multiplication `a • B` in an additive commutative group:
-
-:::paragraph
-```anchor DHDef
-noncomputable def DH (a : ℕ) (B : G) : G := a • B
-```
+:::definition "DH" (lean := "DH") (parent := "dh")
+`DH` is defined as scalar multiplication `a • B` in an additive commutative group.
 :::
 
 # Core properties
 
-{anchorTerm DHComm}`DH_comm`: DH is commutative — DH(a, DH(b, P)) = DH(b, DH(a, P)).
+:::theorem "DH-comm" (lean := "DH_comm") (parent := "dh_properties")
+DH is commutative — DH(a, DH(b, P)) = DH(b, DH(a, P)).
 This is the key property that makes X3DH work: Alice and Bob compute the same shared secrets.
-
-:::paragraph
-```anchor DHComm
-theorem DH_comm (a b : ℕ) (P : G) :
-    DH a (DH b P) = DH b (DH a P) := by
-  simp only [DH, ← mul_nsmul', Nat.mul_comm]
-```
 :::
 
-{anchorTerm DHAssoc}`DH_assoc`: DH is associative — `DH(a, DH(b, B)) = DH(a * b, B)`.
-
-:::paragraph
-```anchor DHAssoc
-theorem DH_assoc (a b : ℕ) (B : G) :
-    DH a (DH b B) = DH (a * b) B := by
-  simp only [DH, ← mul_nsmul']
-```
+:::proof "DH-comm"
+By commutativity of natural number multiplication and the `mul_nsmul'` lemma.
 :::
 
-{anchorTerm DHZero}`DH_zero`: scalar zero yields the identity element.
-
-:::paragraph
-```anchor DHZero
-theorem DH_zero (B : G) : DH 0 B = (0 : G) := by
-  exact zero_nsmul B
-```
+:::theorem "DH-assoc" (lean := "DH_assoc") (parent := "dh_properties")
+DH is associative — `DH(a, DH(b, B)) = DH(a * b, B)`.
 :::
 
-{anchorTerm DHOne}`DH_one`: scalar one is the identity operation.
-
-:::paragraph
-```anchor DHOne
-theorem DH_one (B : G) : DH 1 B = B := by
-  exact one_nsmul B
-```
+:::proof "DH-assoc"
+By the `mul_nsmul'` lemma.
 :::
 
-{anchorTerm DHAdd}`DH_add`: DH distributes over scalar addition.
+:::theorem "DH-zero" (lean := "DH_zero") (parent := "dh_properties")
+Scalar zero yields the identity element.
+:::
 
-:::paragraph
-```anchor DHAdd
-theorem DH_add (a b : ℕ) (B : G) :
-    DH (a + b) B = DH a B + DH b B := by
-  exact add_nsmul B a b
-```
+:::proof "DH-zero"
+By `zero_nsmul`.
+:::
+
+:::theorem "DH-one" (lean := "DH_one") (parent := "dh_properties")
+Scalar one is the identity operation.
+:::
+
+:::proof "DH-one"
+By `one_nsmul`.
+:::
+
+:::theorem "DH-add" (lean := "DH_add") (parent := "dh_properties")
+DH distributes over scalar addition.
+:::
+
+:::proof "DH-add"
+By `add_nsmul`.
 :::

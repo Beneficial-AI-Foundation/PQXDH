@@ -6,6 +6,10 @@ name = "verso"
 git = "https://github.com/ejgallego/verso"
 rev = "bp"
 
+[[require]]
+name = "PQXDH-lean"
+path = ".."
+
 [[lean_lib]]
 name = "PQXDHDocs"
 
