@@ -67,112 +67,135 @@ a `Bool` guess: true = "real key", false = "random key". -/
 abbrev PassiveAdversary (G SK : Type) :=
   G → G → G → G → G → SK → OracleComp (KDFOracle (G × G × G × G) SK) Bool
 
-/-! ## Passive secrecy game
+/-! ## Passive secrecy games (two-game formulation)
 
-The challenger runs a full X3DH session, queries the KDF oracle
-to derive the session key, then challenges the adversary with
-either the real key or a random one. -/
+Instead of a single game with a hidden coin flip, we define two
+games — real and random — and measure the adversary's ability to
+distinguish between them:
 
-/-- Passive X3DH secrecy game under the ROM. The KDF is an oracle
-`(G × G × G × G) →ₒ SK` implemented by `randomOracle`. -/
-def passiveSecrecyGame
+- **Real game**: adversary receives the actual session key (from ROM)
+- **Random game**: adversary receives a uniformly random key
+
+The advantage is `|Pr[true | real] - Pr[true | rand]|`. -/
+
+/-- Real game: adversary receives the actual X3DH session key. -/
+def passiveReal
     (g : G)
     (adv : PassiveAdversary G SK) :
     OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
-  -- Sample all private keys
   let ikₐ ← $ᵗ F; let ekₐ ← $ᵗ F
   let ikᵦ ← $ᵗ F; let spkᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
-  -- Compute public keys
   let IKₐ := ikₐ • g; let EKₐ := ekₐ • g
   let IKᵦ := ikᵦ • g; let SPKᵦ := spkᵦ • g; let OPKᵦ := opkᵦ • g
-  -- Compute DH tuple via X3DH
   let dh := X3DH_Alice ikₐ ekₐ IKᵦ SPKᵦ (some OPKᵦ)
-  -- Query KDF oracle (random oracle) to get session key
-  let sk_real ← query (spec := unifSpec + KDFOracle (G × G × G × G) SK) (Sum.inr dh)
-  -- Sample random session key
-  let sk_rand ← $ᵗ SK
-  -- Challenge: flip bit, present real or random
-  let b ← $ᵗ Bool
-  let sk_challenge := if b then sk_real else sk_rand
-  -- Adversary guesses (with ROM access)
-  let b' ← adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk_challenge
-  return (b == b')
+  let sk ← query (spec := unifSpec + KDFOracle (G × G × G × G) SK) (Sum.inr dh)
+  adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
 
-/-! ## Executing the game
+/-- Random game: adversary receives a uniformly random key. -/
+def passiveRand
+    (g : G)
+    (adv : PassiveAdversary G SK) :
+    OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
+  let ikₐ ← $ᵗ F; let ekₐ ← $ᵗ F
+  let ikᵦ ← $ᵗ F; let spkᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
+  let IKₐ := ikₐ • g; let EKₐ := ekₐ • g
+  let IKᵦ := ikᵦ • g; let SPKᵦ := spkᵦ • g; let OPKᵦ := opkᵦ • g
+  let sk ← $ᵗ SK
+  adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
+
+/-! ## Executing the games
 
 To compute probabilities, the KDF oracle must be implemented.
 We use `randomOracle` (lazy cached uniform sampling) and run
 the result via `StateT.run'` with an empty initial cache. -/
 
-/-- Execute the passive secrecy game: implement the KDF oracle
-as a random oracle and discard the cache state. -/
-noncomputable def execPassiveSecrecyGame
-    (g : G)
-    (adv : PassiveAdversary G SK) : ProbComp Bool :=
+/-- Execute an oracle computation with ROM for the KDF. -/
+noncomputable def execWithROM
+    (comp : OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool) :
+    ProbComp Bool :=
   let ro : QueryImpl (KDFOracle (G × G × G × G) SK)
     (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp) := randomOracle
   let idImpl := (QueryImpl.ofLift unifSpec ProbComp).liftTarget
     (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp)
-  StateT.run' (simulateQ (idImpl + ro) (passiveSecrecyGame (F := F) g adv)) ∅
+  StateT.run' (simulateQ (idImpl + ro) comp) ∅
 
-/-! ## Advantage -/
+/-! ## Advantage
 
-/-- Passive secrecy advantage under the ROM. -/
+The advantage is `|Pr[true | real] - Pr[true | rand]|`,
+using VCV-io's `boolDistAdvantage`. -/
+
+/-- Passive secrecy advantage under the ROM (two-game formulation). -/
 noncomputable def passiveSecrecyAdvantage
     (g : G)
     (adv : PassiveAdversary G SK) : ℝ :=
-  (execPassiveSecrecyGame (F := F) g adv).boolBiasAdvantage
+  ProbComp.boolDistAdvantage
+    (execWithROM (passiveReal (F := F) g adv))
+    (execWithROM (passiveRand (F := F) g adv))
 
 /-! ## DDH reduction
 
-The reduction builds a DDH adversary from a passive X3DH adversary.
-It receives the DDH challenge `(g, EKₐ, SPKᵦ, T)`, embeds T as DH3,
-queries the KDF oracle on the resulting DH tuple, and forwards the
-passive adversary's guess.
+The reduction receives the DDH challenge `(g, EKₐ, SPKᵦ, T)`,
+embeds T as DH3, queries the ROM on the resulting DH tuple to
+get a session key, and passes it directly to the adversary.
 
-The reduction has ROM access (it queries the KDF oracle), so it
-returns `OracleComp (KDFOracle ...) Bool` — matching VCV-io's
-`DDHAdversary` after oracle execution. -/
+No internal coin flip — the DDH experiment's own bit handles
+the real/random branching. The reduction simply forwards the
+adversary's guess. -/
 
-/-- DDH reduction: embed DDH challenge as DH3 in an X3DH session. -/
-def ddhReduction
+/-- DDH reduction: embed DDH challenge as DH3, pass ROM output
+to the adversary, return the adversary's guess directly. -/
+noncomputable def ddhReduction
     (adv : PassiveAdversary G SK) :
     DiffieHellman.DDHAdversary F G :=
   fun g EKₐ SPKᵦ T =>
-    -- The reduction runs passiveSecrecyGame-like logic internally,
-    -- executing the KDF ROM via simulateQ inside ProbComp.
     let inner : OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
-      -- Sample remaining private keys
       let ikₐ ← $ᵗ F; let ikᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
-      -- Compute remaining public keys
       let IKₐ := ikₐ • g; let IKᵦ := ikᵦ • g; let OPKᵦ := opkᵦ • g
-      -- Build DH tuple: T replaces DH3
       let dh := (ikₐ • SPKᵦ, ikᵦ • EKₐ, T, opkᵦ • EKₐ)
-      -- Query ROM to hash DH tuple to session key
       let sk ← query (spec := unifSpec + KDFOracle (G × G × G × G) SK)
                   (Sum.inr dh)
-      -- Challenge
-      let sk_rand ← $ᵗ SK
-      let b ← $ᵗ Bool
-      let sk_challenge := if b then sk else sk_rand
-      let b' ← adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk_challenge
-      return (b == b')
-    -- Execute with ROM, producing ProbComp Bool
-    let ro : QueryImpl (KDFOracle (G × G × G × G) SK)
-      (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp) := randomOracle
-    let idImpl := (QueryImpl.ofLift unifSpec ProbComp).liftTarget
-      (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp)
-    StateT.run' (simulateQ (idImpl + ro) inner) ∅
+      -- No coin flip: pass sk directly, return adversary's guess
+      adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
+    execWithROM inner
 
 /-! ## Security theorem
 
-X3DH passive message secrecy is at least as hard as DDH
-under the Random Oracle Model for the KDF. -/
+X3DH passive message secrecy is at least as hard as DDH under
+the Random Oracle Model for the KDF.
+
+The bound is tight (no factor of 2) because:
+- DDH real branch: T = (ekₐ*spkᵦ)•g → reduction simulates `passiveReal`
+- DDH random branch: T = c•g → ROM of random input = random → simulates `passiveRand`
+
+So `passiveSecrecyAdvantage = ddhDistAdvantage(reduction)`. -/
 
 /-- X3DH passive secrecy reduces to DDH under the ROM. -/
 theorem passive_secrecy_le_ddh
     (g : G)
     (adv : PassiveAdversary G SK) :
     passiveSecrecyAdvantage (F := F) g adv ≤
-    (DiffieHellman.ddhExp (F := F) g (ddhReduction adv)).boolBiasAdvantage := by
+    ProbComp.boolDistAdvantage
+      (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv))
+      (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) := by
+  -- Step 1: unfold the LHS to expose the two games
+  unfold passiveSecrecyAdvantage
+  -- Goal is now:
+  -- boolDistAdvantage (execWithROM (passiveReal g adv))
+  --                   (execWithROM (passiveRand g adv))
+  -- ≤ boolDistAdvantage (ddhExpReal g (ddhReduction adv))
+  --                     (ddhExpRand g (ddhReduction adv))
+  --
+  -- We need to show these two pairs of games have the same distributions.
+  -- Suffices to show:
+  --   execWithROM (passiveReal g adv) = ddhExpReal g (ddhReduction adv)
+  --   execWithROM (passiveRand g adv) = ddhExpRand g (ddhReduction adv)
+  -- (as probability distributions)
+  -- It suffices to show equality of the two distribution pairs
+  suffices h : ProbComp.boolDistAdvantage
+      (execWithROM (passiveReal (F := F) g adv))
+      (execWithROM (passiveRand (F := F) g adv)) =
+    ProbComp.boolDistAdvantage
+      (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv))
+      (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) by
+    linarith
   sorry
