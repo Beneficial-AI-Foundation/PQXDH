@@ -31,8 +31,8 @@ so all `Module` lemmas apply directly without unfolding.
 Because `DH` is an `abbrev`, these properties are not declared as
 separate theorems — they follow directly from the `Module F G` API:
 
-- **Commutativity**: `DH(a, DH(b, P)) = DH(b, DH(a, P))` — via `smul_smul` + `mul_comm`
-- **Associativity**: `DH(a, DH(b, B)) = DH(a * b, B)` — via `mul_smul`
-- **Zero**: `DH(0, B) = 0` — via `zero_smul`
-- **One**: `DH(1, B) = B` — via `one_smul`
-- **Addition**: `DH(a + b, B) = DH(a, B) + DH(b, B)` — via `add_smul`
+- *Commutativity*: `DH(a, DH(b, P)) = DH(b, DH(a, P))` — via `smul_smul` + `mul_comm`
+- *Associativity*: `DH(a, DH(b, B)) = DH(a * b, B)` — via `mul_smul`
+- *Zero*: `DH(0, B) = 0` — via `zero_smul`
+- *One*: `DH(1, B) = B` — via `one_smul`
+- *Addition*: `DH(a + b, B) = DH(a, B) + DH(b, B)` — via `add_smul`

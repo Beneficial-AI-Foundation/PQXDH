@@ -21,6 +21,6 @@ DH outputs and the result is the session key SK.
 
 # Structure
 
-:::definition "KDF" (lean := "KDF") (parent := "kdf")
+:::definition "KDF" (parent := "kdf")
 `KDF I K` has a single field `derive : I → K`.
 :::
