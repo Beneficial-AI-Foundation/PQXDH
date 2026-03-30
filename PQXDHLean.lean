@@ -1,6 +1,6 @@
 import PQXDHLean.X3DH.DH
 import PQXDHLean.X3DH.X3DH
-import PQXDHLean.X3DH.X3DHSecurityProperties
+import PQXDHLean.X3DH.X3DHPassiveMessageSecrecy
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM
