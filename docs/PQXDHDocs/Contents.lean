@@ -29,20 +29,13 @@ authors := ["Christiano Braga"]
 shortTitle := "PQXDH in Lean"
 %%%
 
-The PQXDH (Post-Quantum Extended Diffie-Hellman) protocol is an extension of X3DH that adds post-quantum
-resistance via a Key Encapsulation Mechanism (KEM). This formalization covers both the X3DH classical
-core and the full PQXDH protocol with its post-quantum KEM layer, following the description in
-[Bhargavan et al.](https://www.usenix.org/system/files/usenixsecurity24-bhargavan.pdf) (USENIX Security 2024).
+A Lean 4 formalization of Signal's X3DH and PQXDH key agreement protocols,
+following Bhargavan et al. (USENIX Security 2024).
 
-The formalization includes:
-- Abstract algebraic definitions for the cryptographic primitives (DH, KDF, AEAD, KEM).
-- The X3DH protocol with its functional correctness and handshake theorems.
-- The full PQXDH protocol extending X3DH with a KEM component.
-- Security definitions: adversary models, hardness assumptions, and protocol properties.
-- The main security theorems (Theorems 1–3, 5–6) from the paper, stated with their
-  cryptographic hypotheses.
+The formalization uses Mathlib's `Module F G` for Diffie-Hellman and
+VCV-io for security game definitions (DDH, advantage bounds).
 
-The source code is available on [GitHub](https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH/tree/christiano/pqxdh).
+The source code is available on [GitHub](https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH/).
 
 {include 1 PQXDHDocs.DocDH}
 {include 1 PQXDHDocs.DocKDF}

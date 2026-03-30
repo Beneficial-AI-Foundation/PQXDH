@@ -35,7 +35,7 @@ The paper uses two complementary verification approaches:
   - Computational model (CryptoVerif): game-based reductions,
     advantage bounds, concrete assumptions on primitives.
 -/
-import PQXDHLean.DH.DH
+import PQXDHLean.X3DH.DH
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM

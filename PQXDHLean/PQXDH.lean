@@ -43,7 +43,7 @@ hypotheses. Proofs are `sorry` — they correspond to computational
 reductions machine-checked in CryptoVerif and symbolic analyses
 machine-checked in ProVerif by the paper authors.
 -/
-import PQXDHLean.DH.DH
+import PQXDHLean.X3DH.DH
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM
