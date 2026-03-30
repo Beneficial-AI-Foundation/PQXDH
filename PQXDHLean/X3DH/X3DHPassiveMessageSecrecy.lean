@@ -78,30 +78,39 @@ distinguish between them:
 
 The advantage is `|Pr[true | real] - Pr[true | rand]|`. -/
 
-/-- Real game: adversary receives the actual X3DH session key. -/
-def passiveReal
+/-- Common game structure: sample keys, compute public values and
+DH tuple, obtain a session key via `getSK`, and pass it to the
+adversary. The real and random games differ only in `getSK`:
+  - Real: `getSK` queries the ROM on the DH tuple
+  - Random: `getSK` samples uniformly, ignoring the DH tuple -/
+private def passiveGame
     (g : G)
-    (adv : PassiveAdversary G SK) :
+    (adv : PassiveAdversary G SK)
+    (getSK : (G × G × G × G) →
+             OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) SK) :
     OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
   let ikₐ ← $ᵗ F; let ekₐ ← $ᵗ F
   let ikᵦ ← $ᵗ F; let spkᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
   let IKₐ := ikₐ • g; let EKₐ := ekₐ • g
   let IKᵦ := ikᵦ • g; let SPKᵦ := spkᵦ • g; let OPKᵦ := opkᵦ • g
   let dh := X3DH_Alice ikₐ ekₐ IKᵦ SPKᵦ (some OPKᵦ)
-  let sk ← query (spec := unifSpec + KDFOracle (G × G × G × G) SK) (Sum.inr dh)
+  let sk ← getSK dh
   adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
 
-/-- Random game: adversary receives a uniformly random key. -/
+/-- Real game: session key from ROM applied to the X3DH DH tuple. -/
+def passiveReal
+    (g : G)
+    (adv : PassiveAdversary G SK) :
+    OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool :=
+  passiveGame (F := F) g adv fun dh =>
+    query (spec := unifSpec + KDFOracle (G × G × G × G) SK) (Sum.inr dh)
+
+/-- Random game: session key sampled uniformly at random. -/
 def passiveRand
     (g : G)
     (adv : PassiveAdversary G SK) :
-    OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
-  let ikₐ ← $ᵗ F; let ekₐ ← $ᵗ F
-  let ikᵦ ← $ᵗ F; let spkᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
-  let IKₐ := ikₐ • g; let EKₐ := ekₐ • g
-  let IKᵦ := ikᵦ • g; let SPKᵦ := spkᵦ • g; let OPKᵦ := opkᵦ • g
-  let sk ← $ᵗ SK
-  adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
+    OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool :=
+  passiveGame (F := F) g adv fun _ => $ᵗ SK
 
 /-! ## Executing the games
 
@@ -119,10 +128,20 @@ noncomputable def execWithROM
     (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp)
   StateT.run' (simulateQ (idImpl + ro) comp) ∅
 
-/-! ## Advantage
+/-! ## Advantage (two-game formulation)
 
-The advantage is `|Pr[true | real] - Pr[true | rand]|`,
-using VCV-io's `boolDistAdvantage`. -/
+Given two `ProbComp Bool` games `p` (real) and `q` (random),
+`ProbComp.boolDistAdvantage p q = |Pr[true | p] - Pr[true | q]|`.
+
+This measures how much the adversary's behavior changes between
+the two games:
+  - Advantage = 0 means the adversary cannot distinguish them.
+  - Advantage = 1 means the adversary always tells them apart.
+
+This is the standard cryptographic definition of distinguishing
+advantage. It avoids the factor-of-2 issue that arises in the
+single-game formulation (where a hidden coin flip selects between
+real and random within one experiment). -/
 
 /-- Passive secrecy advantage under the ROM (two-game formulation). -/
 noncomputable def passiveSecrecyAdvantage
