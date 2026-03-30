@@ -1,9 +1,9 @@
-import PQXDHLean.DH.DH
-import PQXDHLean.DH.DHSecurityProperties
+import PQXDHLean.X3DH.DH
+import PQXDHLean.X3DH.X3DH
+import PQXDHLean.X3DH.X3DHSecurityProperties
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM
-import PQXDHLean.X3DH
 import PQXDHLean.Examples.X3DHExample
 import PQXDHLean.SecurityDefs
 import PQXDHLean.PQXDH
