@@ -189,14 +189,14 @@ The only difference is the order of sampling, which doesn't
 affect the joint distribution of independent uniform draws. -/
 
 /-- The real passive game equals the DDH real game with the reduction. -/
-theorem passiveReal_eq_ddhExpReal
+private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execWithROM (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
   sorry
 
 /-- The random passive game equals the DDH random game with the reduction. -/
-theorem passiveRand_eq_ddhExpRand
+private lemma passiveRand_eq_ddhExpRand
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execWithROM (passiveRand (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) := by
