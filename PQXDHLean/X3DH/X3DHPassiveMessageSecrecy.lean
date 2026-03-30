@@ -188,14 +188,42 @@ random key, and call the adversary with the same values.
 The only difference is the order of sampling, which doesn't
 affect the joint distribution of independent uniform draws. -/
 
-/-- The real passive game equals the DDH real game with the reduction. -/
+/-- The real passive game equals the DDH real game with the reduction.
+
+LHS samples (ikₐ, ekₐ, ikᵦ, spkᵦ, opkᵦ) and computes:
+  dh = (ikₐ•(spkᵦ•g), ekₐ•(ikᵦ•g), ekₐ•(spkᵦ•g), ekₐ•(opkᵦ•g))
+
+RHS samples (a, b) then (ikₐ, ikᵦ, opkᵦ) and computes:
+  dh = (ikₐ•(b•g), ikᵦ•(a•g), (a*b)•g, opkᵦ•(a•g))
+
+With a = ekₐ, b = spkᵦ these are equal by `smul_smul` + `mul_comm`.
+The proof requires:
+  1. Sampling order independence: 5 independent uniform draws produce
+     the same joint distribution regardless of order.
+  2. Algebraic equality: ekₐ•(spkᵦ•g) = (ekₐ*spkᵦ)•g by `smul_smul`. -/
 private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execWithROM (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
   sorry
 
-/-- The random passive game equals the DDH random game with the reduction. -/
+/-- The random passive game equals the DDH random game with the reduction.
+
+LHS samples (ikₐ, ekₐ, ikᵦ, spkᵦ, opkᵦ), ignores the DH tuple, and
+samples sk ← $ᵗ SK independently.
+
+RHS samples (a, b, c) then (ikₐ, ikᵦ, opkᵦ), computes
+  dh = (ikₐ•(b•g), ikᵦ•(a•g), c•g, opkᵦ•(a•g)),
+queries ROM(dh) to get sk.
+
+Under the ROM, querying on a fresh input (containing the random c•g
+that appears nowhere else) produces a uniformly random output,
+identical in distribution to $ᵗ SK.
+
+The proof requires:
+  1. Same sampling order independence as the real case.
+  2. ROM freshness: if the DH tuple contains a component (c•g) that
+     is independent of all other values, the ROM output is uniform. -/
 private lemma passiveRand_eq_ddhExpRand
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execWithROM (passiveRand (F := F) g adv)) =
