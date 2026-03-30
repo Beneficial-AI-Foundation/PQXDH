@@ -1,4 +1,5 @@
-import PQXDHLean.DH
+import PQXDHLean.DH.DH
+import PQXDHLean.DH.DHSecurityProperties
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM

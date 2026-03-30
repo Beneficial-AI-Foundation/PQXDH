@@ -35,7 +35,7 @@ The paper uses two complementary verification approaches:
   - Computational model (CryptoVerif): game-based reductions,
     advantage bounds, concrete assumptions on primitives.
 -/
-import PQXDHLean.DH
+import PQXDHLean.DH.DH
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM
@@ -158,7 +158,7 @@ internally. The concrete group is X25519 (Curve25519).
 
 Security means: no efficient adversary computes the answer with
 non-negligible probability. -/
-opaque GapDH_Hard (G : Type _) [AddCommGroup G] (gen : G) : Prop
+opaque GapDH_Hard (G : Type _) [AddCommGroup G] (_gen : G) : Prop
 
 /-- §2.5, p. 472, assumption 1.B: the KEM is IND-CCA (indistinguishable under
 chosen-ciphertext attack). "Or the PQ-KEM (Kyber1024) is IND-CCA".
