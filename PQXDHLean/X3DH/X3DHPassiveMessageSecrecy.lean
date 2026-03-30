@@ -177,6 +177,31 @@ noncomputable def ddhReduction
       adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
     execWithROM inner
 
+/-! ## Distributional equivalences
+
+The core of the reduction: the executed passive games have the
+same distributions as the DDH games composed with the reduction.
+
+Both sides sample 5 scalars, compute the same DH tuple (by
+`smul_smul` + `mul_comm`), query the same ROM / sample the same
+random key, and call the adversary with the same values.
+The only difference is the order of sampling, which doesn't
+affect the joint distribution of independent uniform draws. -/
+
+/-- The real passive game equals the DDH real game with the reduction. -/
+theorem passiveReal_eq_ddhExpReal
+    (g : G) (adv : PassiveAdversary G SK) :
+    evalDist (execWithROM (passiveReal (F := F) g adv)) =
+    evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
+  sorry
+
+/-- The random passive game equals the DDH random game with the reduction. -/
+theorem passiveRand_eq_ddhExpRand
+    (g : G) (adv : PassiveAdversary G SK) :
+    evalDist (execWithROM (passiveRand (F := F) g adv)) =
+    evalDist (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) := by
+  sorry
+
 /-! ## Security theorem
 
 X3DH passive message secrecy is at least as hard as DDH under
@@ -217,4 +242,10 @@ theorem passive_secrecy_le_ddh
       (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv))
       (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) by
     linarith
-  sorry
+  -- Both boolDistAdvantage expressions depend only on evalDist.
+  -- The distributional equivalences give us equal evalDist, hence
+  -- equal probOutput, hence equal boolDistAdvantage.
+  unfold ProbComp.boolDistAdvantage
+  have hReal := passiveReal_eq_ddhExpReal (F := F) g adv
+  have hRand := passiveRand_eq_ddhExpRand (F := F) g adv
+  simp only [probOutput, hReal, hRand]
