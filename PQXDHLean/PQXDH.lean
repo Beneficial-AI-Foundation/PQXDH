@@ -5,16 +5,19 @@ Extends X3DH with a post-quantum KEM encapsulation. The KEM shared
 secret is concatenated into the KDF input alongside the DH shared
 secrets, providing resistance to harvest-now-decrypt-later attacks.
 
+All DH proofs rely on the `Module F G` API from `DH.lean`, which covers
+every algebraic property needed here (`smul_smul`, `mul_comm`, etc.).
+
 Reference: Bhargavan et al. §2.1–§2.3, Figure 1.
   USENIX Security 2024.
 
 ## Protocol overview (Figure 1)
 
 Bob publishes a prekey bundle to the server:
-  - IKᵦ     = [ikᵦ]·G    (long-term identity key)
-  - SPKᵦ    = [spkᵦ]·G   (signed prekey, rotated periodically)
+  - IKᵦ     = ikᵦ • G₀   (long-term identity key)
+  - SPKᵦ    = spkᵦ • G₀  (signed prekey, rotated periodically)
   - Sig_ᵦ               (signature over SPKᵦ using ikᵦ — authenticates SPK)
-  - OPKᵦ    = [opkᵦ]·G   (one-time prekey, consumed after single use)
+  - OPKᵦ    = opkᵦ • G₀  (one-time prekey, consumed after single use)
   - PQSPK_ᵦ             (KEM public key, post-quantum signed prekey)
   - PQSig_ᵦ             (signature over PQSPK_ᵦ using ikᵦ)
 
@@ -40,13 +43,14 @@ hypotheses. Proofs are `sorry` — they correspond to computational
 reductions machine-checked in CryptoVerif and symbolic analyses
 machine-checked in ProVerif by the paper authors.
 -/
-import PQXDHLean.DH
+import PQXDHLean.DH.DH
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM
 import PQXDHLean.SecurityDefs
 
-variable {G : Type _} [AddCommGroup G]
+variable {F : Type _} [Field F]
+variable {G : Type _} [AddCommGroup G] [Module F G]
 
 /-! ## PQXDH key bundle
 
@@ -94,10 +98,10 @@ The five values are concatenated and fed to the KDF.
 Four DH values plus the KEM encapsulation output (ct, ss).
 "When computing the session secret, Alex also computes CT, SS ← KEM.encaps(PQSPKᵦᵖᵏ)
 and concatenates SS to the X3DH Key Derivation Function input." (§2.3, item 3) -/
-noncomputable def PQXDH_Alice
+def PQXDH_Alice
     {PK_kem SK_kem CT SS S_sig : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
-    (ikₐ ekₐ : ℕ) (bundle : PQXDHBundle G PK_kem S_sig) :
+    (ikₐ ekₐ : F) (bundle : PQXDHBundle G PK_kem S_sig) :
     (G × G × G × G) × (CT × SS) :=
   let dh := (DH ikₐ bundle.SPKᵦ,
              DH ekₐ bundle.IKᵦ,
@@ -110,10 +114,10 @@ noncomputable def PQXDH_Alice
 Four DH values plus the KEM decapsulation of ct.
 "Blake uses their private key to compute SS = KEM.decaps(CT, PQSPKᵦˢᵏ)
 and also concatenates it to the X3DH Key Derivation Function input." (§2.3, item 5) -/
-noncomputable def PQXDH_Bob
+def PQXDH_Bob
     {PK_kem SK_kem CT SS : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
-    (ikᵦ spkᵦ opkᵦ : ℕ) (sk_kem : SK_kem)
+    (ikᵦ spkᵦ opkᵦ : F) (sk_kem : SK_kem)
     (IKₐ EKₐ : G) (ct : CT) :
     (G × G × G × G) × SS :=
   let dh := (DH spkᵦ IKₐ,
@@ -138,22 +142,22 @@ shared secret.
 variable {SK : Type _}
 
 /-- Figure 1, p. 471: Alice derives the PQXDH session key
-SK_B = kdf((SPKᵦᵖᵏ)^{IKₐˢᵏ} ‖ (IKᵦᵖᵏ)^{EKₐˢᵏ} ‖ (SPKᵦᵖᵏ)^{EKₐˢᵏ} ‖ SS). -/
-noncomputable def PQXDH_SK_Alice
+SK_B = kdf(ikₐ • SPKᵦ ‖ ekₐ • IKᵦ ‖ ekₐ • SPKᵦ ‖ SS). -/
+def PQXDH_SK_Alice
     {PK_kem SK_kem CT SS S_sig : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
     (kdf : KDF ((G × G × G × G) × SS) SK)
-    (ikₐ ekₐ : ℕ) (bundle : PQXDHBundle G PK_kem S_sig) : SK :=
+    (ikₐ ekₐ : F) (bundle : PQXDHBundle G PK_kem S_sig) : SK :=
   let (dh, (_, ss)) := PQXDH_Alice kem ikₐ ekₐ bundle
   kdf.derive (dh, ss)
 
 /-- Figure 1, p. 471: Bob derives the PQXDH session key
-SKₐ = kdf((IKₐᵖᵏ)^{SPKᵦˢᵏ} ‖ (EKₐᵖᵏ)^{IKᵦˢᵏ} ‖ (EKₐᵖᵏ)^{SPKᵦˢᵏ} ‖ SS). -/
-noncomputable def PQXDH_SK_Bob
+SKₐ = kdf(spkᵦ • IKₐ ‖ ikᵦ • EKₐ ‖ spkᵦ • EKₐ ‖ SS). -/
+def PQXDH_SK_Bob
     {PK_kem SK_kem CT SS : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
     (kdf : KDF ((G × G × G × G) × SS) SK)
-    (ikᵦ spkᵦ opkᵦ : ℕ) (sk_kem : SK_kem)
+    (ikᵦ spkᵦ opkᵦ : F) (sk_kem : SK_kem)
     (IKₐ EKₐ : G) (ct : CT) : SK :=
   let (dh, ss) := PQXDH_Bob kem ikᵦ spkᵦ opkᵦ sk_kem IKₐ EKₐ ct
   kdf.derive (dh, ss)
@@ -174,7 +178,7 @@ theorem PQXDH_agree
     (kem : KEM PK_kem SK_kem CT SS)
     (kdf : KDF ((G × G × G × G) × SS) SK)
     (G₀ : G)
-    (ikₐ ekₐ ikᵦ spkᵦ opkᵦ : ℕ)
+    (ikₐ ekₐ ikᵦ spkᵦ opkᵦ : F)
     (sk_kem : SK_kem) (pk_kem : PK_kem)
     (s1 s2 : S_sig)
     {IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ : G}
@@ -192,25 +196,65 @@ theorem PQXDH_agree
     PQXDH_SK_Bob kem kdf ikᵦ spkᵦ opkᵦ sk_kem IKₐ EKₐ ct := by
   subst hIKₐ; subst hEKₐ; subst hIKᵦ; subst hSPKᵦ; subst hOPKᵦ; subst hBundle
   simp only [PQXDH_SK_Alice, PQXDH_SK_Bob, PQXDH_Alice, PQXDH_Bob,
-             DH_comm, hEncaps, hDecaps]
+             DH, smul_smul, mul_comm, hEncaps, hDecaps]
 
-/-! ## Theorem 1 — Symbolic security (ProVerif)
+/-! ## Security theorems
 
-In the Dolev-Yao model, PQXDH provides peer authentication,
-forward secrecy, KCI resistance, session independence, and
-HNDL resistance. No computational hardness hypotheses are needed. -/
+Theorem overview:
+  - **Theorem 1** (symbolic, ProVerif): peer authentication, forward secrecy,
+    KCI resistance, session independence, HNDL resistance.
+  - **Theorem 2** (classical computational, CryptoVerif): message secrecy +
+    peer authentication under gapDH + ROM + IND-CPA/INT-CTXT + EUF-CMA.
+  - **Theorem 3** (post-quantum computational, CryptoVerif): session key
+    secrecy under IND-CCA (KEM) + PRF + IND-CPA/INT-CTXT + EUF-CMA (at
+    time of exchange). **No DH assumption.**
+  - **Theorem 5** (§4): Kyber is SH-CR under ROM for internal hashes.
+  - **Theorem 6** (§4): classical assumptions + SH-CR → PQSPK agreement.
+
+Each proof is `sorry` — they correspond to computational reductions
+machine-checked in CryptoVerif and symbolic analyses machine-checked
+in ProVerif by the paper authors.
+-/
 
 variable {PK_kem SK_kem CT_kem SS : Type _}
 variable {PK_sig SK_sig : Type _}
 variable {M S_sig : Type _}
 variable {SK_session PT CT_aead AD : Type _}
 
-/-- Theorem 1, §5.2 p. 479: "PQXDH in the symbolic model provides peer-
-authentication, forward secrecy, resistance to key compromise impersonation,
-session independence and resistance to 'harvest now decrypt later' attacks
-in case of a DH break down. In addition, it also provides data agreement
-over the shared pre-key used."
-No computational hardness hypotheses needed. Verified by ProVerif (Theorems 7–9, Appendix A). -/
+/-! ## Theorem 1 — Symbolic security (ProVerif)
+
+**Model:** Dolev-Yao (symbolic). The adversary controls the network
+(intercept, inject, replay, modify all messages) but cryptographic
+primitives are **ideal black boxes** — encryption is perfect,
+signatures are unforgeable, hashes are one-way, unless the adversary
+possesses the relevant key.
+
+**Verification tool:** ProVerif (automated symbolic protocol verifier).
+
+**Note:** This theorem has NO computational hardness hypotheses.
+In the symbolic model, security follows from the protocol logic
+alone, not from assumptions about specific primitives.
+
+This is the umbrella result implied by the detailed symbolic
+Theorems 7, 8, 9 in Appendix A of the paper. -/
+
+/-- Theorem 1 (§3.1): In the Dolev-Yao model, PQXDH provides:
+  (1) peer authentication (including data agreement over IKₐ, IKᵦ,
+      SPKᵦ, OPKᵦ — the "shared pre-key" agreement),
+  (2) forward secrecy,
+  (3) resistance to key compromise impersonation (KCI),
+  (4) session independence,
+  (5) resistance to harvest-now-decrypt-later (HNDL) attacks
+      in case of a DH breakdown.
+
+The HNDL property specifically means: if the adversary gains the
+ability to break DH (compute discrete logs) at time t_q, sessions
+completed before t_q remain secure, because the KEM shared secret
+(which the Dolev-Yao adversary cannot extract without the KEM
+secret key) is part of the KDF input.
+
+No computational assumptions are needed — the Dolev-Yao model
+treats all primitives as ideal. -/
 theorem PQXDH_symbolic_security
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (kdf : KDF ((G × G × G × G) × SS) SK_session)
@@ -226,15 +270,31 @@ theorem PQXDH_symbolic_security
 
 /-! ## Theorem 2 — Classical computational security (CryptoVerif)
 
-Under gapDH + ROM + IND-CPA/INT-CTXT + EUF-CMA, PQXDH provides
-message secrecy and peer authentication with identity/key agreement
-(modulo X25519 subgroup elements). -/
+**Model:** Computational (game-based). The adversary is a PPT algorithm
+interacting with an AKE game challenger via oracle queries: `NewSession`,
+`Send`, `Corrupt`, `RevealSessionKey`, `Test`.
 
-/-- Theorem 2, §5.2 p. 479: "If X25519 satisfies the gapDH assumption, the KDF
-is a Random Oracle, if the AEAD is IND-CPA+INT-CTXT and if the signature scheme
-is EUF-CMA, then PQXDH guarantees both the secrecy of the sent message, as-well-as
-peer-authentication with agreement over identities, OPK and SPK used, modulo the
-subgroup elements of X25519." Verified by CryptoVerif. -/
+**Assumptions (§2.5):**
+  - 1.A: gapDH is hard on X25519
+  - 2 (classical): KDF (HKDF-SHA-256) is a Random Oracle
+  - 3: AEAD (AES-256-CBC + HMAC) is IND-CPA + INT-CTXT
+  - 4: Signature (XEdDSA) is EUF-CMA
+
+**Caveat (modulo subgroup elements):** X25519 is not a prime-order
+group — it has a cofactor of 8. Agreement on DH values holds only
+modulo the small subgroup. The paper notes this explicitly. -/
+
+/-- Theorem 2 (§3.2): If the gapDH problem is hard on the DH group
+(with generator G₀), the KDF is a Random Oracle, the AEAD is
+IND-CPA + INT-CTXT, and the signature scheme is EUF-CMA, then
+PQXDH guarantees:
+  (a) message secrecy — the session key is indistinguishable from
+      random for any fresh adversary in the AKE game, and
+  (b) peer authentication with agreement over identity keys (IKₐ, IKᵦ),
+      the signed prekey (SPKᵦ), and the one-time prekey (OPKᵦ),
+      modulo X25519 subgroup elements.
+
+Note: this does NOT guarantee agreement over PQSPK (see Theorem 6). -/
 theorem PQXDH_classical_security
     (G₀ : G)
     (kem : KEM PK_kem SK_kem CT_kem SS)
@@ -254,14 +314,38 @@ theorem PQXDH_classical_security
 
 /-! ## Theorem 3 — Post-quantum computational security (CryptoVerif)
 
-Under IND-CCA (KEM) + PRF (KDF) + IND-CPA/INT-CTXT (AEAD) +
-EUF-CMA (at time of exchange), the session key remains secret
-even if DH is broken later. No DH assumption is required. -/
+**Key insight:** This theorem makes **no assumption about DH**.
+The DH group may be completely broken (e.g. by a quantum computer).
+Security of the session key rests entirely on the KEM and KDF.
 
-/-- Theorem 3, §5.2 p. 479: "Under IND-CCA for the KEM, if the KDF is a PRF and
-the final AEAD is IND-CPA+INT-CTXT, as long as the signature scheme was unforgeable
-when some key exchange was completed, secrecy of the derived key still holds in the
-future." No DH assumption required. Verified by CryptoVerif. -/
+**Assumptions (§2.5):**
+  - 1.B: KEM (Kyber-1024) is IND-CCA
+  - 2 (PQ): KDF is a PRF (not ROM — CryptoVerif's PQ soundness
+    does not capture the QROM)
+  - 3: AEAD is IND-CPA + INT-CTXT
+  - 4: Signature was EUF-CMA **at the time of the key exchange**
+
+**Comparison with Theorem 2:**
+  - Theorem 2 provides full classical security (authentication +
+    secrecy) assuming DH is hard.
+  - Theorem 3 provides post-quantum forward secrecy (session key
+    secrecy) without any DH assumption.
+  - Together: PQXDH is at least as secure as X3DH classically
+    (Theorem 2), and additionally HNDL-resistant (Theorem 3). -/
+
+/-- Theorem 3 (§3.2): Under IND-CCA for the KEM, if the KDF is a
+PRF, the AEAD is IND-CPA + INT-CTXT, and the signature scheme was
+EUF-CMA at the time of the key exchange, then the session key
+remains indistinguishable from random even if the DH problem is
+broken in the future (e.g. by a quantum computer).
+
+Note: no `GapDH_Hard` hypothesis appears — this is intentional.
+
+The `HeldAtExchange` wrapper on `Sig_EUF_CMA` reflects the temporal
+qualification: the signature scheme only needs to have been secure
+*when the session was established*, not in perpetuity. A quantum
+adversary may break it later without retroactively compromising
+existing sessions. -/
 theorem PQXDH_postquantum_security
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (kdf : KDF ((G × G × G × G) × SS) SK_session)
@@ -279,11 +363,26 @@ theorem PQXDH_postquantum_security
 
 /-! ## Theorem 5 — Kyber is SH-CR (§4)
 
-Kyber-1024 satisfies Semi-Honest Collision Resistance under the
-Random Oracle Model for its internal hash functions. -/
+**Context:** The paper discovered a KEM re-encapsulation attack
+against PQXDH v1, where a malicious server replaces Bob's PQSPK
+with a different key. To prove that PQXDH v2 resists this attack,
+they introduced the SH-CR property (Definition 1) and proved that
+Kyber satisfies it.
 
-/-- Theorem 5, §5.3.2 p. 480: "If the hash functions used in the Kyber design
-are modeled as Random Oracles, Kyber is SH-CR." -/
+**Assumption:** The hash functions internal to Kyber (H, G, and XOF
+in the NIST specification) behave as Random Oracles. This is a
+standard assumption in Kyber's security analysis.
+
+**Note:** The hypothesis is `KEM_InternalHash_ROM`, NOT `KEM_IND_CCA`.
+SH-CR is a distinct property from IND-CCA. -/
+
+/-- Theorem 5 (§4): Kyber-1024 (ML-KEM) satisfies Semi-Honest
+Collision Resistance (SH-CR) under the Random Oracle Model for
+its internal hash functions (H, G, XOF).
+
+The reduction shows that any SH-CR adversary can be turned into
+an adversary that finds collisions or preimages in the internal
+hashes, which contradicts the ROM assumption. -/
 theorem Kyber_SH_CR
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (h_hash_rom : KEM_InternalHash_ROM PK_kem SK_kem CT_kem SS kem) :
@@ -292,12 +391,27 @@ theorem Kyber_SH_CR
 
 /-! ## Theorem 6 — KEM public key agreement (§4)
 
-Under the classical assumptions plus SH-CR for the KEM, PQXDH
-provides extended peer authentication with agreement over PQSPK. -/
+**Context:** Theorem 2 establishes authentication with agreement over
+IKₐ, IKᵦ, SPKᵦ, OPKᵦ. But it does NOT guarantee agreement over
+PQSPK — the KEM public key. A malicious server could substitute
+PQSPK without being detected (the re-encapsulation attack).
 
-/-- Theorem 6, §5.3.2 p. 480: "Under similar hypothesis as Theorem 2, PQXDH
-also guarantees the agreement over the PQSPK used provided the KEM is SH-CR."
-Strengthens Theorem 2's `PeerAuth` to `PeerAuthPQ`. -/
+Theorem 6 closes this gap: under the classical assumptions PLUS
+SH-CR for the KEM, both parties additionally agree on which PQSPK
+was used. This gives the full `PeerAuthPQ` guarantee.
+
+**Assumptions:** All of Theorem 2's assumptions, plus:
+  - KEM is SH-CR (which, by Theorem 5, holds if Kyber's internal
+    hashes are Random Oracles). -/
+
+/-- Theorem 6 (§4): Under the classical assumptions (gapDH, ROM KDF,
+IND-CPA + INT-CTXT AEAD, EUF-CMA signature) plus Semi-Honest
+Collision Resistance for the KEM, PQXDH provides extended peer
+authentication with agreement over the PQSPK (KEM public key)
+used in the exchange.
+
+This strengthens Theorem 2's `PeerAuth` to `PeerAuthPQ`, adding
+PQSPK agreement. -/
 theorem PQXDH_KEM_pubkey_agreement
     (G₀ : G)
     (kem : KEM PK_kem SK_kem CT_kem SS)

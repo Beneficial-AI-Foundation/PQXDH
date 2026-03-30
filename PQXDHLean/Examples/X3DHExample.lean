@@ -1,10 +1,11 @@
 /-
-Example: X3DH protocol run over ℤ (the integers).
+Example: X3DH protocol run over ℚ (the rationals).
 
 We instantiate the abstract X3DH formalization with:
-  - Group G = ℤ (integers under addition)
+  - Scalar field F = ℚ
+  - Group G = ℚ (rationals under addition, with Module ℚ ℚ = scalar multiplication)
   - Generator G₀ = 1
-  - DH(a, B) = a • B = a * B (scalar multiplication = ordinary multiplication)
+  - DH(a, B) = a • B = a * B (field-scalar multiplication = ordinary multiplication)
   - KDF: identity function (the DH tuple *is* the session key)
   - AEAD: additive toy scheme (encrypt = plaintext + key, decrypt = ciphertext - key)
 
@@ -13,9 +14,9 @@ showing how the abstract theorems compose into a complete protocol run.
 
 Why this example is insecure:
 
-  1. The group ℤ has no discrete log hardness. In a real protocol, given
-     the public key IKₐ = [ikₐ]G on an elliptic curve, you can't recover
-     the private scalar ikₐ. In ℤ, DH(3, 1) = 3 — the "private key" is
+  1. The group ℚ has no discrete log hardness. In a real protocol, given
+     the public key IKₐ = ikₐ • G on an elliptic curve, you can't recover
+     the private scalar ikₐ. In ℚ, DH(3, 1) = 3 — the "private key" is
      the public key. Anyone can read it.
 
   2. The KDF is the identity function. A real KDF (HKDF-SHA256) is a
@@ -68,7 +69,7 @@ The simplest possible KDF — the DH tuple is used directly as the
 session key. In a real protocol this would be HKDF-SHA256. -/
 
 /-- Toy KDF that returns its input unchanged. -/
-def toyKDF : KDF (ℤ × ℤ × ℤ × ℤ) (ℤ × ℤ × ℤ × ℤ) where
+def toyKDF : KDF (ℚ × ℚ × ℚ × ℚ) (ℚ × ℚ × ℚ × ℚ) where
   derive := id
 
 /-! ## Toy AEAD: additive cipher
@@ -79,12 +80,12 @@ ciphertext and checked on decryption (modelling authentication).
 This is trivially correct but obviously not secure — it serves only
 to demonstrate the composition of KDF + AEAD in the handshake theorem. -/
 
-/-- Toy AEAD over ℤ.
-    - Key:        (ℤ × ℤ × ℤ × ℤ)  (the session key / DH tuple)
-    - Plaintext:  ℤ                  (a single integer message)
-    - Ciphertext: ℤ × (ℤ × ℤ)       (encrypted value, copy of AD for auth check)
-    - Assoc data: ℤ × ℤ              (the two identity public keys) -/
-def toyAEAD : AEAD (ℤ × ℤ × ℤ × ℤ) ℤ (ℤ × (ℤ × ℤ)) (ℤ × ℤ) where
+/-- Toy AEAD over ℚ.
+    - Key:        (ℚ × ℚ × ℚ × ℚ)  (the session key / DH tuple)
+    - Plaintext:  ℚ                  (a single rational message)
+    - Ciphertext: ℚ × (ℚ × ℚ)       (encrypted value, copy of AD for auth check)
+    - Assoc data: ℚ × ℚ              (the two identity public keys) -/
+def toyAEAD : AEAD (ℚ × ℚ × ℚ × ℚ) ℚ (ℚ × (ℚ × ℚ)) (ℚ × ℚ) where
   encrypt := fun ⟨k₁, k₂, k₃, k₄⟩ pt ad =>
     (pt + k₁ + k₂ + k₃ + k₄, ad)
   decrypt := fun ⟨k₁, k₂, k₃, k₄⟩ ⟨c, ad'⟩ ad =>
@@ -98,35 +99,35 @@ def toyAEAD : AEAD (ℤ × ℤ × ℤ × ℤ) ℤ (ℤ × (ℤ × ℤ)) (ℤ × 
 
 /-! ## Concrete key values -/
 
-/-- Generator: 1 ∈ ℤ -/
-def G₀ : ℤ := 1
+/-- Generator: 1 ∈ ℚ -/
+def G₀ : ℚ := 1
 
--- Alice's keys
-def alice_ik : ℕ := 3 -- identity key (private)
-def alice_ek : ℕ := 5 -- ephemeral key (private)
+-- Alice's keys (scalars in ℚ, the field)
+def alice_ik : ℚ := 3 -- identity key (private)
+def alice_ek : ℚ := 5 -- ephemeral key (private)
 
 -- Bob's keys
-def bob_ik : ℕ := 7 -- identity key (private)
-def bob_spk : ℕ := 11 -- signed prekey (private)
-def bob_opk : ℕ := 13 -- one-time prekey (private)
+def bob_ik : ℚ := 7 -- identity key (private)
+def bob_spk : ℚ := 11 -- signed prekey (private)
+def bob_opk : ℚ := 13 -- one-time prekey (private)
 
--- Public keys: [scalar]G₀
-noncomputable def IKₐ : ℤ := DH alice_ik G₀
-noncomputable def EKₐ : ℤ := DH alice_ek G₀
-noncomputable def IKᵦ : ℤ := DH bob_ik G₀
-noncomputable def SPKᵦ : ℤ := DH bob_spk G₀
-noncomputable def OPKᵦ : ℤ := DH bob_opk G₀
+-- Public keys: scalar • G₀
+def IKₐ : ℚ := DH alice_ik G₀
+def EKₐ : ℚ := DH alice_ek G₀
+def IKᵦ : ℚ := DH bob_ik G₀
+def SPKᵦ : ℚ := DH bob_spk G₀
+def OPKᵦ : ℚ := DH bob_opk G₀
 
 /-! ## Protocol run
 
 We now apply the handshake correctness theorem to our concrete values.
 This proves that Bob can decrypt Alice's first message. -/
 
-/-- Alice's message: the integer 42 ("hello"). -/
-def alice_msg : ℤ := 42
+/-- Alice's message: the rational 42 ("hello"). -/
+def alice_msg : ℚ := 42
 
 /-- Alice encrypts her message with her session key and AD = (IKₐ, IKᵦ). -/
-noncomputable def alice_ciphertext : ℤ × (ℤ × ℤ) :=
+def alice_ciphertext : ℚ × (ℚ × ℚ) :=
   toyAEAD.encrypt
     (X3DH_SK_Alice toyKDF alice_ik alice_ek IKᵦ SPKᵦ OPKᵦ)
     alice_msg
@@ -136,7 +137,7 @@ noncomputable def alice_ciphertext : ℤ × (ℤ × ℤ) :=
     the original message 42.
 
     This is a direct application of `X3DH_handshake_correct` with:
-    - G = ℤ, G₀ = 1
+    - F = ℚ, G = ℚ, G₀ = 1
     - toyKDF as the key derivation function
     - toyAEAD as the authenticated encryption scheme
     - concrete private keys (3, 5, 7, 11, 13)
