@@ -22,7 +22,7 @@ the shared secret from the ciphertext using their private key).
 
 # Structure
 
-:::definition "KEM" (lean := "KEM") (parent := "kem")
+:::definition "KEM" (parent := "kem")
 `KEM PK SK_kem CT SS` has `encaps`, `decaps`, and a `correctness` field
 guaranteeing that honest encapsulation/decapsulation round-trips.
 :::

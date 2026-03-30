@@ -21,7 +21,7 @@ associated data (AD).
 
 # Structure
 
-:::definition "AEAD" (lean := "AEAD") (parent := "aead")
+:::definition "AEAD" (parent := "aead")
 `AEAD K PT CT AD` has `encrypt`, `decrypt`, and a `correctness` field
 guaranteeing that decrypting an honestly encrypted ciphertext with the
 correct key and AD recovers the original plaintext.
