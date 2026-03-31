@@ -205,6 +205,15 @@ private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execWithROM (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
+  -- The key insight: both sides, after full unfolding, are ProbComp Bool
+  -- computations that sample the same 5 scalars (in different order),
+  -- compute the same DH tuple (by smul_smul + mul_comm), query the
+  -- same ROM, and call the same adversary.
+  --
+  -- Strategy: unfold to ProbComp level, then use
+  -- probOutput_bind_bind_swap for sample reordering and
+  -- probOutput_bind_congr' to step through aligned prefixes.
+  -- Finally smul_smul + mul_comm for the algebraic step.
   sorry
 
 /-- The random passive game equals the DDH random game with the reduction.
