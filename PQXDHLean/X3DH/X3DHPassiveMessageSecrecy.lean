@@ -200,20 +200,10 @@ random key, and call the adversary with the same values.
 The only difference is the order of sampling, which doesn't
 affect the joint distribution of independent uniform draws. -/
 
-/-- The real passive game equals the DDH real game with the reduction.
-
-LHS samples (ikₐ, ekₐ, ikᵦ, spkᵦ, opkᵦ) and computes:
-  dh = (ikₐ•(spkᵦ•g), ekₐ•(ikᵦ•g), ekₐ•(spkᵦ•g), ekₐ•(opkᵦ•g))
-
-RHS samples (a, b) then (ikₐ, ikᵦ, opkᵦ) and computes:
-  dh = (ikₐ•(b•g), ikᵦ•(a•g), (a*b)•g, opkᵦ•(a•g))
-
-With a = ekₐ, b = spkᵦ these are equal by `smul_smul` + `mul_comm`.
-The proof requires:
-  1. Sampling order independence: 5 independent uniform draws produce
-     the same joint distribution regardless of order.
-  2. Algebraic equality: ekₐ•(spkᵦ•g) = (ekₐ*spkᵦ)•g by `smul_smul`. -/
-
+omit [Fintype F] [DecidableEq F] [SampleableType G] [DecidableEq G]
+  [Fintype SK] [DecidableEq SK] in
+/-- The real passive game has the same distribution as the DDH real
+game composed with the reduction. -/
 private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveReal (F := F) g adv)) =
@@ -230,8 +220,7 @@ private lemma passiveReal_eq_ddhExpReal
   simp only [QueryImpl.ofLift_eq_id', simulateQ_id', Option.getD_some,
     OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
   rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
-  -- Simplify DH algebra and permute remaining draws
-  simp [*] at *
+  simp_all
   vcstep rw under 1
   vcstep rw under 2
   vcstep rw under 1
@@ -258,6 +247,27 @@ private lemma passiveRand_eq_ddhExpRand
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveRand (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) := by
+  simp only [passiveRand, passiveGame, DiffieHellman.ddhExpRand,
+    ddhReduction, execGame,
+    simulateQ_bind, simulateQ_query,
+    ← OracleComp.liftComp_eq_liftM,
+    QueryImpl.simulateQ_add_liftComp_left,
+    QueryImpl.simulateQ_add_liftComp_right,
+  bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
+  ext z
+  change Pr[= z | _] = Pr[= z | _]
+  simp only [QueryImpl.ofLift_eq_id', simulateQ_id',
+    OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
+  rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
+  simp_all
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 1
+  vcstep rw under 1
+  vcstep rw under 1
+  vcstep rw under 1
   sorry
 
 /-! ## Security theorem
