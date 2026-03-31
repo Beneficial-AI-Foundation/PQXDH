@@ -9,6 +9,45 @@ set_option pp.rawOnError true
 Passive message secrecy for X3DH under the Random Oracle Model,
 using VCV-io for security game definitions.
 
+# Random Oracle Model
+
+In the real protocol, the KDF (HKDF-SHA-256) is a deterministic
+function. In the security proof, we replace it with a *random
+oracle*: a function that, on each new input, returns a uniformly
+random output and caches it for consistency (same input always
+gives the same output).
+
+This is the standard ROM assumption from the paper (assumption 4).
+It lets us argue that the session key is indistinguishable from
+random whenever the KDF input contains a fresh random component
+(as happens when DH3 is replaced with a random group element in
+the DDH reduction).
+
+In VCV-io, the ROM is modeled as an oracle spec with a cached
+implementation:
+
+```
+-- Oracle spec: maps DH tuples to session keys
+abbrev KDFOracle (I K : Type) := I ->o K
+
+-- Implementation: lazy cached uniform sampling
+randomOracle : QueryImpl (KDFOracle I K)
+  (StateT (KDFOracle I K).QueryCache ProbComp)
+```
+
+The game has access to this oracle via
+`OracleComp (unifSpec + KDFOracle ...)`. To compute probabilities,
+we execute the game with the ROM using `simulateQ`:
+
+```
+noncomputable def execWithROM
+    (comp : OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) Bool)
+    : ProbComp Bool :=
+  let ro := randomOracle
+  let idImpl := (QueryImpl.ofLift unifSpec ProbComp).liftTarget (...)
+  StateT.run' (simulateQ (idImpl + ro) comp) empty
+```
+
 # Passive adversary
 
 A passive adversary sees the public transcript and a candidate
