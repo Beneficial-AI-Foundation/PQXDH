@@ -226,6 +226,9 @@ private lemma passiveReal_eq_ddhExpReal
   vcstep rw under 1
   vcstep rw under 2
 
+set_option linter.flexible false in
+omit [Fintype F] [DecidableEq F] [SampleableType G] [DecidableEq G]
+  [Fintype SK] [DecidableEq SK] in
 /-- The random passive game equals the DDH random game with the reduction.
 
 LHS samples (ikₐ, ekₐ, ikᵦ, spkᵦ, opkᵦ), ignores the DH tuple, and
@@ -266,13 +269,35 @@ private lemma passiveRand_eq_ddhExpRand
   rw [show ∀ (body : ProbComp Bool),
     Pr[= z | body] = Pr[= z | ($ᵗ F : ProbComp F) >>= fun _ => body] from
     fun body => by simp [probOutput_bind_const]]
-  -- Both have 7 draws. Inserted unused draw at pos 0 on LHS.
-  -- Move it to pos 2 (matching RHS's c), then permute remaining.
-  -- Both sides have 7 draws (6F + 1SK). Need to permute the 6 F-draws
-  -- to match, keeping SK at the end. The vcstep rw tactic doesn't
-  -- distinguish F from SK draws, causing misalignment.
-  -- TODO: carefully sequence swaps to avoid moving SK.
-  sorry
+  -- Both have 7 draws (6F + 1SK). Permute F-draws (positions 0-5),
+  -- keeping SK at position 6. Only use vcstep rw under N for N ≤ 4.
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 3
+  vcstep rw under 4
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 3
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 3
+  vcstep rw under 4
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 3
+  vcstep rw under 4
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 3
+  vcstep rw under 4
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 3
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 1
 
 /-! ## Security theorem
 
