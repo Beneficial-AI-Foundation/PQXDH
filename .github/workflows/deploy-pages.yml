@@ -33,7 +33,7 @@ jobs:
           path: |
             .lake
             docs/.lake
-          key: ${{ runner.os }}-lake-docs-${{ hashFiles('lake-manifest.json', 'lean-toolchain', 'docs/lake-manifest.json', 'docbuild/lake-manifest.json') }}
+          key: ${{ runner.os }}-lake-docs-${{ hashFiles('lake-manifest.json', 'lean-toolchain', 'docs/lake-manifest.json') }}
           restore-keys: |
             ${{ runner.os }}-lake-docs-
 
@@ -49,12 +49,6 @@ jobs:
         run: |
           lake build
 
-      - name: Build API docs (doc-gen4)
-        run: |
-          cd docbuild
-          MATHLIB_NO_CACHE_ON_UPDATE=1 lake update PQXDHLean
-          lake build PQXDHLean:docs
-
       - name: Build Verso docs
         run: |
           lake -d docs build docs
@@ -62,11 +56,6 @@ jobs:
       - name: Generate documentation site
         run: |
           docs/.lake/build/bin/docs --output site
-
-      - name: Copy API docs to site
-        run: |
-          mkdir -p site/api
-          cp -r docbuild/.lake/build/doc/* site/api/
 
       - name: Add root landing page
         run: |
@@ -95,10 +84,6 @@ jobs:
               <li>
                 <a href="html-multi/">X3DH in Lean &mdash; Documentation</a>
                 <span class="desc">Protocol specification with verified code examples</span>
-              </li>
-              <li>
-                <a href="api/">API Reference</a>
-                <span class="desc">Auto-generated documentation for all definitions and theorems</span>
               </li>
               <li>
                 <a href="callgraph/">Call Graph</a>
