@@ -1,3 +1,4 @@
 /.lake
 /docs/.lake
 /_out
+node_modules/
