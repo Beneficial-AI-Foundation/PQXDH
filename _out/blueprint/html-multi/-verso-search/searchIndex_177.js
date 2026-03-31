@@ -1,0 +1,1 @@
+window.docContents[177].resolve({"/Blueprint-Summary/#PQXDH-in-Lean--Blueprint-Summary":{"contents":"\n\n","context":"PQXDH in Lean","header":"Blueprint Summary","id":"/Blueprint-Summary/#PQXDH-in-Lean--Blueprint-Summary"}});

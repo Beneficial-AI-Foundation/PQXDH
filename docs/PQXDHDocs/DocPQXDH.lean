@@ -1,6 +1,5 @@
 import Verso
 import VersoManual
-import VersoBlueprint
 open Verso.Genre Manual
 set_option doc.verso true
 

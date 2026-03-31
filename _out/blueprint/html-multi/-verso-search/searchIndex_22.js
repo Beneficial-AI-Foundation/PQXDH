@@ -1,0 +1,1 @@
+window.docContents[22].resolve({"/Diffie-Hellman/Definition/#PQXDH-in-Lean--Diffie-Hellman--Definition":{"contents":"DH(a, B) = a • B. Declared abbrev so it is definitionally equal to scalar multiplication.\n\n","context":"PQXDH in Lean\u0009Diffie-Hellman","header":"1.1. Definition","id":"/Diffie-Hellman/Definition/#PQXDH-in-Lean--Diffie-Hellman--Definition"}});

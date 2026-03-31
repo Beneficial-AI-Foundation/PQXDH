@@ -3,25 +3,8 @@ defaultTargets = ["PQXDHDocs", "docs"]
 
 [[require]]
 name = "verso"
-git = "https://github.com/ejgallego/verso"
-rev = "d317a6a67d6427cdda4237c38c042c74e2735816"
-
-# Pin SubVerso to exact rev from ejgallego/verso bp branch manifest
-# to avoid Lake demodulization issues
-[[require]]
-name = "subverso"
-git = "https://github.com/leanprover/subverso"
-rev = "69981335508430ec0fc09241f535aa353c1e978e"
-
-[[require]]
-name = "PQXDH-lean"
-path = ".."
-
-# Override mathlib to match v4.29.0-rc3 toolchain (parent pins v4.28.0)
-[[require]]
-name = "mathlib"
-scope = "leanprover-community"
-rev = "v4.29.0-rc3"
+git = "https://github.com/leanprover/verso"
+rev = "v4.24.0"
 
 [[lean_lib]]
 name = "PQXDHDocs"

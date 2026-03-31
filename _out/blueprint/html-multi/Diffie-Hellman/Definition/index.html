@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      (function(){
+  const {protocol:proto, host:hostName, pathname:path, search:srch, hash:hsh} = window.location;
+  if (!(path.endsWith("/") || path.endsWith(".html"))) {
+    window.location.replace(`${proto}//${hostName}${path}/${srch}${hsh}`);
+  }
+})()</script>
+    <base href="./../../"><meta charset="utf-8">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>Definition</title><link rel="stylesheet" href="book.css">
+    <link rel="stylesheet" href="verso-vars.css">
+    <script>
+      const __versoSiteRoot = document.baseURI;</script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" integrity="sha384-zbcZAIxlvJtNE3Dp5nxLXdXtXyxwOdnILY1TDPVmKFhl4r4nSUG1r8bcFXGVa4Te" crossorigin="anonymous"></script>
+    <script src="-verso-search/elasticlunr.min.js"></script>
+    <script src="-verso-search/fuzzysort.js"></script>
+    <script src="-verso-search/searchIndex.js"></script>
+    <script type="module" src="-verso-search/search-init.js"></script>
+    <link rel="stylesheet" href="-verso-search/search-box.css">
+    <link rel="stylesheet" href="-verso-search/search-highlight.css">
+    <link rel="stylesheet" href="-verso-search/domain-display.css">
+    <script src="-verso-data/katex/katex.js"></script>
+    <script src="-verso-data/katex/math.js"></script>
+    <link rel="stylesheet" href="-verso-data/katex/katex.css">
+    <script src="-verso-search/search-highlight.js" defer="defer"></script>
+    </head>
+  <body>
+    <header>
+      <div class="header-logo-wrapper"></div>
+      <div class="header-title-wrapper">
+        <a href="" class="header-title"><h1>
+            PQXDH in Lean</h1>
+          </a></div>
+      </header>
+    <label for="toggle-toc" id="toggle-toc-click"><span class="line line1"></span><span class="line line2"></span><span class="line line3"></span></label><div class="with-toc">
+      <div class="toc-backdrop" onclick="document.getElementById('toggle-toc-click')?.click()"></div>
+      <nav id="toc">
+        <input type="checkbox" id="toggle-toc"><div class="first">
+          <a href="" class="toc-title"><h1>
+              PQXDH in Lean</h1>
+            </a><div class="split-tocs">
+            <div class="split-toc book">
+              <div class="title">
+                <label for="--verso-manual-toc-----bookRoot" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-----bookRoot"></label><span class="">Table of Contents</span></div>
+              <table><tr class="current numbered"><td class="num">1.</td><td><a href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman">Diffie-Hellman</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Key-Derivation-Function/#PQXDH-in-Lean--Key-Derivation-Function">Key Derivation Function</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="Authenticated-Encryption-with-Associated-Data/#PQXDH-in-Lean--Authenticated-Encryption-with-Associated-Data">Authenticated Encryption with Associated Data</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Key-Encapsulation-Mechanism/#PQXDH-in-Lean--Key-Encapsulation-Mechanism">Key Encapsulation Mechanism</a></td></tr><tr class="numbered"><td class="num">5.</td><td><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></td></tr><tr class="numbered"><td class="num">6.</td><td><a href="Security-Definitions/#PQXDH-in-Lean--Security-Definitions">Security Definitions</a></td></tr><tr class="numbered"><td class="num">7.</td><td><a href="The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol">The PQXDH Protocol</a></td></tr></table></div>
+            <div class="split-toc">
+              <div class="title">
+                <label for="--verso-manual-toc-PQXDH-in-Lean--Diffie-Hellman" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--Diffie-Hellman" checked="checked"></label><span class="number">1.</span> <span class=""><a href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman">Diffie-Hellman</a></span></div>
+              <table><tr class="current numbered"><td class="num">1.1.</td><td><a href="Diffie-Hellman/Definition/#PQXDH-in-Lean--Diffie-Hellman--Definition">Definition</a></td></tr><tr class="numbered"><td class="num">1.2.</td><td><a href="Diffie-Hellman/Algebraic-properties/#PQXDH-in-Lean--Diffie-Hellman--Algebraic-properties">Algebraic properties</a></td></tr></table></div>
+            <div class="split-toc">
+              <div class="title">
+                <span class="no-toggle"></span><span class="number">1.1.</span> <span class="current"><a href="Diffie-Hellman/Definition/#PQXDH-in-Lean--Diffie-Hellman--Definition">Definition</a></span></div>
+              </div>
+            </div>
+          </div>
+        <div class="last"></div>
+        </nav>
+      <main><div class="content-wrapper">
+          <nav class="prev-next-buttons">
+            <a class="local-button active" href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman" rel="prev" title="1. Diffie-Hellman"><span class="arrow">←</span><span class="where">1. Diffie-Hellman</span></a><a class="local-button active" href="Diffie-Hellman/Algebraic-properties/#PQXDH-in-Lean--Diffie-Hellman--Algebraic-properties" rel="next" title="1.2. Algebraic properties"><span class="where">1.2. Algebraic properties</span><span class="arrow">→</span></a></nav>
+          <section>
+            <h1>
+              1.1. Definition</h1>
+            <p>
+              <code>DH(a, B) = a • B</code>. Declared <code>abbrev</code> so it is definitionally equal to scalar multiplication.</p>
+            </section>
+          <nav class="prev-next-buttons">
+            <a class="local-button active" href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman" rel="prev" title="1. Diffie-Hellman"><span class="arrow">←</span><span class="where">1. Diffie-Hellman</span></a><a class="local-button active" href="Diffie-Hellman/Algebraic-properties/#PQXDH-in-Lean--Diffie-Hellman--Algebraic-properties" rel="next" title="1.2. Algebraic properties"><span class="where">1.2. Algebraic properties</span><span class="arrow">→</span></a></nav>
+          </div>
+        </main></div>
+    </body>
+  </html>
+

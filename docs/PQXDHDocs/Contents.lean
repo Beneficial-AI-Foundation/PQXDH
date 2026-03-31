@@ -5,7 +5,6 @@ Author: David Thrane Christiansen
 -/
 
 import VersoManual
-import VersoBlueprint
 
 import PQXDHDocs.DocDH
 import PQXDHDocs.DocKDF
@@ -16,9 +15,6 @@ import PQXDHDocs.DocSecurityDefs
 import PQXDHDocs.DocPQXDH
 
 open Verso.Genre Manual
-open Verso.Genre.Manual.InlineLean
-open Verso.Code.External
-open Informal
 
 set_option doc.verso true
 set_option pp.rawOnError true
@@ -44,7 +40,3 @@ The source code is available on [GitHub](https://github.com/Beneficial-AI-Founda
 {include 1 PQXDHDocs.DocX3DH}
 {include 1 PQXDHDocs.DocSecurityDefs}
 {include 1 PQXDHDocs.DocPQXDH}
-
-{blueprint_graph}
-
-{bp_summary}

@@ -1,0 +1,1 @@
+window.docContents[168].resolve({"/Diffie-Hellman/Definition/#X3DH-in-Lean--Diffie-Hellman--Definition":{"contents":" is defined as scalar multiplication a • B in an additive commutative group:\n\n\n\n","context":"X3DH in Lean\u0009Diffie-Hellman","header":"1.1. Definition","id":"/Diffie-Hellman/Definition/#X3DH-in-Lean--Diffie-Hellman--Definition"}});

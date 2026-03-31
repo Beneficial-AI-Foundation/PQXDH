@@ -1,0 +1,1 @@
+window.docContents[248].resolve({"/Key-Derivation-Function/Structure/#PQXDH-in-Lean--Key-Derivation-Function--Structure":{"contents":"KDF I K has a single field derive : I → K.\n\n","context":"PQXDH in Lean\u0009Key Derivation Function","header":"2.1. Structure","id":"/Key-Derivation-Function/Structure/#PQXDH-in-Lean--Key-Derivation-Function--Structure"}});
