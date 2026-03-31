@@ -260,6 +260,18 @@ private lemma passiveRand_eq_ddhExpRand
     OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
   rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
   simp_all
+  -- LHS: 5+1 draws. RHS: 6+1 draws (extra c from DDH, unused).
+  -- Add unused $ᵗ F draw to LHS to match RHS (7 draws each).
+  -- probOutput_bind_const: Pr[z | $ᵗF >>= fun _ => body] = (1-0) * Pr[z | body] = Pr[z | body]
+  rw [show ∀ (body : ProbComp Bool),
+    Pr[= z | body] = Pr[= z | ($ᵗ F : ProbComp F) >>= fun _ => body] from
+    fun body => by simp [probOutput_bind_const]]
+  -- Both have 7 draws. Inserted unused draw at pos 0 on LHS.
+  -- Move it to pos 2 (matching RHS's c), then permute remaining.
+  -- Both sides have 7 draws (6F + 1SK). Need to permute the 6 F-draws
+  -- to match, keeping SK at the end. The vcstep rw tactic doesn't
+  -- distinguish F from SK draws, causing misalignment.
+  -- TODO: carefully sequence swaps to avoid moving SK.
   sorry
 
 /-! ## Security theorem
