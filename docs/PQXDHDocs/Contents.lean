@@ -32,7 +32,7 @@ following Bhargavan et al. (USENIX Security 2024).
 The formalization uses Mathlib's `Module F G` for Diffie-Hellman and
 VCV-io for security game definitions (DDH, advantage bounds).
 
-The source code is available on [GitHub](https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH/).
+The source code is available on [GitHub](https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH/tree/X3DH_security_properties/PQXDHLean).
 
 {include 1 PQXDHDocs.DocDH}
 {include 1 PQXDHDocs.DocKDF}
