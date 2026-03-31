@@ -1,1 +1,1 @@
-window.docContents[19].resolve({"/Security-Definitions/#PQXDH-in-Lean--Security-Definitions":{"contents":"This section is under revision.\n\n\n","context":"PQXDH in Lean","header":"6. Security Definitions","id":"/Security-Definitions/#PQXDH-in-Lean--Security-Definitions"}});
+window.docContents[19].resolve({"/Security-Definitions/#PQXDH-in-Lean--Security-Definitions":{"contents":"This section is under revision.\n\n\n","context":"PQXDH in Lean","header":"7. Security Definitions","id":"/Security-Definitions/#PQXDH-in-Lean--Security-Definitions"}});
