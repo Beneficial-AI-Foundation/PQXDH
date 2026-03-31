@@ -1,5 +1,6 @@
 import Verso
 import VersoManual
+import PQXDHDocs.DocX3DHPassiveSecrecy
 open Verso.Genre Manual
 set_option doc.verso true
 set_option pp.rawOnError true
@@ -88,3 +89,5 @@ theorem X3DH_handshake_correct
 
 This composes DH agreement, session key agreement via KDF,
 and AEAD correctness.
+
+{include 0 PQXDHDocs.DocX3DHPassiveSecrecy}

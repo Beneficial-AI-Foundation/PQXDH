@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      (function(){
+  const {protocol:proto, host:hostName, pathname:path, search:srch, hash:hsh} = window.location;
+  if (!(path.endsWith("/") || path.endsWith(".html"))) {
+    window.location.replace(`${proto}//${hostName}${path}/${srch}${hsh}`);
+  }
+})()</script>
+    <base href="./../../"><meta charset="utf-8">
+    <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <title>Passive Message Secrecy</title><link rel="stylesheet" href="book.css">
+    <link rel="stylesheet" href="verso-vars.css">
+    <script>
+      const __versoSiteRoot = document.baseURI;</script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" integrity="sha384-zbcZAIxlvJtNE3Dp5nxLXdXtXyxwOdnILY1TDPVmKFhl4r4nSUG1r8bcFXGVa4Te" crossorigin="anonymous"></script>
+    <script src="-verso-search/elasticlunr.min.js"></script>
+    <script src="-verso-search/fuzzysort.js"></script>
+    <script src="-verso-search/searchIndex.js"></script>
+    <script type="module" src="-verso-search/search-init.js"></script>
+    <link rel="stylesheet" href="-verso-search/search-box.css">
+    <link rel="stylesheet" href="-verso-search/search-highlight.css">
+    <link rel="stylesheet" href="-verso-search/domain-display.css">
+    <script src="-verso-data/katex/katex.js"></script>
+    <script src="-verso-data/katex/math.js"></script>
+    <link rel="stylesheet" href="-verso-data/katex/katex.css">
+    <script src="-verso-search/search-highlight.js" defer="defer"></script>
+    </head>
+  <body>
+    <header>
+      <div class="header-logo-wrapper"></div>
+      <div class="header-title-wrapper">
+        <a href="" class="header-title"><h1>
+            PQXDH in Lean</h1>
+          </a></div>
+      </header>
+    <label for="toggle-toc" id="toggle-toc-click"><span class="line line1"></span><span class="line line2"></span><span class="line line3"></span></label><div class="with-toc">
+      <div class="toc-backdrop" onclick="document.getElementById('toggle-toc-click')?.click()"></div>
+      <nav id="toc">
+        <input type="checkbox" id="toggle-toc"><div class="first">
+          <a href="" class="toc-title"><h1>
+              PQXDH in Lean</h1>
+            </a><div class="split-tocs">
+            <div class="split-toc book">
+              <div class="title">
+                <label for="--verso-manual-toc-----bookRoot" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-----bookRoot"></label><span class="">Table of Contents</span></div>
+              <table><tr class="numbered"><td class="num">1.</td><td><a href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman">Diffie-Hellman</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Key-Derivation-Function/#PQXDH-in-Lean--Key-Derivation-Function">Key Derivation Function</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="Authenticated-Encryption-with-Associated-Data/#PQXDH-in-Lean--Authenticated-Encryption-with-Associated-Data">Authenticated Encryption with Associated Data</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Key-Encapsulation-Mechanism/#PQXDH-in-Lean--Key-Encapsulation-Mechanism">Key Encapsulation Mechanism</a></td></tr><tr class="current numbered"><td class="num">5.</td><td><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></td></tr><tr class="numbered"><td class="num">6.</td><td><a href="Security-Definitions/#PQXDH-in-Lean--Security-Definitions">Security Definitions</a></td></tr><tr class="numbered"><td class="num">7.</td><td><a href="The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol">The PQXDH Protocol</a></td></tr></table></div>
+            <div class="split-toc">
+              <div class="title">
+                <label for="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" checked="checked"></label><span class="number">5.</span> <span class=""><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></span></div>
+              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr><tr class="current numbered"><td class="num">5.6.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy">Passive Message Secrecy</a></td></tr></table></div>
+            <div class="split-toc">
+              <div class="title">
+                <label for="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy" checked="checked"></label><span class="number">5.6.</span> <span class="current"><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy">Passive Message Secrecy</a></span></div>
+              <table><tr class="numbered"><td class="num">5.6.1.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Random-Oracle-Model">Random Oracle Model</a></td></tr><tr class="numbered"><td class="num">5.6.2.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Passive-adversary">Passive adversary</a></td></tr><tr class="numbered"><td class="num">5.6.3.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">5.6.4.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">5.6.5.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">5.6.6.</td><td><a href="The-X3DH-Protocol/Passive-Message-Secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
+            </div>
+          </div>
+        <div class="last"></div>
+        </nav>
+      <main><div class="content-wrapper">
+          <nav class="prev-next-buttons">
+            <a class="local-button active" href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness" rel="prev" title="5.5. Handshake correctness"><span class="arrow">←</span><span class="where">5.5. Handshake correctness</span></a><a class="local-button active" href="Security-Definitions/#PQXDH-in-Lean--Security-Definitions" rel="next" title="6. Security Definitions"><span class="where">6. Security Definitions</span><span class="arrow">→</span></a></nav>
+          <section>
+            <h1>
+              5.6. Passive Message Secrecy</h1>
+            <p>
+              Passive message secrecy for X3DH under the Random Oracle Model,
+using VCV-io for security game definitions.</p>
+            <section>
+              <h2 id="PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Random-Oracle-Model">
+                5.6.1. Random Oracle Model</h2>
+              <p>
+                In the real protocol, the KDF (HKDF-SHA-256) is a deterministic
+function. In the security proof, we replace it with a <strong>random
+oracle</strong>: a function that, on each new input, returns a uniformly
+random output and caches it for consistency (same input always
+gives the same output).</p>
+              <p>
+                This is the standard ROM assumption from the paper (assumption 4).
+It lets us argue that the session key is indistinguishable from
+random whenever the KDF input contains a fresh random component
+(as happens when DH3 is replaced with a random group element in
+the DDH reduction).</p>
+              <p>
+                In VCV-io, the ROM is modeled as an oracle spec with a cached
+implementation:</p>
+              <pre>-- Oracle spec: maps DH tuples to session keys
+abbrev KDFOracle (I K : Type) := I -&gt;o K
+
+-- Implementation: lazy cached uniform sampling
+randomOracle : QueryImpl (KDFOracle I K)
+  (StateT (KDFOracle I K).QueryCache ProbComp)
+</pre><p>
+                The game has access to this oracle via
+<code>OracleComp (unifSpec + KDFOracle ...)</code>. To compute probabilities,
+we execute the game with the ROM using <code>simulateQ</code>:</p>
+              <pre>noncomputable def execWithROM
+    (comp : OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) Bool)
+    : ProbComp Bool :=
+  let ro := randomOracle
+  let idImpl := (QueryImpl.ofLift unifSpec ProbComp).liftTarget (...)
+  StateT.run' (simulateQ (idImpl + ro) comp) empty
+</pre></section>
+            <section>
+              <h2 id="PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Passive-adversary">
+                5.6.2. Passive adversary</h2>
+              <p>
+                A passive adversary sees the public transcript and a candidate
+session key. It has ROM access and outputs a Bool guess:</p>
+              <pre>abbrev PassiveAdversary (G SK : Type) :=
+  G -&gt; G -&gt; G -&gt; G -&gt; G -&gt; SK -&gt;
+    OracleComp (KDFOracle (G * G * G * G) SK) Bool
+</pre></section>
+            <section>
+              <h2 id="PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Two-game-formulation">
+                5.6.3. Two-game formulation</h2>
+              <p>
+                Both games share a common structure that samples keys, computes
+public values and the DH tuple, then obtains a session key via
+a callback:</p>
+              <pre>private def passiveGame (g : G)
+    (adv : PassiveAdversary G SK)
+    (getSK : (G * G * G * G) -&gt;
+             OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) SK)
+    : OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) Bool := do
+  let ikA &lt;- $t F; let ekA &lt;- $t F
+  let ikB &lt;- $t F; let spkB &lt;- $t F; let opkB &lt;- $t F
+  let IKA := ikA . g; let EKA := ekA . g
+  let IKB := ikB . g; let SPKB := spkB . g; let OPKB := opkB . g
+  let dh := X3DH_Alice ikA ekA IKB SPKB (some OPKB)
+  let sk &lt;- getSK dh
+  adv IKA EKA IKB SPKB OPKB sk
+</pre><p>
+                The real and random games differ only in getSK:</p>
+              <pre>-- Real: query ROM on DH tuple
+def passiveReal (g : G) (adv : PassiveAdversary G SK) :=
+  passiveGame g adv fun dh =&gt; query (Sum.inr dh)
+
+-- Random: sample uniformly, ignore DH tuple
+def passiveRand (g : G) (adv : PassiveAdversary G SK) :=
+  passiveGame g adv fun _ =&gt; $t SK
+</pre></section>
+            <section>
+              <h2 id="PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Advantage">
+                5.6.4. Advantage</h2>
+              <pre>noncomputable def passiveSecrecyAdvantage (g : G)
+    (adv : PassiveAdversary G SK) : R :=
+  ProbComp.boolDistAdvantage
+    (execWithROM (passiveReal g adv))
+    (execWithROM (passiveRand g adv))
+</pre><p>
+                The advantage is |Pr[true | real] - Pr[true | rand]|.
+A value of 0 means the adversary cannot distinguish the games.</p>
+              </section>
+            <section>
+              <h2 id="PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--DDH-reduction">
+                5.6.5. DDH reduction</h2>
+              <p>
+                Given a passive adversary A, we construct a DDH adversary B that
+embeds the DDH challenge (g, EKA, SPKB, T) as DH3:</p>
+              <pre>noncomputable def ddhReduction
+    (adv : PassiveAdversary G SK) :
+    DiffieHellman.DDHAdversary F G :=
+  fun g EKA SPKB T =&gt;
+    let inner := do
+      let ikA &lt;- $t F; let ikB &lt;- $t F; let opkB &lt;- $t F
+      let IKA := ikA . g; let IKB := ikB . g; let OPKB := opkB . g
+      let dh := (ikA . SPKB, ikB . EKA, T, opkB . EKA)
+      let sk &lt;- query (Sum.inr dh)
+      adv IKA EKA IKB SPKB OPKB sk
+    execWithROM inner
+</pre><p>
+                No internal coin flip: the DDH experiment's own bit handles
+real/random branching. This makes the bound tight (no factor of 2).</p>
+              </section>
+            <section>
+              <h2 id="PQXDH-in-Lean--The-X3DH-Protocol--Passive-Message-Secrecy--Security-theorem">
+                5.6.6. Security theorem</h2>
+              <pre>theorem passive_secrecy_le_ddh (g : G)
+    (adv : PassiveAdversary G SK) :
+    passiveSecrecyAdvantage g adv &lt;=
+    ProbComp.boolDistAdvantage
+      (DiffieHellman.ddhExpReal g (ddhReduction adv))
+      (DiffieHellman.ddhExpRand g (ddhReduction adv))
+</pre><p>
+                The proof reduces to two distributional equivalence lemmas
+(currently sorry):</p>
+              <ul>
+                <li>
+                  <p>
+                    The real passive game has the same distribution as the DDH real
+  game composed with the reduction (by sampling order independence
+  and smul<em>smul + mul</em>comm).</p>
+                  </li>
+                <li>
+                  <p>
+                    The random passive game has the same distribution as the DDH
+  random game (by ROM freshness: querying on an input containing
+  a random component produces uniform output).</p>
+                  </li>
+                </ul>
+              <p>
+                The main theorem itself is fully proved from these two lemmas.
+</p>
+              </section>
+            </section>
+          <nav class="prev-next-buttons">
+            <a class="local-button active" href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness" rel="prev" title="5.5. Handshake correctness"><span class="arrow">←</span><span class="where">5.5. Handshake correctness</span></a><a class="local-button active" href="Security-Definitions/#PQXDH-in-Lean--Security-Definitions" rel="next" title="6. Security Definitions"><span class="where">6. Security Definitions</span><span class="arrow">→</span></a></nav>
+          </div>
+        </main></div>
+    </body>
+  </html>
+

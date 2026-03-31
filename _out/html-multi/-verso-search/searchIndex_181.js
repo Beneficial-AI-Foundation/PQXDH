@@ -1,1 +1,1 @@
-window.docContents[181].resolve({"/The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol":{"contents":"This section is under revision.\n\n\n","context":"PQXDH in Lean","header":"8. The PQXDH Protocol","id":"/The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol"}});
+window.docContents[181].resolve({"/The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol":{"contents":"This section is under revision.\n\n\n","context":"PQXDH in Lean","header":"7. The PQXDH Protocol","id":"/The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol"}});
