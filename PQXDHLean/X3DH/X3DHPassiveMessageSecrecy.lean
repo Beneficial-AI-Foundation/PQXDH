@@ -49,6 +49,7 @@ import VCVio.OracleComp.Constructions.SampleableType
 import VCVio.CryptoFoundations.HardnessAssumptions.DiffieHellman
 import VCVio.OracleComp.QueryTracking.RandomOracle
 import VCVio.OracleComp.SimSemantics.Append
+import VCVio.ProgramLogic.Tactics
 
 open OracleComp OracleSpec
 
@@ -216,16 +217,43 @@ private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
-  -- After unfolding, LHS has `simulateQ (idImpl + kdfImpl) ...` wrapping
-  -- each `$ᵗ F` sample via `liftM`. RHS has plain `$ᵗ F`. These are
-  -- distributionally equal but not syntactically equal.
+  simp only [passiveReal, passiveGame, DiffieHellman.ddhExpReal,
+    ddhReduction, execGame, X3DH_Alice, DH,
+    simulateQ_bind, simulateQ_query,
+    ← OracleComp.liftComp_eq_liftM,
+    QueryImpl.simulateQ_add_liftComp_left,
+    QueryImpl.simulateQ_add_liftComp_right,
+    bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
+  ext z
+  change Pr[= z | _] = Pr[= z | _]
+  simp only [QueryImpl.ofLift_eq_id', simulateQ_id', Option.getD_some,
+    OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
+  -- Goal after simp (with bound variables named for clarity):
+  -- LHS: let a ← $ᵗF; let b ← $ᵗF; let c ← $ᵗF; let d ← $ᵗF; let e ← $ᵗF; let sk ← $ᵗSK;
+  --      adv (a•g) (b•g) (c•g) (d•g) (e•g) (...sk...)
+  -- Here a=ikₐ, b=ekₐ, c=ikᵦ, d=spkᵦ, e=opkᵦ
   --
-  -- Remaining work: prove that `simulateQ (idImpl + kdfImpl) (liftM ($ᵗ F))`
-  -- has the same evalDist as `$ᵗ F`, then apply the ElGamal-style
-  -- bubble sort (probOutput_bind_bind_swap × 3).
+  -- RHS: let b ← $ᵗF; let d ← $ᵗF; let a ← $ᵗF; let c ← $ᵗF; let e ← $ᵗF; let sk ← $ᵗSK;
+  --      adv (a•g) (b•g) (c•g) (d•g) (e•g) (...sk...)
+  -- Same body, different draw order.
   --
-  -- The swap pattern is validated: `rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]`
-  -- works at the ProbComp level. The blocker is reducing the simulateQ/liftM layer.
+  -- Since all draws are from $ᵗF, we just need to permute them:
+  -- (a,b,c,d,e) → (b,d,a,c,e)
+  -- = swap(0,1) then swap(2,3) then swap(1,2)
+  --
+  -- Both sides sample 5 from $ᵗ F + 1 from $ᵗ SK then apply a function
+  -- with the draws permuted and the DH tuple algebraically equivalent
+  -- (via smul_smul + mul_comm). Try vcstep rw for automated bind-swaps.
+  vcstep rw
+  vcstep rw
+  vcstep rw
+  vcstep rw
+  vcstep rw
+  -- Remaining: same draws in same order, but body differs by a permutation
+  -- of bound variable usage. Try more swaps or congr.
+  -- After vcstep rw × 5, the DH tuples are simplified but draws
+  -- are still in different order with different role assignments.
+  -- Remaining: permutation of 5 i.i.d. F-draws with matching body.
   sorry
 
 /-- The random passive game equals the DDH random game with the reduction.
