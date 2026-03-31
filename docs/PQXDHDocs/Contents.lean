@@ -39,6 +39,5 @@ The source code is available on [GitHub](https://github.com/Beneficial-AI-Founda
 {include 1 PQXDHDocs.DocAEAD}
 {include 1 PQXDHDocs.DocKEM}
 {include 1 PQXDHDocs.DocX3DH}
-{include 1 PQXDHDocs.DocX3DHPassiveSecrecy}
 {include 1 PQXDHDocs.DocSecurityDefs}
 {include 1 PQXDHDocs.DocPQXDH}
