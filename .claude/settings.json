@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(~/.elan/toolchains/leanprover-lean4-v4.29.0-rc6/bin/lean --version)",
+      "Read(//home/cbraga/Dropbox/BAIF/PQXDH/**)",
+      "Read(//home/cbraga/Dropbox/BAIF/**)",
+      "Bash(python3 -c \"import fitz; print\\(fitz.__version__\\)\")",
+      "Bash(/tmp/pdfenv/bin/python /tmp/annotate_pdf.py)",
+      "Bash(lake build:*)",
+      "Bash(xdg-open http://localhost:8080)",
+      "Bash(lake clean:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(.lake/build/bin/docs)",
+      "Bash(grep doc-comment:*)"
+    ]
+  }
+}
