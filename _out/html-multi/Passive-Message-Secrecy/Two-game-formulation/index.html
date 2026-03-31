@@ -49,10 +49,10 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" checked="checked"></label><span class="number">6.</span> <span class=""><a href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy">Passive Message Secrecy</a></span></div>
-              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary">Passive adversary</a></td></tr><tr class="current numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model">Random Oracle Model</a></td></tr><tr class="numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary">Passive adversary</a></td></tr><tr class="current numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.6.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
-                <span class="no-toggle"></span><span class="number">6.2.</span> <span class="current"><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></span></div>
+                <span class="no-toggle"></span><span class="number">6.3.</span> <span class="current"><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></span></div>
               </div>
             </div>
           </div>
@@ -60,10 +60,10 @@
         </nav>
       <main><div class="content-wrapper">
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="prev" title="6.1. Passive adversary"><span class="arrow">←</span><span class="where">6.1. Passive adversary</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.3. Advantage"><span class="where">6.3. Advantage</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="prev" title="6.2. Passive adversary"><span class="arrow">←</span><span class="where">6.2. Passive adversary</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.4. Advantage"><span class="where">6.4. Advantage</span><span class="arrow">→</span></a></nav>
           <section>
             <h1>
-              6.2. Two-game formulation</h1>
+              6.3. Two-game formulation</h1>
             <p>
               Both games share a common structure that samples keys, computes
 public values and the DH tuple, then obtains a session key via
@@ -91,7 +91,7 @@ def passiveRand (g : G) (adv : PassiveAdversary G SK) :=
   passiveGame g adv fun _ =&gt; $t SK
 </pre></section>
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="prev" title="6.1. Passive adversary"><span class="arrow">←</span><span class="where">6.1. Passive adversary</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.3. Advantage"><span class="where">6.3. Advantage</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="prev" title="6.2. Passive adversary"><span class="arrow">←</span><span class="where">6.2. Passive adversary</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.4. Advantage"><span class="where">6.4. Advantage</span><span class="arrow">→</span></a></nav>
           </div>
         </main></div>
     </body>
