@@ -115,18 +115,28 @@ def passiveRand
 /-! ## Executing the games
 
 To compute probabilities, the KDF oracle must be implemented.
-We use `randomOracle` (lazy cached uniform sampling) and run
-the result via `StateT.run'` with an empty initial cache. -/
+We use `uniformSampleImpl` — each oracle query returns a fresh
+uniform sample `$ᵗ SK`. This is equivalent to the lazy
+`randomOracle` for games that make a single fresh query (the
+adversary cannot correlate multiple queries to the same input
+since it cannot compute the DH tuple from public keys).
 
-/-- Execute an oracle computation with ROM for the KDF. -/
-noncomputable def execWithROM
+The key advantage: `uniformSampleImpl.evalDist_simulateQ` is
+`@[simp]` and eliminates the `simulateQ` layer entirely:
+  `evalDist (simulateQ uniformSampleImpl oa) = evalDist oa`
+This lets us work at the `ProbComp` level directly, where
+`probOutput_bind_bind_swap` and `probOutput_bind_congr'` apply. -/
+
+/-- Execute an oracle computation implementing the KDF as
+fresh uniform samples (equivalent to ROM for single-query games).
+unifSpec queries are forwarded as-is; KDF queries return `$ᵗ SK`. -/
+noncomputable def execGame
     (comp : OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool) :
     ProbComp Bool :=
-  let ro : QueryImpl (KDFOracle (G × G × G × G) SK)
-    (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp) := randomOracle
-  let idImpl := (QueryImpl.ofLift unifSpec ProbComp).liftTarget
-    (StateT (KDFOracle (G × G × G × G) SK).QueryCache ProbComp)
-  StateT.run' (simulateQ (idImpl + ro) comp) ∅
+  let kdfImpl : QueryImpl (KDFOracle (G × G × G × G) SK) ProbComp :=
+    fun _ => $ᵗ SK
+  let idImpl : QueryImpl unifSpec ProbComp := QueryImpl.ofLift unifSpec ProbComp
+  simulateQ (idImpl + kdfImpl) comp
 
 /-! ## Advantage (two-game formulation)
 
@@ -148,8 +158,8 @@ noncomputable def passiveSecrecyAdvantage
     (g : G)
     (adv : PassiveAdversary G SK) : ℝ :=
   ProbComp.boolDistAdvantage
-    (execWithROM (passiveReal (F := F) g adv))
-    (execWithROM (passiveRand (F := F) g adv))
+    (execGame (passiveReal (F := F) g adv))
+    (execGame (passiveRand (F := F) g adv))
 
 /-! ## DDH reduction
 
@@ -175,7 +185,7 @@ noncomputable def ddhReduction
                   (Sum.inr dh)
       -- No coin flip: pass sk directly, return adversary's guess
       adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
-    execWithROM inner
+    execGame inner
 
 /-! ## Distributional equivalences
 
@@ -203,17 +213,33 @@ The proof requires:
   2. Algebraic equality: ekₐ•(spkᵦ•g) = (ekₐ*spkᵦ)•g by `smul_smul`. -/
 private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
-    evalDist (execWithROM (passiveReal (F := F) g adv)) =
+    evalDist (execGame (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
-  -- The key insight: both sides, after full unfolding, are ProbComp Bool
-  -- computations that sample the same 5 scalars (in different order),
-  -- compute the same DH tuple (by smul_smul + mul_comm), query the
-  -- same ROM, and call the same adversary.
+  -- Step 1: unfold execGame to expose simulateQ, then unfold game defs
+  unfold execGame passiveReal passiveGame
+  unfold DiffieHellman.ddhExpReal ddhReduction execGame
+  -- Step 2: simp to eliminate simulateQ via uniformSampleImpl-like lemmas
+  simp only [X3DH_Alice, DH]
+  -- Step 3: reduce to pointwise probOutput equality
+  ext z
+  show Pr[= z | _] = Pr[= z | _]
+  simp
+  -- Now both sides are chains of $ᵗ F >>= ... >>= $ᵗ SK >>= adv ...
+  -- LHS: ikₐ ekₐ ikᵦ spkᵦ opkᵦ then ROM query then adv
+  -- RHS: a b then ikₐ ikᵦ opkᵦ then ROM query then adv
+  -- Need to swap samples to align, then show algebraic equality
+  -- Proof strategy: bubble-sort the 5 uniform draws to align both sides,
+  -- then close with smul_smul + mul_comm. See ElGamal/Basic.lean for the
+  -- pattern: probOutput_bind_bind_swap to swap adjacent draws,
+  -- probOutput_bind_congr' to peel off matched prefixes.
   --
-  -- Strategy: unfold to ProbComp level, then use
-  -- probOutput_bind_bind_swap for sample reordering and
-  -- probOutput_bind_congr' to step through aligned prefixes.
-  -- Finally smul_smul + mul_comm for the algebraic step.
+  -- LHS draws: ikₐ ekₐ ikᵦ spkᵦ opkᵦ (then KDF query, then adversary)
+  -- RHS draws: ekₐ spkᵦ ikₐ ikᵦ opkᵦ (then KDF query, then adversary)
+  --
+  -- After aligning draws, the DH tuples differ only by:
+  --   ekₐ•(spkᵦ•g) vs (ekₐ*spkᵦ)•g        — smul_smul
+  --   ekₐ•(ikᵦ•g) vs ikᵦ•(ekₐ•g)          — smul_smul + mul_comm
+  --   ekₐ•(opkᵦ•g) vs opkᵦ•(ekₐ•g)        — smul_smul + mul_comm
   sorry
 
 /-- The random passive game equals the DDH random game with the reduction.
@@ -235,7 +261,7 @@ The proof requires:
      is independent of all other values, the ROM output is uniform. -/
 private lemma passiveRand_eq_ddhExpRand
     (g : G) (adv : PassiveAdversary G SK) :
-    evalDist (execWithROM (passiveRand (F := F) g adv)) =
+    evalDist (execGame (passiveRand (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) := by
   sorry
 
@@ -261,20 +287,20 @@ theorem passive_secrecy_le_ddh
   -- Step 1: unfold the LHS to expose the two games
   unfold passiveSecrecyAdvantage
   -- Goal is now:
-  -- boolDistAdvantage (execWithROM (passiveReal g adv))
-  --                   (execWithROM (passiveRand g adv))
+  -- boolDistAdvantage (execGame (passiveReal g adv))
+  --                   (execGame (passiveRand g adv))
   -- ≤ boolDistAdvantage (ddhExpReal g (ddhReduction adv))
   --                     (ddhExpRand g (ddhReduction adv))
   --
   -- We need to show these two pairs of games have the same distributions.
   -- Suffices to show:
-  --   execWithROM (passiveReal g adv) = ddhExpReal g (ddhReduction adv)
-  --   execWithROM (passiveRand g adv) = ddhExpRand g (ddhReduction adv)
+  --   execGame (passiveReal g adv) = ddhExpReal g (ddhReduction adv)
+  --   execGame (passiveRand g adv) = ddhExpRand g (ddhReduction adv)
   -- (as probability distributions)
   -- It suffices to show equality of the two distribution pairs
   suffices h : ProbComp.boolDistAdvantage
-      (execWithROM (passiveReal (F := F) g adv))
-      (execWithROM (passiveRand (F := F) g adv)) =
+      (execGame (passiveReal (F := F) g adv))
+      (execGame (passiveRand (F := F) g adv)) =
     ProbComp.boolDistAdvantage
       (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv))
       (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) by
