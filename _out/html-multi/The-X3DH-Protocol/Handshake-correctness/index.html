@@ -49,7 +49,7 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" checked="checked"></label><span class="number">5.</span> <span class=""><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></span></div>
-              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="current numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr><tr class="numbered"><td class="num">5.6.</td><td><a href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy">Passive message secrecy</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="current numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
                 <span class="no-toggle"></span><span class="number">5.5.</span> <span class="current"><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></span></div>
@@ -60,17 +60,28 @@
         </nav>
       <main><div class="content-wrapper">
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation" rel="prev" title="5.4. Session key derivation"><span class="arrow">←</span><span class="where">5.4. Session key derivation</span></a><a class="local-button active" href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy" rel="next" title="5.6. Passive message secrecy"><span class="where">5.6. Passive message secrecy</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation" rel="prev" title="5.4. Session key derivation"><span class="arrow">←</span><span class="where">5.4. Session key derivation</span></a><a class="local-button active" href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy" rel="next" title="6. Passive Message Secrecy"><span class="where">6. Passive Message Secrecy</span><span class="arrow">→</span></a></nav>
           <section>
             <h1>
               5.5. Handshake correctness</h1>
             <p>
-              End-to-end correctness: Bob can decrypt Alice's first message. This
-composes three results: DH agreement, session key agreement via KDF,
-and AEAD correctness.</p>
+              End-to-end correctness: Bob can decrypt Alice's first message.</p>
+            <pre>theorem X3DH_handshake_correct
+    (kdf : KDF (G * G * G * G) SK)
+    (aead : AEAD SK PT CT_aead (G * G))
+    {G0 : G}
+    (ikA ekA ikB spkB : KeyPair F G G0)
+    (opkB : Option (KeyPair F G G0))
+    (msg : PT) (ct : CT_aead)
+    (h_enc : ct = aead.encrypt (...) msg (ikA.pub, ikB.pub)) :
+    aead.decrypt (...) ct (ikA.pub, ikB.pub) = some msg
+</pre><p>
+              This composes DH agreement, session key agreement via KDF,
+and AEAD correctness.
+</p>
             </section>
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation" rel="prev" title="5.4. Session key derivation"><span class="arrow">←</span><span class="where">5.4. Session key derivation</span></a><a class="local-button active" href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy" rel="next" title="5.6. Passive message secrecy"><span class="where">5.6. Passive message secrecy</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation" rel="prev" title="5.4. Session key derivation"><span class="arrow">←</span><span class="where">5.4. Session key derivation</span></a><a class="local-button active" href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy" rel="next" title="6. Passive Message Secrecy"><span class="where">6. Passive Message Secrecy</span><span class="arrow">→</span></a></nav>
           </div>
         </main></div>
     </body>

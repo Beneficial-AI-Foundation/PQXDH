@@ -49,7 +49,7 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" checked="checked"></label><span class="number">5.</span> <span class=""><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></span></div>
-              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="current numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr><tr class="numbered"><td class="num">5.6.</td><td><a href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy">Passive message secrecy</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="current numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
                 <span class="no-toggle"></span><span class="number">5.4.</span> <span class="current"><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></span></div>
@@ -65,8 +65,13 @@
             <h1>
               5.4. Session key derivation</h1>
             <p>
-              Both parties feed the DH tuple into a KDF to obtain a session key SK.
-Since the DH tuples are equal, the derived session keys are equal.</p>
+              Both parties feed the DH tuple into a KDF to obtain a session key:</p>
+            <pre>def X3DH_SK_Alice (kdf : KDF (G * G * G * G) SK)
+    (ikA ekA : F) (IKB SPKB : G) (OPKB : Option G) : SK :=
+  kdf.derive (X3DH_Alice ikA ekA IKB SPKB OPKB)
+</pre><p>
+              Since the DH tuples are equal (by X3DH<em>agree), the derived session
+keys are equal (X3DH</em>session<em>key</em>agree).</p>
             </section>
           <nav class="prev-next-buttons">
             <a class="local-button active" href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness" rel="prev" title="5.3. Correctness"><span class="arrow">←</span><span class="where">5.3. Correctness</span></a><a class="local-button active" href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness" rel="next" title="5.5. Handshake correctness"><span class="where">5.5. Handshake correctness</span><span class="arrow">→</span></a></nav>

@@ -9,72 +9,104 @@ set_option pp.rawOnError true
 Passive message secrecy for X3DH under the Random Oracle Model,
 using VCV-io for security game definitions.
 
-# Goal
+# Passive adversary
 
-A passive eavesdropper who observes only public values cannot
-distinguish the session key from a random key.
+A passive adversary sees the public transcript and a candidate
+session key. It has ROM access and outputs a Bool guess:
 
-# Random Oracle Model
-
-The KDF is modeled as a random oracle (KDFOracle, defined in
-KDF.lean). The game has oracle access to this KDF: on first query
-for an input, the oracle samples a uniform random output and
-caches it. Same input always returns the same output.
+```
+abbrev PassiveAdversary (G SK : Type) :=
+  G -> G -> G -> G -> G -> SK ->
+    OracleComp (KDFOracle (G * G * G * G) SK) Bool
+```
 
 # Two-game formulation
 
-Instead of a single game with a hidden coin flip, we define two
-games and measure the adversary's ability to distinguish them:
+Both games share a common structure that samples keys, computes
+public values and the DH tuple, then obtains a session key via
+a callback:
 
-- Real game (passiveReal): adversary receives the actual session
-  key, obtained by querying the ROM on the X3DH DH tuple.
-- Random game (passiveRand): adversary receives a uniformly random
-  key, independent of the DH tuple.
+```
+private def passiveGame (g : G)
+    (adv : PassiveAdversary G SK)
+    (getSK : (G * G * G * G) ->
+             OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) SK)
+    : OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) Bool := do
+  let ikA <- $t F; let ekA <- $t F
+  let ikB <- $t F; let spkB <- $t F; let opkB <- $t F
+  let IKA := ikA . g; let EKA := ekA . g
+  let IKB := ikB . g; let SPKB := spkB . g; let OPKB := opkB . g
+  let dh := X3DH_Alice ikA ekA IKB SPKB (some OPKB)
+  let sk <- getSK dh
+  adv IKA EKA IKB SPKB OPKB sk
+```
 
-Both games share a common structure (passiveGame): sample 5 private
-keys, compute public keys and the DH tuple, obtain a session key
-via a callback (getSK), and pass it to the adversary. The real and
-random games differ only in getSK.
+The real and random games differ only in getSK:
+
+```
+-- Real: query ROM on DH tuple
+def passiveReal (g : G) (adv : PassiveAdversary G SK) :=
+  passiveGame g adv fun dh => query (Sum.inr dh)
+
+-- Random: sample uniformly, ignore DH tuple
+def passiveRand (g : G) (adv : PassiveAdversary G SK) :=
+  passiveGame g adv fun _ => $t SK
+```
 
 # Advantage
 
-The passive secrecy advantage is defined as
-|Pr\[true | real\] - Pr\[true | rand\]| using VCV-io's
-boolDistAdvantage. An advantage of 0 means the adversary cannot
-tell the games apart; an advantage of 1 means it always can.
+```
+noncomputable def passiveSecrecyAdvantage (g : G)
+    (adv : PassiveAdversary G SK) : R :=
+  ProbComp.boolDistAdvantage
+    (execWithROM (passiveReal g adv))
+    (execWithROM (passiveRand g adv))
+```
+
+The advantage is |Pr\[true | real\] - Pr\[true | rand\]|.
+A value of 0 means the adversary cannot distinguish the games.
 
 # DDH reduction
 
-Given a passive adversary A, we construct a DDH adversary B
-(ddhReduction) that:
+Given a passive adversary A, we construct a DDH adversary B that
+embeds the DDH challenge (g, EKA, SPKB, T) as DH3:
 
-1. Receives the DDH challenge (g, EKA, SPKB, T)
-2. Samples the remaining keys honestly (ikA, ikB, opkB)
-3. Embeds T as DH3 in the X3DH DH tuple
-4. Queries the ROM on the DH tuple to get a session key
-5. Passes the session key directly to A (no coin flip)
-6. Returns A's guess as its own
+```
+noncomputable def ddhReduction
+    (adv : PassiveAdversary G SK) :
+    DiffieHellman.DDHAdversary F G :=
+  fun g EKA SPKB T =>
+    let inner := do
+      let ikA <- $t F; let ikB <- $t F; let opkB <- $t F
+      let IKA := ikA . g; let IKB := ikB . g; let OPKB := opkB . g
+      let dh := (ikA . SPKB, ikB . EKA, T, opkB . EKA)
+      let sk <- query (Sum.inr dh)
+      adv IKA EKA IKB SPKB OPKB sk
+    execWithROM inner
+```
 
-The reduction has no internal coin flip. The DDH experiment's own
-bit handles the real/random branching. This makes the bound tight
-(no factor of 2).
+No internal coin flip: the DDH experiment's own bit handles
+real/random branching. This makes the bound tight (no factor of 2).
 
 # Security theorem
 
-The passive secrecy advantage of any adversary A is bounded by the
-DDH distinguishing advantage of the reduction B:
+```
+theorem passive_secrecy_le_ddh (g : G)
+    (adv : PassiveAdversary G SK) :
+    passiveSecrecyAdvantage g adv <=
+    ProbComp.boolDistAdvantage
+      (DiffieHellman.ddhExpReal g (ddhReduction adv))
+      (DiffieHellman.ddhExpRand g (ddhReduction adv))
+```
 
-  passiveSecrecyAdvantage(A) <= ddhDistAdvantage(B)
-
-The proof reduces to two distributional equivalence lemmas:
+The proof reduces to two distributional equivalence lemmas
+(currently sorry):
 
 - The real passive game has the same distribution as the DDH real
-  game composed with the reduction.
+  game composed with the reduction (by sampling order independence
+  and smul_smul + mul_comm).
 - The random passive game has the same distribution as the DDH
-  random game composed with the reduction.
+  random game (by ROM freshness: querying on an input containing
+  a random component produces uniform output).
 
-The main theorem is fully proved from these two lemmas. The lemmas
-themselves require showing that two sampling sequences produce the
-same joint distribution (sampling order independence plus Module
-commutativity). This is the current formalization frontier, matching
-the semantic step that CryptoVerif handles as a built-in swap axiom.
+The main theorem itself is fully proved from these two lemmas.
