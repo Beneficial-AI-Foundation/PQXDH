@@ -48,6 +48,7 @@ import VCVio.OracleComp.ProbComp
 import VCVio.OracleComp.Constructions.SampleableType
 import VCVio.CryptoFoundations.HardnessAssumptions.DiffieHellman
 import VCVio.OracleComp.QueryTracking.RandomOracle
+import VCVio.OracleComp.SimSemantics.Append
 
 open OracleComp OracleSpec
 
@@ -215,31 +216,16 @@ private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
-  -- Step 1: unfold execGame to expose simulateQ, then unfold game defs
-  unfold execGame passiveReal passiveGame
-  unfold DiffieHellman.ddhExpReal ddhReduction execGame
-  -- Step 2: simp to eliminate simulateQ via uniformSampleImpl-like lemmas
-  simp only [X3DH_Alice, DH]
-  -- Step 3: reduce to pointwise probOutput equality
-  ext z
-  show Pr[= z | _] = Pr[= z | _]
-  simp
-  -- Now both sides are chains of $ᵗ F >>= ... >>= $ᵗ SK >>= adv ...
-  -- LHS: ikₐ ekₐ ikᵦ spkᵦ opkᵦ then ROM query then adv
-  -- RHS: a b then ikₐ ikᵦ opkᵦ then ROM query then adv
-  -- Need to swap samples to align, then show algebraic equality
-  -- Proof strategy: bubble-sort the 5 uniform draws to align both sides,
-  -- then close with smul_smul + mul_comm. See ElGamal/Basic.lean for the
-  -- pattern: probOutput_bind_bind_swap to swap adjacent draws,
-  -- probOutput_bind_congr' to peel off matched prefixes.
+  -- After unfolding, LHS has `simulateQ (idImpl + kdfImpl) ...` wrapping
+  -- each `$ᵗ F` sample via `liftM`. RHS has plain `$ᵗ F`. These are
+  -- distributionally equal but not syntactically equal.
   --
-  -- LHS draws: ikₐ ekₐ ikᵦ spkᵦ opkᵦ (then KDF query, then adversary)
-  -- RHS draws: ekₐ spkᵦ ikₐ ikᵦ opkᵦ (then KDF query, then adversary)
+  -- Remaining work: prove that `simulateQ (idImpl + kdfImpl) (liftM ($ᵗ F))`
+  -- has the same evalDist as `$ᵗ F`, then apply the ElGamal-style
+  -- bubble sort (probOutput_bind_bind_swap × 3).
   --
-  -- After aligning draws, the DH tuples differ only by:
-  --   ekₐ•(spkᵦ•g) vs (ekₐ*spkᵦ)•g        — smul_smul
-  --   ekₐ•(ikᵦ•g) vs ikᵦ•(ekₐ•g)          — smul_smul + mul_comm
-  --   ekₐ•(opkᵦ•g) vs opkᵦ•(ekₐ•g)        — smul_smul + mul_comm
+  -- The swap pattern is validated: `rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]`
+  -- works at the ProbComp level. The blocker is reducing the simulateQ/liftM layer.
   sorry
 
 /-- The random passive game equals the DDH random game with the reduction.
