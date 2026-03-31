@@ -41,9 +41,9 @@ jobs:
         run: |
           lake exe cache get 2>&1 || echo "cache get returned non-zero (may be partial)"
 
-      - name: Update Lake dependencies
+      - name: Update VCVio dependency
         run: |
-          lake update
+          lake update VCVio
 
       - name: Build main project
         run: |
