@@ -45,7 +45,7 @@
             <div class="split-toc book">
               <div class="title">
                 <label for="--verso-manual-toc-----bookRoot" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-----bookRoot"></label><span class="">Table of Contents</span></div>
-              <table><tr class="numbered"><td class="num">1.</td><td><a href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman">Diffie-Hellman</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Key-Derivation-Function/#PQXDH-in-Lean--Key-Derivation-Function">Key Derivation Function</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="Authenticated-Encryption-with-Associated-Data/#PQXDH-in-Lean--Authenticated-Encryption-with-Associated-Data">Authenticated Encryption with Associated Data</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Key-Encapsulation-Mechanism/#PQXDH-in-Lean--Key-Encapsulation-Mechanism">Key Encapsulation Mechanism</a></td></tr><tr class="current numbered"><td class="num">5.</td><td><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></td></tr><tr class="numbered"><td class="num">6.</td><td><a href="Security-Definitions/#PQXDH-in-Lean--Security-Definitions">Security Definitions</a></td></tr><tr class="numbered"><td class="num">7.</td><td><a href="The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol">The PQXDH Protocol</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">1.</td><td><a href="Diffie-Hellman/#PQXDH-in-Lean--Diffie-Hellman">Diffie-Hellman</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Key-Derivation-Function/#PQXDH-in-Lean--Key-Derivation-Function">Key Derivation Function</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="Authenticated-Encryption-with-Associated-Data/#PQXDH-in-Lean--Authenticated-Encryption-with-Associated-Data">Authenticated Encryption with Associated Data</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Key-Encapsulation-Mechanism/#PQXDH-in-Lean--Key-Encapsulation-Mechanism">Key Encapsulation Mechanism</a></td></tr><tr class="current numbered"><td class="num">5.</td><td><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></td></tr><tr class="numbered"><td class="num">6.</td><td><a href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy">Passive Message Secrecy</a></td></tr><tr class="numbered"><td class="num">7.</td><td><a href="Security-Definitions/#PQXDH-in-Lean--Security-Definitions">Security Definitions</a></td></tr><tr class="numbered"><td class="num">8.</td><td><a href="The-PQXDH-Protocol/#PQXDH-in-Lean--The-PQXDH-Protocol">The PQXDH Protocol</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" checked="checked"></label><span class="number">5.</span> <span class=""><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></span></div>
@@ -65,9 +65,13 @@
             <h1>
               5.1. Key pairs</h1>
             <p>
-              A key pair binds a private scalar to its public key, derived from a
-shared generator. The generator is a type parameter, so all key pairs
-share the same generator by construction.</p>
+              A key pair binds a private scalar (in a field F) to its public key
+(a group element), derived from a shared generator. The generator
+is a type parameter, enforcing that all key pairs in a session share
+the same generator by construction.</p>
+            <p>
+              The paper defines four key types: identity (IK), signed prekey (SPK),
+one-time prekey (OPK), and ephemeral (EK).</p>
             </section>
           <nav class="prev-next-buttons">
             <a class="local-button active" href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol" rel="prev" title="5. The X3DH Protocol"><span class="arrow">←</span><span class="where">5. The X3DH Protocol</span></a><a class="local-button active" href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation" rel="next" title="5.2. Shared secret computation"><span class="where">5.2. Shared secret computation</span><span class="arrow">→</span></a></nav>
