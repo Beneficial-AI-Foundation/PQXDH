@@ -213,6 +213,7 @@ The proof requires:
   1. Sampling order independence: 5 independent uniform draws produce
      the same joint distribution regardless of order.
   2. Algebraic equality: ekₐ•(spkᵦ•g) = (ekₐ*spkᵦ)•g by `smul_smul`. -/
+
 private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveReal (F := F) g adv)) =
@@ -228,40 +229,13 @@ private lemma passiveReal_eq_ddhExpReal
   change Pr[= z | _] = Pr[= z | _]
   simp only [QueryImpl.ofLift_eq_id', simulateQ_id', Option.getD_some,
     OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
-  -- Goal after simp (with bound variables named for clarity):
-  -- LHS: let a ← $ᵗF; let b ← $ᵗF; let c ← $ᵗF; let d ← $ᵗF; let e ← $ᵗF; let sk ← $ᵗSK;
-  --      adv (a•g) (b•g) (c•g) (d•g) (e•g) (...sk...)
-  -- Here a=ikₐ, b=ekₐ, c=ikᵦ, d=spkᵦ, e=opkᵦ
-  --
-  -- RHS: let b ← $ᵗF; let d ← $ᵗF; let a ← $ᵗF; let c ← $ᵗF; let e ← $ᵗF; let sk ← $ᵗSK;
-  --      adv (a•g) (b•g) (c•g) (d•g) (e•g) (...sk...)
-  -- Same body, different draw order.
-  --
-  -- Since all draws are from $ᵗF, we just need to permute them:
-  -- (a,b,c,d,e) → (b,d,a,c,e)
-  -- = swap(0,1) then swap(2,3) then swap(1,2)
-  --
-  -- Both sides sample 5 from $ᵗ F + $ᵗ SK then apply the same body.
-  -- Draw order: LHS (a,b,c,d,e), RHS (b,d,a,c,e).
-  -- Permutation (a,b,c,d,e) → (b,d,a,c,e) via adjacent transpositions:
-  --   swap(0,1): (b,a,c,d,e)
-  --   swap(2,3): (b,a,d,c,e)
-  --   swap(1,2): (b,d,a,c,e) ✓
-  -- swap(0,1)
   rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
-  -- swap(2,3): under 2 draws, swap next two
-  -- Use: Pr[z | m₁ >>= f₁ >>= m₂ >>= f₂ >>= body] where we swap m₂ and f₂
-  -- refine under 2, then swap at top
-  refine probOutput_bind_congr' ($ᵗ F) z (fun _ => ?_)
-  refine probOutput_bind_congr' ($ᵗ F) z (fun _ => ?_)
-  rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
-  -- swap(1,2): go back to depth 1
-  -- Problem: we're now inside 2 refines. The swap(1,2) needs to
-  -- happen at depth 1, but we're at depth 2. Can't go back up.
-  --
-  -- Alternative: do all swaps on the LHS before any peeling.
-  -- swap(2,3) at depth 2 via conv:
-  sorry
+  -- Simplify DH algebra and permute remaining draws
+  simp [*] at *
+  vcstep rw under 1
+  vcstep rw under 2
+  vcstep rw under 1
+  vcstep rw under 2
 
 /-- The random passive game equals the DDH random game with the reduction.
 
