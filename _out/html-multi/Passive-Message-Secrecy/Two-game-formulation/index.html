@@ -49,10 +49,10 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" checked="checked"></label><span class="number">6.</span> <span class=""><a href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy">Passive Message Secrecy</a></span></div>
-              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Goal/#PQXDH-in-Lean--Passive-Message-Secrecy--Goal">Goal</a></td></tr><tr class="numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model">Random Oracle Model</a></td></tr><tr class="current numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.6.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary">Passive adversary</a></td></tr><tr class="current numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
-                <span class="no-toggle"></span><span class="number">6.3.</span> <span class="current"><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></span></div>
+                <span class="no-toggle"></span><span class="number">6.2.</span> <span class="current"><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></span></div>
               </div>
             </div>
           </div>
@@ -60,33 +60,38 @@
         </nav>
       <main><div class="content-wrapper">
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model" rel="prev" title="6.2. Random Oracle Model"><span class="arrow">←</span><span class="where">6.2. Random Oracle Model</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.4. Advantage"><span class="where">6.4. Advantage</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="prev" title="6.1. Passive adversary"><span class="arrow">←</span><span class="where">6.1. Passive adversary</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.3. Advantage"><span class="where">6.3. Advantage</span><span class="arrow">→</span></a></nav>
           <section>
             <h1>
-              6.3. Two-game formulation</h1>
+              6.2. Two-game formulation</h1>
             <p>
-              Instead of a single game with a hidden coin flip, we define two
-games and measure the adversary's ability to distinguish them:</p>
-            <ul>
-              <li>
-                <p>
-                  Real game (passiveReal): adversary receives the actual session
-  key, obtained by querying the ROM on the X3DH DH tuple.</p>
-                </li>
-              <li>
-                <p>
-                  Random game (passiveRand): adversary receives a uniformly random
-  key, independent of the DH tuple.</p>
-                </li>
-              </ul>
-            <p>
-              Both games share a common structure (passiveGame): sample 5 private
-keys, compute public keys and the DH tuple, obtain a session key
-via a callback (getSK), and pass it to the adversary. The real and
-random games differ only in getSK.</p>
-            </section>
+              Both games share a common structure that samples keys, computes
+public values and the DH tuple, then obtains a session key via
+a callback:</p>
+            <pre>private def passiveGame (g : G)
+    (adv : PassiveAdversary G SK)
+    (getSK : (G * G * G * G) -&gt;
+             OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) SK)
+    : OracleComp (unifSpec + KDFOracle (G * G * G * G) SK) Bool := do
+  let ikA &lt;- $t F; let ekA &lt;- $t F
+  let ikB &lt;- $t F; let spkB &lt;- $t F; let opkB &lt;- $t F
+  let IKA := ikA . g; let EKA := ekA . g
+  let IKB := ikB . g; let SPKB := spkB . g; let OPKB := opkB . g
+  let dh := X3DH_Alice ikA ekA IKB SPKB (some OPKB)
+  let sk &lt;- getSK dh
+  adv IKA EKA IKB SPKB OPKB sk
+</pre><p>
+              The real and random games differ only in getSK:</p>
+            <pre>-- Real: query ROM on DH tuple
+def passiveReal (g : G) (adv : PassiveAdversary G SK) :=
+  passiveGame g adv fun dh =&gt; query (Sum.inr dh)
+
+-- Random: sample uniformly, ignore DH tuple
+def passiveRand (g : G) (adv : PassiveAdversary G SK) :=
+  passiveGame g adv fun _ =&gt; $t SK
+</pre></section>
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model" rel="prev" title="6.2. Random Oracle Model"><span class="arrow">←</span><span class="where">6.2. Random Oracle Model</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.4. Advantage"><span class="where">6.4. Advantage</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="prev" title="6.1. Passive adversary"><span class="arrow">←</span><span class="where">6.1. Passive adversary</span></a><a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="next" title="6.3. Advantage"><span class="where">6.3. Advantage</span><span class="arrow">→</span></a></nav>
           </div>
         </main></div>
     </body>

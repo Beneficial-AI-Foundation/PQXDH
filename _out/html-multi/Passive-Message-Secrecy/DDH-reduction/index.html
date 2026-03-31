@@ -49,10 +49,10 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" checked="checked"></label><span class="number">6.</span> <span class=""><a href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy">Passive Message Secrecy</a></span></div>
-              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Goal/#PQXDH-in-Lean--Passive-Message-Secrecy--Goal">Goal</a></td></tr><tr class="numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model">Random Oracle Model</a></td></tr><tr class="numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="current numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.6.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary">Passive adversary</a></td></tr><tr class="numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="current numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
-                <span class="no-toggle"></span><span class="number">6.5.</span> <span class="current"><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></span></div>
+                <span class="no-toggle"></span><span class="number">6.4.</span> <span class="current"><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></span></div>
               </div>
             </div>
           </div>
@@ -60,46 +60,30 @@
         </nav>
       <main><div class="content-wrapper">
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="prev" title="6.4. Advantage"><span class="arrow">←</span><span class="where">6.4. Advantage</span></a><a class="local-button active" href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem" rel="next" title="6.6. Security theorem"><span class="where">6.6. Security theorem</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="prev" title="6.3. Advantage"><span class="arrow">←</span><span class="where">6.3. Advantage</span></a><a class="local-button active" href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem" rel="next" title="6.5. Security theorem"><span class="where">6.5. Security theorem</span><span class="arrow">→</span></a></nav>
           <section>
             <h1>
-              6.5. DDH reduction</h1>
+              6.4. DDH reduction</h1>
             <p>
-              Given a passive adversary A, we construct a DDH adversary B
-(ddhReduction) that:</p>
-            <ol start="1">
-              <li>
-                <p>
-                  Receives the DDH challenge (g, EKA, SPKB, T)</p>
-                </li>
-              <li>
-                <p>
-                  Samples the remaining keys honestly (ikA, ikB, opkB)</p>
-                </li>
-              <li>
-                <p>
-                  Embeds T as DH3 in the X3DH DH tuple</p>
-                </li>
-              <li>
-                <p>
-                  Queries the ROM on the DH tuple to get a session key</p>
-                </li>
-              <li>
-                <p>
-                  Passes the session key directly to A (no coin flip)</p>
-                </li>
-              <li>
-                <p>
-                  Returns A's guess as its own</p>
-                </li>
-              </ol>
-            <p>
-              The reduction has no internal coin flip. The DDH experiment's own
-bit handles the real/random branching. This makes the bound tight
-(no factor of 2).</p>
+              Given a passive adversary A, we construct a DDH adversary B that
+embeds the DDH challenge (g, EKA, SPKB, T) as DH3:</p>
+            <pre>noncomputable def ddhReduction
+    (adv : PassiveAdversary G SK) :
+    DiffieHellman.DDHAdversary F G :=
+  fun g EKA SPKB T =&gt;
+    let inner := do
+      let ikA &lt;- $t F; let ikB &lt;- $t F; let opkB &lt;- $t F
+      let IKA := ikA . g; let IKB := ikB . g; let OPKB := opkB . g
+      let dh := (ikA . SPKB, ikB . EKA, T, opkB . EKA)
+      let sk &lt;- query (Sum.inr dh)
+      adv IKA EKA IKB SPKB OPKB sk
+    execWithROM inner
+</pre><p>
+              No internal coin flip: the DDH experiment's own bit handles
+real/random branching. This makes the bound tight (no factor of 2).</p>
             </section>
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="prev" title="6.4. Advantage"><span class="arrow">←</span><span class="where">6.4. Advantage</span></a><a class="local-button active" href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem" rel="next" title="6.6. Security theorem"><span class="where">6.6. Security theorem</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage" rel="prev" title="6.3. Advantage"><span class="arrow">←</span><span class="where">6.3. Advantage</span></a><a class="local-button active" href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem" rel="next" title="6.5. Security theorem"><span class="where">6.5. Security theorem</span><span class="arrow">→</span></a></nav>
           </div>
         </main></div>
     </body>

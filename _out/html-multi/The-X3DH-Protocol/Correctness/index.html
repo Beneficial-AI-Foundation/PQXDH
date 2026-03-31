@@ -49,7 +49,7 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--The-X3DH-Protocol" checked="checked"></label><span class="number">5.</span> <span class=""><a href="The-X3DH-Protocol/#PQXDH-in-Lean--The-X3DH-Protocol">The X3DH Protocol</a></span></div>
-              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="current numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr><tr class="numbered"><td class="num">5.6.</td><td><a href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy">Passive message secrecy</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">5.1.</td><td><a href="The-X3DH-Protocol/Key-pairs/#PQXDH-in-Lean--The-X3DH-Protocol--Key-pairs">Key pairs</a></td></tr><tr class="numbered"><td class="num">5.2.</td><td><a href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation">Shared secret computation</a></td></tr><tr class="current numbered"><td class="num">5.3.</td><td><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></td></tr><tr class="numbered"><td class="num">5.4.</td><td><a href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation">Session key derivation</a></td></tr><tr class="numbered"><td class="num">5.5.</td><td><a href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness">Handshake correctness</a></td></tr></table></div>
             <div class="split-toc">
               <div class="title">
                 <span class="no-toggle"></span><span class="number">5.3.</span> <span class="current"><a href="The-X3DH-Protocol/Correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Correctness">Correctness</a></span></div>
@@ -66,8 +66,17 @@
               5.3. Correctness</h1>
             <p>
               If all key pairs are honestly generated from the same generator,
-then Alice and Bob compute identical DH tuples. The proof works by
-cases on the optional OPK, then applies simp with the Module F G API.</p>
+then Alice and Bob compute identical DH tuples:</p>
+            <pre>theorem X3DH_agree
+    {G0 : G}
+    (ikA ekA : KeyPair F G G0)
+    (ikB spkB : KeyPair F G G0)
+    (opkB : Option (KeyPair F G G0)) :
+    X3DH_Alice ikA.priv ekA.priv ikB.pub spkB.pub (opkB.map KeyPair.pub) =
+    X3DH_Bob ikB.priv spkB.priv (opkB.map KeyPair.priv) ikA.pub ekA.pub
+</pre><p>
+              The proof works by cases on OPK, then applies simp with the
+Module F G lemmas plus each key pair's generation equation.</p>
             </section>
           <nav class="prev-next-buttons">
             <a class="local-button active" href="The-X3DH-Protocol/Shared-secret-computation/#PQXDH-in-Lean--The-X3DH-Protocol--Shared-secret-computation" rel="prev" title="5.2. Shared secret computation"><span class="arrow">←</span><span class="where">5.2. Shared secret computation</span></a><a class="local-button active" href="The-X3DH-Protocol/Session-key-derivation/#PQXDH-in-Lean--The-X3DH-Protocol--Session-key-derivation" rel="next" title="5.4. Session key derivation"><span class="where">5.4. Session key derivation</span><span class="arrow">→</span></a></nav>

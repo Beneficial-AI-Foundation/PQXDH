@@ -49,14 +49,14 @@
             <div class="split-toc">
               <div class="title">
                 <label for="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-PQXDH-in-Lean--Passive-Message-Secrecy" checked="checked"></label><span class="number">6.</span> <span class="current"><a href="Passive-Message-Secrecy/#PQXDH-in-Lean--Passive-Message-Secrecy">Passive Message Secrecy</a></span></div>
-              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Goal/#PQXDH-in-Lean--Passive-Message-Secrecy--Goal">Goal</a></td></tr><tr class="numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model">Random Oracle Model</a></td></tr><tr class="numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.6.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
+              <table><tr class="numbered"><td class="num">6.1.</td><td><a href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary">Passive adversary</a></td></tr><tr class="numbered"><td class="num">6.2.</td><td><a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation">Two-game formulation</a></td></tr><tr class="numbered"><td class="num">6.3.</td><td><a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage">Advantage</a></td></tr><tr class="numbered"><td class="num">6.4.</td><td><a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction">DDH reduction</a></td></tr><tr class="numbered"><td class="num">6.5.</td><td><a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem">Security theorem</a></td></tr></table></div>
             </div>
           </div>
         <div class="last"></div>
         </nav>
       <main><div class="content-wrapper">
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy" rel="prev" title="5.6. Passive message secrecy"><span class="arrow">←</span><span class="where">5.6. Passive message secrecy</span></a><a class="local-button active" href="Passive-Message-Secrecy/Goal/#PQXDH-in-Lean--Passive-Message-Secrecy--Goal" rel="next" title="6.1. Goal"><span class="where">6.1. Goal</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness" rel="prev" title="5.5. Handshake correctness"><span class="arrow">←</span><span class="where">5.5. Handshake correctness</span></a><a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="next" title="6.1. Passive adversary"><span class="where">6.1. Passive adversary</span><span class="arrow">→</span></a></nav>
           <section>
             <h1>
               6. Passive Message Secrecy</h1>
@@ -65,21 +65,19 @@
 using VCV-io for security game definitions.</p>
             <ol class="section-toc">
               <li>
-                <a href="Passive-Message-Secrecy/Goal/#PQXDH-in-Lean--Passive-Message-Secrecy--Goal"><span class="number">6.1.</span> Goal</a></li>
+                <a href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary"><span class="number">6.1.</span> Passive adversary</a></li>
               <li>
-                <a href="Passive-Message-Secrecy/Random-Oracle-Model/#PQXDH-in-Lean--Passive-Message-Secrecy--Random-Oracle-Model"><span class="number">6.2.</span> Random Oracle Model</a></li>
+                <a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation"><span class="number">6.2.</span> Two-game formulation</a></li>
               <li>
-                <a href="Passive-Message-Secrecy/Two-game-formulation/#PQXDH-in-Lean--Passive-Message-Secrecy--Two-game-formulation"><span class="number">6.3.</span> Two-game formulation</a></li>
+                <a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage"><span class="number">6.3.</span> Advantage</a></li>
               <li>
-                <a href="Passive-Message-Secrecy/Advantage/#PQXDH-in-Lean--Passive-Message-Secrecy--Advantage"><span class="number">6.4.</span> Advantage</a></li>
+                <a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction"><span class="number">6.4.</span> DDH reduction</a></li>
               <li>
-                <a href="Passive-Message-Secrecy/DDH-reduction/#PQXDH-in-Lean--Passive-Message-Secrecy--DDH-reduction"><span class="number">6.5.</span> DDH reduction</a></li>
-              <li>
-                <a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem"><span class="number">6.6.</span> Security theorem</a></li>
+                <a href="Passive-Message-Secrecy/Security-theorem/#PQXDH-in-Lean--Passive-Message-Secrecy--Security-theorem"><span class="number">6.5.</span> Security theorem</a></li>
               </ol>
             </section>
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="The-X3DH-Protocol/Passive-message-secrecy/#PQXDH-in-Lean--The-X3DH-Protocol--Passive-message-secrecy" rel="prev" title="5.6. Passive message secrecy"><span class="arrow">←</span><span class="where">5.6. Passive message secrecy</span></a><a class="local-button active" href="Passive-Message-Secrecy/Goal/#PQXDH-in-Lean--Passive-Message-Secrecy--Goal" rel="next" title="6.1. Goal"><span class="where">6.1. Goal</span><span class="arrow">→</span></a></nav>
+            <a class="local-button active" href="The-X3DH-Protocol/Handshake-correctness/#PQXDH-in-Lean--The-X3DH-Protocol--Handshake-correctness" rel="prev" title="5.5. Handshake correctness"><span class="arrow">←</span><span class="where">5.5. Handshake correctness</span></a><a class="local-button active" href="Passive-Message-Secrecy/Passive-adversary/#PQXDH-in-Lean--Passive-Message-Secrecy--Passive-adversary" rel="next" title="6.1. Passive adversary"><span class="where">6.1. Passive adversary</span><span class="arrow">→</span></a></nav>
           </div>
         </main></div>
     </body>
