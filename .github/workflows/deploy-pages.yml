@@ -2,7 +2,7 @@ name: Deploy Website to GitHub Pages
 
 on:
   push:
-    branches: [master, add-callgraph-workflow] # TODO: remove feature branch before merge
+    branches: [master, X3DH_security_properties]
   workflow_dispatch:
 
 permissions:
@@ -40,6 +40,10 @@ jobs:
       - name: Download Mathlib cache
         run: |
           lake exe cache get 2>&1 || echo "cache get returned non-zero (may be partial)"
+
+      - name: Update Lake dependencies
+        run: |
+          lake update
 
       - name: Build main project
         run: |
