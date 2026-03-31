@@ -241,19 +241,26 @@ private lemma passiveReal_eq_ddhExpReal
   -- (a,b,c,d,e) → (b,d,a,c,e)
   -- = swap(0,1) then swap(2,3) then swap(1,2)
   --
-  -- Both sides sample 5 from $ᵗ F + 1 from $ᵗ SK then apply a function
-  -- with the draws permuted and the DH tuple algebraically equivalent
-  -- (via smul_smul + mul_comm). Try vcstep rw for automated bind-swaps.
-  vcstep rw
-  vcstep rw
-  vcstep rw
-  vcstep rw
-  vcstep rw
-  -- Remaining: same draws in same order, but body differs by a permutation
-  -- of bound variable usage. Try more swaps or congr.
-  -- After vcstep rw × 5, the DH tuples are simplified but draws
-  -- are still in different order with different role assignments.
-  -- Remaining: permutation of 5 i.i.d. F-draws with matching body.
+  -- Both sides sample 5 from $ᵗ F + $ᵗ SK then apply the same body.
+  -- Draw order: LHS (a,b,c,d,e), RHS (b,d,a,c,e).
+  -- Permutation (a,b,c,d,e) → (b,d,a,c,e) via adjacent transpositions:
+  --   swap(0,1): (b,a,c,d,e)
+  --   swap(2,3): (b,a,d,c,e)
+  --   swap(1,2): (b,d,a,c,e) ✓
+  -- swap(0,1)
+  rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
+  -- swap(2,3): under 2 draws, swap next two
+  -- Use: Pr[z | m₁ >>= f₁ >>= m₂ >>= f₂ >>= body] where we swap m₂ and f₂
+  -- refine under 2, then swap at top
+  refine probOutput_bind_congr' ($ᵗ F) z (fun _ => ?_)
+  refine probOutput_bind_congr' ($ᵗ F) z (fun _ => ?_)
+  rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
+  -- swap(1,2): go back to depth 1
+  -- Problem: we're now inside 2 refines. The swap(1,2) needs to
+  -- happen at depth 1, but we're at depth 2. Can't go back up.
+  --
+  -- Alternative: do all swaps on the LHS before any peeling.
+  -- swap(2,3) at depth 2 via conv:
   sorry
 
 /-- The random passive game equals the DDH random game with the reduction.
