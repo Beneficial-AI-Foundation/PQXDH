@@ -199,7 +199,7 @@ Both sides sample 5 scalars, compute the same DH tuple (by
 random key, and call the adversary with the same values.
 The only difference is the order of sampling, which doesn't
 affect the joint distribution of independent uniform draws. -/
-
+set_option linter.flexible false in
 omit [Fintype F] [DecidableEq F] [SampleableType G] [DecidableEq G]
   [Fintype SK] [DecidableEq SK] in
 /-- The real passive game has the same distribution as the DDH real
@@ -253,21 +253,13 @@ private lemma passiveRand_eq_ddhExpRand
     ← OracleComp.liftComp_eq_liftM,
     QueryImpl.simulateQ_add_liftComp_left,
     QueryImpl.simulateQ_add_liftComp_right,
-  bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
+    bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
   ext z
   change Pr[= z | _] = Pr[= z | _]
   simp only [QueryImpl.ofLift_eq_id', simulateQ_id',
     OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
   rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
   simp_all
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 1
-  vcstep rw under 1
-  vcstep rw under 1
-  vcstep rw under 1
   sorry
 
 /-! ## Security theorem
