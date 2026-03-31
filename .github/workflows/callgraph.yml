@@ -2,7 +2,7 @@ name: Call Graph
 
 on:
   push:
-    branches: [master, add-callgraph-workflow] # TODO: remove feature branch before merge
+    branches: [master, X3DH_security_properties]
   workflow_dispatch:
 
 concurrency:
@@ -15,7 +15,7 @@ jobs:
     with:
       project_path: '.'
       github_url: https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH
-      github_branch: master
+      github_branch: ${{ github.ref_name }}
       deploy_mode: subpath
       subpath: callgraph
 
