@@ -4,30 +4,56 @@ A Lean 4 formalization of the PQXDH (Post-Quantum Extended Diffie-Hellman) key a
 
 > K. Bhargavan, C. Jacomme, F. Kiefer, and R. Schmidt. *Formal verification of the PQXDH Post-Quantum key agreement protocol for end-to-end secure messaging.* USENIX Security 2024. [[PDF]](https://www.usenix.org/system/files/usenixsecurity24-bhargavan.pdf)
 
-PQXDH extends X3DH by adding post-quantum resistance via a Key Encapsulation Mechanism (KEM). In the current state of this formalization we focus on X3DH, as it is a central component of PQXDH: X3DH provides the classical Diffie-Hellman core on top of which the post-quantum KEM layer is composed. Understanding and verifying X3DH first is therefore a necessary stepping stone toward the full PQXDH protocol.
-
-This is an initial specification — not a complete formalization. We declare algebraic (dependent-typed) signatures for the main components of the protocol. There is no attacker model, and no security properties are stated or proved. The main purpose is to show how the protocol can be specified in a way that is close to the description in the paper, and to show how the different components (DH, KDF, AEAD) fit together.
-
-## Structure
-
-| File | Description |
-|------|-------------|
-| `PQXDHLean/DH.lean` | Abstract Diffie-Hellman over any `AddCommGroup`, with commutativity, associativity, and distributivity lemmas |
-| `PQXDHLean/KDF.lean` | Abstract Key Derivation Function interface |
-| `PQXDHLean/AEAD.lean` | Abstract Authenticated Encryption with Associated Data, with correctness theorems |
-| `PQXDHLean/KEM.lean` | Abstract Key Encapsulation Mechanism interface, with correctness theorem |
-| `PQXDHLean/X3DH.lean` | X3DH protocol: Alice/Bob shared secret computation, session key derivation, and end-to-end handshake correctness |
+PQXDH extends X3DH by adding post-quantum resistance via a Key Encapsulation Mechanism (KEM). The current formalization focuses on X3DH, the classical Diffie-Hellman core of PQXDH, with both **correctness proofs** and an initial **security proof** under the Random Oracle Model.
 
 ## Main results
+
+### Correctness
 
 - **DH commutativity** (`DH_comm`): the algebraic property that makes X3DH work — Alice and Bob compute the same shared secrets.
 - **X3DH correctness** (`X3DH_agree`): if all public keys are honestly generated from the same generator, Alice and Bob compute identical DH tuples.
 - **Session key agreement** (`X3DH_session_key_agree`): both parties derive the same session key via KDF.
 - **Handshake correctness** (`X3DH_handshake_correct`): end-to-end theorem composing DH agreement, KDF, and AEAD — Bob can decrypt Alice's first message.
 
+### Security
+
+- **Passive message secrecy** (`passive_secrecy_le_ddh`): a passive eavesdropper's advantage in distinguishing the real session key from a random key is bounded by the DDH advantage against a concrete reduction. This is a tight bound (no factor of 2) under the Random Oracle Model for the KDF, proved via a two-game formulation with distributional equivalences between the passive games and the DDH experiments.
+
+The security proof uses the [VCV-io](https://github.com/Verified-zkEVM/VCV-io) library for oracle computations, random oracle semantics, and the DDH hardness assumption.
+
+## Structure
+
+| File                                            | Description |
+|-------------------------------------------------|-------------|
+| `PQXDHLean/X3DH/DH.lean`                       | Abstract Diffie-Hellman over any `AddCommGroup` |
+| `PQXDHLean/X3DH/X3DH.lean`                     | X3DH protocol: shared secret, session key, handshake correctness |
+| `PQXDHLean/X3DH/X3DHPassiveMessageSecrecy.lean` | Passive secrecy game, DDH reduction, and security theorem |
+| `PQXDHLean/KDF.lean`                            | Key Derivation Function interface |
+| `PQXDHLean/AEAD.lean`                           | Authenticated Encryption with Associated Data |
+| `PQXDHLean/KEM.lean`                            | Key Encapsulation Mechanism interface |
+| `PQXDHLean/PQXDH.lean`                          | PQXDH protocol definition (stub) |
+| `PQXDHLean/Examples/X3DHExample.lean`            | Concrete example instantiation |
+
+## Architecture
+
+The formalization builds up through composition of abstract cryptographic primitives:
+
+```
+DH (abstract group operations)
+    | X3DH_agree theorem
+KDF (DH tuple -> session key)
+    | X3DH_session_key_agree theorem
+AEAD (encrypt/decrypt with SK)
+    | X3DH_handshake_correct theorem (end-to-end correctness)
+
+DDH assumption + Random Oracle Model
+    | passiveReal_eq_ddhExpReal, passiveRand_eq_ddhExpRand
+    | passive_secrecy_le_ddh theorem (security)
+```
+
 ## Building
 
-Requires [Lean 4](https://lean-lang.org/) (v4.29.0-rc3) and [Mathlib](https://github.com/leanprover-community/mathlib4).
+Requires [Lean 4](https://lean-lang.org/) (v4.28.0).
 
 ```bash
 lake build
