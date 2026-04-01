@@ -209,56 +209,25 @@ private lemma passiveReal_eq_ddhExpReal
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveReal (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpReal (F := F) g (ddhReduction adv)) := by
-  simp only [passiveReal, passiveGame, DiffieHellman.ddhExpReal,
-    ddhReduction, execGame, X3DH_Alice, DH,
-    simulateQ_bind, simulateQ_query,
-    ← OracleComp.liftComp_eq_liftM,
-    QueryImpl.simulateQ_add_liftComp_left,
-    QueryImpl.simulateQ_add_liftComp_right,
+  unfold passiveReal passiveGame DiffieHellman.ddhExpReal ddhReduction execGame
+  simp only [simulateQ_bind, simulateQ_query, ← OracleComp.liftComp_eq_liftM,
+    QueryImpl.simulateQ_add_liftComp_left, QueryImpl.simulateQ_add_liftComp_right,
     bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
-  ext z
-  change Pr[= z | _] = Pr[= z | _]
-  simp only [QueryImpl.ofLift_eq_id', simulateQ_id', Option.getD_some,
-    OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
-  rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
-  simp_all
-  perm_draws
+  ext z; change Pr[= z | _] = Pr[= z | _]; simp_all; perm_draws
 
 set_option linter.flexible false in
 omit [Fintype F] [DecidableEq F] [SampleableType G] [DecidableEq G]
   [Fintype SK] [DecidableEq SK] in
-/-- The random passive game equals the DDH random game with the reduction.
-
-LHS samples (ikₐ, ekₐ, ikᵦ, spkᵦ, opkᵦ), ignores the DH tuple, and
-samples sk ← $ᵗ SK independently.
-
-RHS samples (a, b, c) then (ikₐ, ikᵦ, opkᵦ), computes
-  dh = (ikₐ•(b•g), ikᵦ•(a•g), c•g, opkᵦ•(a•g)),
-queries ROM(dh) to get sk.
-
-Under the ROM, querying on a fresh input (containing the random c•g
-that appears nowhere else) produces a uniformly random output,
-identical in distribution to $ᵗ SK.
-
-The proof requires:
-  1. Same sampling order independence as the real case.
-  2. ROM freshness: if the DH tuple contains a component (c•g) that
-     is independent of all other values, the ROM output is uniform. -/
+/-- The random passive game equals the DDH random game with the reduction. -/
 private lemma passiveRand_eq_ddhExpRand
     (g : G) (adv : PassiveAdversary G SK) :
     evalDist (execGame (passiveRand (F := F) g adv)) =
     evalDist (DiffieHellman.ddhExpRand (F := F) g (ddhReduction adv)) := by
-  simp only [passiveRand, passiveGame, DiffieHellman.ddhExpRand,
-    ddhReduction, execGame,
-    simulateQ_bind, simulateQ_query,
-    ← OracleComp.liftComp_eq_liftM,
-    QueryImpl.simulateQ_add_liftComp_left,
-    QueryImpl.simulateQ_add_liftComp_right,
+  unfold passiveRand passiveGame DiffieHellman.ddhExpRand ddhReduction execGame
+  simp only [simulateQ_bind, simulateQ_query, ← OracleComp.liftComp_eq_liftM,
+    QueryImpl.simulateQ_add_liftComp_left, QueryImpl.simulateQ_add_liftComp_right,
     bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
-  ext z
-  change Pr[= z | _] = Pr[= z | _]
-  simp_all
-  perm_draws
+  ext z; change Pr[= z | _] = Pr[= z | _]; simp_all; perm_draws
 
 /-! ## Security theorem
 X3DH passive message secrecy is at least as hard as DDH under
