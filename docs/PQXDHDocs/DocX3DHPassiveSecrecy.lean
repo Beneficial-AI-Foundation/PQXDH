@@ -129,9 +129,12 @@ same distributions as the DDH games composed with the reduction.
   the DDH random game. The RHS has an extra unused draw `c`
   from DDH; the proof adds a matching unused draw to the LHS
   via `probOutput_bind_const`, then permutes independent draws
-  via `probOutput_bind_bind_swap` and `vcstep`.
+  via the `perm_draws` tactic.
 
-Both proofs are fully mechanized (no `sorry`).
+Both proofs are fully mechanized (no `sorry`) using the custom
+`perm_draws` tactic, which automatically computes the draw
+permutation via de Bruijn index analysis and emits the
+minimal swap sequence.
 
 # Security theorem
 

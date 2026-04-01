@@ -31,6 +31,7 @@ The security proof uses the [VCV-io](https://github.com/Verified-zkEVM/VCV-io) l
 | `PQXDHLean/KDF.lean`                            | Key Derivation Function interface |
 | `PQXDHLean/AEAD.lean`                           | Authenticated Encryption with Associated Data |
 | `PQXDHLean/KEM.lean`                            | Key Encapsulation Mechanism interface |
+| `PQXDHLean/Tactics/PermDraws.lean`              | `perm_draws` tactic for distributional equivalences |
 | `PQXDHLean/PQXDH.lean`                          | PQXDH protocol definition (stub) |
 | `PQXDHLean/Examples/X3DHExample.lean`            | Concrete example instantiation |
 
@@ -60,6 +61,8 @@ lake build
 ```
 
 ## Documentation
+
+The documentation is available online at **[beneficial-ai-foundation.github.io/signal-shot-PQXDH](https://beneficial-ai-foundation.github.io/signal-shot-PQXDH/)**.
 
 The `docs/` directory contains a [Verso](https://github.com/leanprover/verso)-based literate document with prose explanations and verified code excerpts.
 

@@ -46,6 +46,7 @@ DDH assumption + Random Oracle Model
 - **KDF.lean**: Key Derivation Function interface (`derive : I → K`)
 - **AEAD.lean**: Authenticated Encryption with Associated Data. Correctness axiom ensures decrypt recovers plaintext
 - **KEM.lean**: Key Encapsulation Mechanism for post-quantum layer (not yet integrated into X3DH)
+- **Tactics/PermDraws.lean**: `perm_draws` tactic — automatically proves distributional equivalences between computations that differ only in the order of independent uniform draws
 
 ### Documentation (docs/)
 
