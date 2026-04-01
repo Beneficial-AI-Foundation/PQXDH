@@ -10,11 +10,29 @@ A KDF deterministically derives a fixed-size key from variable-length
 input material. In X3DH the input is the concatenation of the
 DH outputs and the result is the session key SK.
 
-# Structure
+Two formalizations coexist, modeling different aspects of the KDF.
 
-`KDF I K` has a single field `derive : I → K`.
+# Deterministic KDF (for correctness proofs)
 
-# Random Oracle Model
+```
+structure KDF (I K : Type _) where
+  derive : I → K
+```
 
-In the security proof, the KDF is modeled as a random oracle using
-VCV-io's `KDFOracle (I K) := I →ₒ K` and `randomOracle` implementation.
+Used in the correctness proofs (`X3DH_agree`, `X3DH_handshake_correct`),
+which only need "same input → same output" — no randomness or
+security assumptions.
+
+# Random Oracle KDF (for security proofs)
+
+```
+abbrev KDFOracle (I K : Type) := I →ₒ K
+```
+
+An oracle `I →ₒ K` implemented by VCV-io's `randomOracle`
+(lazy cached uniform sampling). Used in the security proofs
+(passive message secrecy), where the KDF is modeled as a random
+oracle per the paper's assumption 4 (§2.5).
+
+The paper makes the same distinction: correctness is unconditional,
+security assumes the ROM.

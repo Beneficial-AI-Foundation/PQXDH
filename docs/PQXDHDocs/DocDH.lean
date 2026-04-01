@@ -13,7 +13,19 @@ so all `Module` lemmas apply directly without unfolding.
 
 # Definition
 
-`DH(a, B) = a • B`. Declared `abbrev` so it is definitionally equal to scalar multiplication.
+```
+abbrev DH (a : F) (B : G) : G := a • B
+```
+
+Declared `abbrev` so it is definitionally equal to scalar multiplication.
+
+# Notation
+
+| Textbook (multiplicative) | This file (additive)            |
+|---------------------------|---------------------------------|
+| `g^a`                     | `a • G₀`                       |
+| `(g^a)^b = g^{ab}`       | `b • (a • G₀) = (b * a) • G₀` |
+| `g^a · g^b = g^{a+b}`    | `a • G₀ + b • G₀ = (a+b) • G₀`|
 
 # Algebraic properties
 

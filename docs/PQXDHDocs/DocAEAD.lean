@@ -12,6 +12,15 @@ associated data (AD).
 
 # Structure
 
-`AEAD K PT CT AD` has `encrypt`, `decrypt`, and a `correctness` field
-guaranteeing that decrypting an honestly encrypted ciphertext with the
-correct key and AD recovers the original plaintext.
+```
+structure AEAD (K PT CT AD : Type _) where
+  encrypt : K → PT → AD → CT
+  decrypt : K → CT → AD → Option PT
+  correctness : ∀ (k : K) (pt : PT) (ad : AD),
+    decrypt k (encrypt k pt ad) ad = some pt
+```
+
+The `correctness` field guarantees that decrypting an honestly
+encrypted ciphertext with the correct key and AD recovers the
+original plaintext. In X3DH, the associated data is the pair
+`(IKₐ, IKᵦ)` of identity public keys.

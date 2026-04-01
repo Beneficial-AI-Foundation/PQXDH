@@ -13,5 +13,18 @@ the shared secret from the ciphertext using their private key).
 
 # Structure
 
-`KEM PK SK_kem CT SS` has `encaps`, `decaps`, and a `correctness` field
-guaranteeing that honest encapsulation/decapsulation round-trips.
+```
+structure KEM (PK SK_kem CT SS : Type _) where
+  encaps : PK → CT × SS
+  decaps : SK_kem → CT → SS
+  correctness : ∀ (pk : PK) (sk : SK_kem) (ct : CT) (ss : SS),
+    encaps pk = (ct, ss) → decaps sk ct = ss
+```
+
+The `correctness` field guarantees that honest
+encapsulation/decapsulation round-trips: if `encaps pk = (ct, ss)`,
+then `decaps sk ct = ss`.
+
+In PQXDH, the KEM adds post-quantum resistance on top of the
+classical X3DH DH values. The KEM shared secret is concatenated
+with the DH outputs before being passed to the KDF.
