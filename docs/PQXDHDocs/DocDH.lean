@@ -21,11 +21,12 @@ Declared `abbrev` so it is definitionally equal to scalar multiplication.
 
 *Notation*
 
-| Textbook (multiplicative) | This file (additive)            |
-|---------------------------|---------------------------------|
-| `g^a`                     | `a • G₀`                       |
-| `(g^a)^b = g^{ab}`       | `b • (a • G₀) = (b * a) • G₀` |
-| `g^a · g^b = g^{a+b}`    | `a • G₀ + b • G₀ = (a+b) • G₀`|
+The formalization uses additive group notation (Mathlib convention)
+instead of the multiplicative notation from textbooks:
+
+- `g^a` becomes `a • G₀`
+- `(g^a)^b = g^{ab}` becomes `b • (a • G₀) = (b * a) • G₀`
+- `g^a · g^b = g^{a+b}` becomes `a • G₀ + b • G₀ = (a+b) • G₀`
 
 *Algebraic properties*
 
