@@ -3,3 +3,6 @@
 /_out
 node_modules/
 PQXDHLean/X3DH/min_swap_seq.py
+PQXDHLean/X3DH/__pycache__/
+notes/
+docs/PQXDHDocs/DocAEAD.lean.back
