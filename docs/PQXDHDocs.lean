@@ -5,5 +5,6 @@ import PQXDHDocs.DocAEAD
 import PQXDHDocs.DocKEM
 import PQXDHDocs.DocX3DH
 import PQXDHDocs.DocX3DHPassiveSecrecy
+import PQXDHDocs.DocPermDraws
 import PQXDHDocs.DocSecurityDefs
 import PQXDHDocs.DocPQXDH

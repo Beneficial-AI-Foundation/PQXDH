@@ -12,6 +12,7 @@ import PQXDHDocs.DocAEAD
 import PQXDHDocs.DocKEM
 import PQXDHDocs.DocX3DH
 import PQXDHDocs.DocX3DHPassiveSecrecy
+import PQXDHDocs.DocPermDraws
 import PQXDHDocs.DocSecurityDefs
 import PQXDHDocs.DocPQXDH
 
@@ -39,5 +40,6 @@ The source code is available on [GitHub](https://github.com/Beneficial-AI-Founda
 {include 1 PQXDHDocs.DocAEAD}
 {include 1 PQXDHDocs.DocKEM}
 {include 1 PQXDHDocs.DocX3DH}
+{include 1 PQXDHDocs.DocPermDraws}
 {include 1 PQXDHDocs.DocPQXDH}
 {include 1 PQXDHDocs.DocSecurityDefs}
