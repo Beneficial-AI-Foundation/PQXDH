@@ -31,6 +31,7 @@ The security proof uses the [VCV-io](https://github.com/Verified-zkEVM/VCV-io) l
 | `PQXDHLean/KDF.lean`                            | Key Derivation Function interface |
 | `PQXDHLean/AEAD.lean`                           | Authenticated Encryption with Associated Data |
 | `PQXDHLean/KEM.lean`                            | Key Encapsulation Mechanism interface |
+| `PQXDHLean/Tactics/PermDraws.lean`              | `perm_draws` tactic for distributional equivalences |
 | `PQXDHLean/PQXDH.lean`                          | PQXDH protocol definition (stub) |
 | `PQXDHLean/Examples/X3DHExample.lean`            | Concrete example instantiation |
 
