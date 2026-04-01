@@ -21,8 +21,19 @@ const highlighter = createHighlighterCoreSync({
  * wrap in a dummy theorem so the grammar tokenizes tactics properly,
  * then extract the tactic lines.
  */
+/** Decode HTML entities so Shiki receives plain text. */
+function decodeHtmlEntities(text) {
+  return text
+    .replace(/&#x26;/g, '&')
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+}
+
 function highlightLean(code) {
-  const trimmed = code.trim()
+  const trimmed = decodeHtmlEntities(code.trim())
   const isTopLevel = /^\s*(theorem|def|lemma|structure|class|instance|inductive|noncomputable|opaque|axiom|import|variable|open|section|namespace|set_option|abbrev)/.test(trimmed)
 
   let html = highlighter.codeToHtml(trimmed, { lang: 'lean', theme: 'github-light' })
