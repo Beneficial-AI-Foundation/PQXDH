@@ -43,6 +43,7 @@ Reference: Bhargavan et al., USENIX Security 2024.
   The passive case is implicit in Theorem 2 (§5.2), which proves
   the stronger active-adversary (AKE game) version.
 -/
+import PQXDHLean.Tactics.PermDraws
 import PQXDHLean.X3DH.X3DH
 import VCVio.OracleComp.ProbComp
 import VCVio.OracleComp.Constructions.SampleableType
@@ -221,10 +222,7 @@ private lemma passiveReal_eq_ddhExpReal
     OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
   rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
   simp_all
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 1
-  vcstep rw under 2
+  perm_draws
 
 set_option linter.flexible false in
 omit [Fintype F] [DecidableEq F] [SampleableType G] [DecidableEq G]
@@ -260,18 +258,7 @@ private lemma passiveRand_eq_ddhExpRand
   ext z
   change Pr[= z | _] = Pr[= z | _]
   simp_all
-  -- LHS has 6 draws, RHS has 7 (extra unused c from DDH).
-  -- Add unused $ᵗ F draw at position 0 in LHS to match.
-  conv_lhs =>
-    rw [show ∀ (body : ProbComp Bool),
-      Pr[= z | body] = Pr[= z | ($ᵗ F : ProbComp F) >>= fun _ => body] from
-      fun body => by simp [probOutput_bind_const]]
-  -- Permute LHS draws to match RHS (min_swap_seq.py).
-  vcstep rw under 1
-  conv_lhs => rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
-  vcstep rw under 3
-  vcstep rw under 2
-  vcstep rw under 1
+  perm_draws
 
 /-! ## Security theorem
 X3DH passive message secrecy is at least as hard as DDH under
