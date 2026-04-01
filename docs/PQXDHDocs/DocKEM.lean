@@ -11,7 +11,7 @@ using public-key cryptography. One party encapsulates (producing a
 ciphertext and a shared secret); the other decapsulates (recovering
 the shared secret from the ciphertext using their private key).
 
-# Structure
+-- # Structure
 
 ```
 structure KEM (PK SK_kem CT SS : Type _) where

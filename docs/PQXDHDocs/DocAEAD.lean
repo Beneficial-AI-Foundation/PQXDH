@@ -10,7 +10,7 @@ An AEAD scheme provides both confidentiality and integrity for a
 plaintext message, while binding the ciphertext to unencrypted
 associated data (AD).
 
-# Structure
+*Structure*
 
 ```
 structure AEAD (K PT CT AD : Type _) where

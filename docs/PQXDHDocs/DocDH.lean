@@ -11,7 +11,7 @@ Abstract Diffie-Hellman as scalar multiplication over `[Field F] [Module F G]`.
 `DH a B` is an `abbrev` for `a • B` (Mathlib's `Module` scalar multiplication),
 so all `Module` lemmas apply directly without unfolding.
 
-# Definition
+*Definition*
 
 ```
 abbrev DH (a : F) (B : G) : G := a • B
@@ -19,7 +19,7 @@ abbrev DH (a : F) (B : G) : G := a • B
 
 Declared `abbrev` so it is definitionally equal to scalar multiplication.
 
-# Notation
+*Notation*
 
 | Textbook (multiplicative) | This file (additive)            |
 |---------------------------|---------------------------------|
@@ -27,7 +27,7 @@ Declared `abbrev` so it is definitionally equal to scalar multiplication.
 | `(g^a)^b = g^{ab}`       | `b • (a • G₀) = (b * a) • G₀` |
 | `g^a · g^b = g^{a+b}`    | `a • G₀ + b • G₀ = (a+b) • G₀`|
 
-# Algebraic properties
+*Algebraic properties*
 
 Because `DH` is an `abbrev`, these properties follow directly from the `Module F G` API:
 

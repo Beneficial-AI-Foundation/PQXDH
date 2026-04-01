@@ -12,7 +12,7 @@ DH outputs and the result is the session key SK.
 
 Two formalizations coexist, modeling different aspects of the KDF.
 
-# Deterministic KDF (for correctness proofs)
+*Deterministic KDF (for correctness proofs)*
 
 ```
 structure KDF (I K : Type _) where
@@ -23,7 +23,7 @@ Used in the correctness proofs (`X3DH_agree`, `X3DH_handshake_correct`),
 which only need "same input → same output" — no randomness or
 security assumptions.
 
-# Random Oracle KDF (for security proofs)
+*Random Oracle KDF (for security proofs)*
 
 ```
 abbrev KDFOracle (I K : Type) := I →ₒ K

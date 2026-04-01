@@ -64,7 +64,7 @@ The proof works by cases on OPK, then applies `simp` with the
 `Module F G` lemmas (`smul_smul`, `mul_comm`) plus each key pair's
 generation equation.
 
-# Session key derivation
+*Session key derivation*
 
 Both parties feed the DH tuple into a KDF to obtain a session key:
 
@@ -77,7 +77,7 @@ def X3DH_SK_Alice (kdf : KDF (G × G × G × G) SK)
 Since the DH tuples are equal (by `X3DH_agree`), the derived session
 keys are equal (`X3DH_session_key_agree`).
 
-# Handshake correctness
+*Handshake correctness*
 
 End-to-end correctness: Bob can decrypt Alice's first message.
 
@@ -96,4 +96,4 @@ theorem X3DH_handshake_correct
 This composes DH agreement, session key agreement via KDF,
 and AEAD correctness.
 
-{include 0 PQXDHDocs.DocX3DHPassiveSecrecy}
+{include 1 PQXDHDocs.DocX3DHPassiveSecrecy}
