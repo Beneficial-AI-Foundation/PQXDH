@@ -57,6 +57,16 @@ jobs:
         run: |
           docs/.lake/build/bin/docs --output site
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Add Lean syntax highlighting
+        run: |
+          npm ci
+          node --experimental-vm-modules scripts/highlight-lean.mjs site
+
       - name: Add root landing page
         run: |
           cat > site/index.html << 'EOF'
