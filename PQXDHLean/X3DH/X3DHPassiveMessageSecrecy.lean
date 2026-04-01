@@ -259,48 +259,21 @@ private lemma passiveRand_eq_ddhExpRand
     bind_assoc, pure_bind, map_eq_bind_pure_comp, Function.comp]
   ext z
   change Pr[= z | _] = Pr[= z | _]
-  simp only [QueryImpl.ofLift_eq_id', simulateQ_id',
-    OracleQuery.input_query, add_apply_inr, QueryImpl.add_apply_inr]
-  rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
   simp_all
-  -- LHS: 5+1 draws. RHS: 6+1 draws (extra c from DDH, unused).
-  -- Add unused $ᵗ F draw to LHS to match RHS (7 draws each).
-  -- probOutput_bind_const: Pr[z | $ᵗF >>= fun _ => body] = (1-0) * Pr[z | body] = Pr[z | body]
-  rw [show ∀ (body : ProbComp Bool),
-    Pr[= z | body] = Pr[= z | ($ᵗ F : ProbComp F) >>= fun _ => body] from
-    fun body => by simp [probOutput_bind_const]]
-  -- Both have 7 draws (6F + 1SK). Permute F-draws (positions 0-5),
-  -- keeping SK at position 6. Only use vcstep rw under N for N ≤ 4.
+  -- LHS has 6 draws, RHS has 7 (extra unused c from DDH).
+  -- Add unused $ᵗ F draw at position 0 in LHS to match.
+  conv_lhs =>
+    rw [show ∀ (body : ProbComp Bool),
+      Pr[= z | body] = Pr[= z | ($ᵗ F : ProbComp F) >>= fun _ => body] from
+      fun body => by simp [probOutput_bind_const]]
+  -- Permute LHS draws to match RHS (min_swap_seq.py).
   vcstep rw under 1
-  vcstep rw under 2
+  conv_lhs => rw [probOutput_bind_bind_swap ($ᵗ F) ($ᵗ F)]
   vcstep rw under 3
-  vcstep rw under 4
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 3
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 3
-  vcstep rw under 4
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 3
-  vcstep rw under 4
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 3
-  vcstep rw under 4
-  vcstep rw under 1
-  vcstep rw under 2
-  vcstep rw under 3
-  vcstep rw under 1
   vcstep rw under 2
   vcstep rw under 1
 
 /-! ## Security theorem
-
 X3DH passive message secrecy is at least as hard as DDH under
 the Random Oracle Model for the KDF.
 
@@ -310,6 +283,9 @@ The bound is tight (no factor of 2) because:
 
 So `passiveSecrecyAdvantage = ddhDistAdvantage(reduction)`. -/
 
+set_option linter.flexible false in
+omit [Fintype F] [DecidableEq F] [SampleableType G] [DecidableEq G]
+  [Fintype SK] [DecidableEq SK] in
 /-- X3DH passive secrecy reduces to DDH under the ROM. -/
 theorem passive_secrecy_le_ddh
     (g : G)
