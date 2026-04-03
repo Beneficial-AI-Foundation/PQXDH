@@ -5,4 +5,5 @@ import PQXDHDocs.DocDH
 import PQXDHDocs.DocKDF
 import PQXDHDocs.DocAEAD
 import PQXDHDocs.DocKEM
+import PQXDHDocs.DocPQXDH
 import PQXDHDocs.DocX3DH

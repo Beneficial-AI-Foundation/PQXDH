@@ -5,6 +5,8 @@ Author: David Thrane Christiansen
 -/
 
 import VersoManual
+import VersoBlueprint.Commands.Graph
+import VersoBlueprint.Commands.Summary
 
 import PQXDHDocs.Papers
 import PQXDHDocs.DocFeatures
@@ -12,6 +14,7 @@ import PQXDHDocs.DocDH
 import PQXDHDocs.DocKDF
 import PQXDHDocs.DocAEAD
 import PQXDHDocs.DocKEM
+import PQXDHDocs.DocPQXDH
 import PQXDHDocs.DocX3DH
 
 -- This gets access to most of the manual genre
@@ -60,3 +63,18 @@ The source code is available on [GitHub](https://github.com/Beneficial-AI-Founda
 {include 1 PQXDHDocs.DocAEAD}
 {include 1 PQXDHDocs.DocKEM}
 {include 1 PQXDHDocs.DocX3DH}
+{include 1 PQXDHDocs.DocPQXDH}
+
+# Blueprint overview
+
+The generated views below separate the current formalized core from the PQXDH
+extension roadmap. The graph is useful for dependency tracing; the summary is
+useful for scanning priorities and work shape.
+
+# Dependency graph
+
+{blueprint_graph}
+
+# Work summary
+
+{blueprint_summary}

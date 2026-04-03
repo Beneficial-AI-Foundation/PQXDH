@@ -1,7 +1,10 @@
 import VersoManual
+import VersoBlueprint
+
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open Verso.Code.External
+open Informal
 
 set_option verso.exampleProject "."
 set_option verso.exampleModule "PQXDHLean.AEAD"
@@ -10,6 +13,10 @@ set_option verso.exampleModule "PQXDHLean.AEAD"
 %%%
 tag := "aead"
 %%%
+
+:::group "aead_core"
+Core interface and correctness lemmas for authenticated encryption.
+:::
 
 An AEAD scheme provides both confidentiality and integrity for a
 plaintext message, while binding the ciphertext to unencrypted
@@ -25,6 +32,11 @@ The concrete instantiation is AES-256 in CBC mode with HMAC
 which together imply IND-CCA2 for AEAD schemes (§2.5, assumption 3).
 
 # Structure
+
+:::definition "aead_spec" (parent := "aead_core")
+An AEAD is modeled by encrypt and decrypt operations together with an honest
+round-trip correctness guarantee.
+:::
 
 The {anchorTerm AEADStructure}`AEAD` structure is parameterized by key type `K` (session key from KDF),
 plaintext type `PT`, ciphertext type `CT`, and associated data type `AD`.
@@ -48,6 +60,15 @@ structure AEAD (K PT CT AD : Type _) where
 
 # Correctness theorems
 
+:::theorem "aead_decrypt_encrypt" (parent := "aead_core") (tags := "aead, correctness, core") (effort := "small") (priority := "high")
+Decrypting an honestly encrypted ciphertext with the same key and associated
+data recovers the plaintext.
+:::
+
+:::proof "aead_decrypt_encrypt"
+This is the `correctness` field of the AEAD interface.
+:::
+
 {anchorTerm AEADDecryptEncrypt}`AEAD_decrypt_encrypt`: decrypting an honestly encrypted
 ciphertext with the same key and associated data recovers the plaintext.
 
@@ -58,6 +79,16 @@ theorem AEAD_decrypt_encrypt {K PT CT AD : Type _} (aead : AEAD K PT CT AD)
     aead.decrypt k (aead.encrypt k pt ad) ad = some pt :=
   aead.correctness k pt ad
 ```
+:::
+
+:::theorem "aead_agree" (parent := "aead_core") (tags := "aead, correctness, protocol") (effort := "small") (priority := "high")
+If both parties agree on the session key, associated data, and ciphertext
+origin, then decryption succeeds.
+:::
+
+:::proof "aead_agree"
+Substitute the equalities for keys, associated data, and ciphertext, then
+apply AEAD correctness.
 :::
 
 {anchorTerm AEADAgree}`AEAD_agree`: if Alice and Bob share the same session key and

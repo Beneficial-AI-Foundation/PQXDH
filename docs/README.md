@@ -32,8 +32,8 @@ name = "YourDocs"
 defaultTargets = ["YourDocs", "docs"]
 
 [[require]]
-name = "verso"
-git = "https://github.com/leanprover/verso"
+name = "versoBlueprint"
+git = "https://github.com/ejgallego/verso-blueprint"
 rev = "main"  # or a specific commit
 
 [[lean_lib]]

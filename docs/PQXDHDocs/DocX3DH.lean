@@ -1,7 +1,10 @@
 import VersoManual
+import VersoBlueprint
+
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open Verso.Code.External
+open Informal
 
 set_option verso.exampleProject "."
 set_option verso.exampleModule "PQXDHLean.X3DH"
@@ -11,7 +14,17 @@ set_option verso.exampleModule "PQXDHLean.X3DH"
 tag := "x3dh"
 %%%
 
+:::group "x3dh_core"
+Core X3DH definitions and end-to-end correctness results.
+:::
+
 # Key pairs
+
+:::definition "x3dh_keypair" (parent := "x3dh_core")
+A key pair packages a private scalar, a generator, and the corresponding
+public key. The defining invariant is that the public key is obtained by
+applying {uses "dh_spec"}[] to the private scalar and the generator.
+:::
 
 A key pair is a private scalar and the corresponding public key `[scalar]G`.
 
@@ -26,6 +39,11 @@ structure KeyPair (G : Type _) [AddCommGroup G] where
 :::
 
 # X3DH shared secret computation
+
+:::definition "x3dh_dh_tuple" (parent := "x3dh_core")
+Alice and Bob each compute a 4-tuple of Diffie-Hellman values. The protocol is
+well-formed when these two tuples coincide.
+:::
 
 The four DH outputs computed by {anchorTerm X3DH_Alice}`X3DH_Alice` and {anchorTerm X3DHBob}`X3DH_Bob`.
 
@@ -46,6 +64,17 @@ noncomputable def X3DH_Bob
 :::
 
 # Correctness
+
+:::theorem "x3dh_agree" (parent := "x3dh_core") (tags := "x3dh, agreement, classical") (effort := "medium") (priority := "high")
+If all public keys are honestly generated from the same generator, then Alice
+and Bob compute the same four Diffie-Hellman values. The key algebraic input is
+{uses "dh_comm"}[].
+:::
+
+:::proof "x3dh_agree"
+Rewrite each public key using the honest-generation hypotheses and simplify
+componentwise using {uses "dh_comm"}[].
+:::
 
 The core theorem: if all public keys are honestly generated from the
 same generator G, then Alice and Bob compute identical DH tuples.
@@ -73,8 +102,13 @@ theorem X3DH_agree
 
 # Session key derivation
 
+:::definition "x3dh_session_key" (parent := "x3dh_core")
+The session key is obtained by applying {uses "kdf_spec"}[] to the common DH
+tuple from {uses "x3dh_agree"}[].
+:::
+
 After computing the DH tuple, both parties feed it into a KDF to obtain
-a single session key SK. Since the DH tuples are equal (by {anchorTerm X3DHCorrectness}`X3DH_agree`),
+a single session key SK. Since the DH tuples are equal by `X3DH_agree`,
 the derived session keys are equal.
 
 {anchorTerm X3DHSKAlice}`X3DH_SK_Alice` and {anchorTerm X3DHSKBob}`X3DH_SK_Bob` session keys are KDF applied to their four DH values.
@@ -97,7 +131,18 @@ noncomputable def X3DH_SK_Bob
 ```
 :::
 
+:::theorem "x3dh_session_key_agree" (parent := "x3dh_core") (tags := "x3dh, kdf, agreement") (effort := "small") (priority := "high")
+Alice and Bob derive the same session key from the same {uses "kdf_spec"}[]
+because the DH tuples agree by {uses "x3dh_agree"}[].
+:::
+
+:::proof "x3dh_session_key_agree"
+Expand the two session-key definitions and rewrite the DH tuples using
+{uses "x3dh_agree"}[].
+:::
+
 {anchorTerm X3DHSessionKeyAgreement}`X3DH_session_key_agree`: Alice and Bob derive the same session key.
+
 :::paragraph
 ```anchor X3DHSessionKeyAgreement
 theorem X3DH_session_key_agree
@@ -131,11 +176,21 @@ Bob decrypts with his SK and the same AD. If decryption succeeds,
 the handshake is complete: both parties are authenticated and share
 a secret session key.
 
+:::theorem "x3dh_handshake_correct" (parent := "x3dh_core") (tags := "x3dh, handshake, aead") (effort := "medium") (priority := "high")
+Bob can decrypt Alice's first message. This theorem composes
+{uses "x3dh_agree"}[], {uses "x3dh_session_key_agree"}[], and
+{uses "aead_decrypt_encrypt"}[].
+:::
+
+:::proof "x3dh_handshake_correct"
+First identify Alice's and Bob's session keys using
+{uses "x3dh_session_key_agree"}[]. Then rewrite the ciphertext hypothesis and
+apply {uses "aead_decrypt_encrypt"}[].
+:::
+
 {anchorTerm X3DHHandshakeCorrectness}`X3DH_handshake_correct`: Bob can decrypt Alice's first message.
 This is the end-to-end correctness theorem for X3DH. It composes
-DH agreement ({anchorTerm X3DHCorrectness}`X3DH_agree`),
-session key agreement ({anchorTerm X3DHSessionKeyAgreement}`X3DH_session_key_agree`, via KDF),
-and AEAD correctness.
+`X3DH_agree`, `X3DH_session_key_agree`, and `AEAD_decrypt_encrypt`.
 
 :::paragraph
 ```anchor X3DHHandshakeCorrectness

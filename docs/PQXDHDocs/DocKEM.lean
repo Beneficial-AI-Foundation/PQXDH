@@ -1,7 +1,10 @@
 import VersoManual
+import VersoBlueprint
+
 open Verso.Genre Manual
 open Verso.Genre.Manual.InlineLean
 open Verso.Code.External
+open Informal
 
 set_option verso.exampleProject "."
 set_option verso.exampleModule "PQXDHLean.KEM"
@@ -10,6 +13,10 @@ set_option verso.exampleModule "PQXDHLean.KEM"
 %%%
 tag := "kem"
 %%%
+
+:::group "kem_core"
+Core interface and correctness lemma for the post-quantum KEM component.
+:::
 
 A KEM provides a way for two parties to establish a shared secret
 using public-key cryptography. One party encapsulates (producing a
@@ -35,6 +42,11 @@ being sampled internally).
 
 # Structure
 
+:::definition "kem_spec" (parent := "kem_core")
+A KEM is modeled by encapsulation and decapsulation operations together with
+an honest round-trip property connecting them.
+:::
+
 The {anchorTerm KEMStructure}`KEM` structure is parameterized by public key type `PK`,
 secret key type `SK_kem`, ciphertext type `CT`, and shared secret type `SS`.
 
@@ -53,6 +65,15 @@ structure KEM (PK SK_kem CT SS : Type _) where
 :::
 
 # Correctness theorem
+
+:::theorem "kem_decaps_encaps" (parent := "kem_core") (tags := "kem, pq, correctness") (effort := "small") (priority := "high")
+If encapsulation produces `(ct, ss)`, then decapsulation with the corresponding
+secret key recovers `ss`.
+:::
+
+:::proof "kem_decaps_encaps"
+This is exactly the `correctness` field of the KEM interface.
+:::
 
 {anchorTerm KEMDecapsEncaps}`KEM_decaps_encaps`: if encapsulation produces (ct, ss), then
 decapsulation with the corresponding secret key recovers ss.
