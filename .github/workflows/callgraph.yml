@@ -14,7 +14,7 @@ jobs:
     uses: Beneficial-AI-Foundation/scip-callgraph/.github/workflows/generate-lean-callgraph.yml@main
     with:
       project_path: '.'
-      github_url: https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH
+      github_url: https://github.com/Beneficial-AI-Foundation/PQXDH
       github_branch: ${{ github.ref_name }}
       deploy_mode: subpath
       subpath: callgraph
@@ -33,10 +33,10 @@ jobs:
       - name: Fix asset paths for project Pages subpath
         run: |
           if [ -f callgraph/index.html ]; then
-            sed -i 's|"/callgraph/|"/signal-shot-PQXDH/callgraph/|g' callgraph/index.html
-            sed -i 's|href="/assets/|href="/signal-shot-PQXDH/callgraph/assets/|g' callgraph/index.html
-            sed -i 's|src="/assets/|src="/signal-shot-PQXDH/callgraph/assets/|g' callgraph/index.html
-            echo "Fixed asset paths for /signal-shot-PQXDH/ project Pages"
+            sed -i 's|"/callgraph/|"/PQXDH/callgraph/|g' callgraph/index.html
+            sed -i 's|href="/assets/|href="/PQXDH/callgraph/assets/|g' callgraph/index.html
+            sed -i 's|src="/assets/|src="/PQXDH/callgraph/assets/|g' callgraph/index.html
+            echo "Fixed asset paths for /PQXDH/ project Pages"
           fi
 
       - name: Verify callgraph files

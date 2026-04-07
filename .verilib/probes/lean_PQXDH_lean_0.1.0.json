@@ -1,7 +1,7 @@
 {"tool": {"version": "0.4.0", "name": "probe-lean", "command": "extract"},
  "timestamp": "2026-03-31T06:00:36Z",
  "source":
- {"repo": "https://github.com/Beneficial-AI-Foundation/signal-shot-PQXDH.git",
+ {"repo": "https://github.com/Beneficial-AI-Foundation/PQXDH.git",
   "package-version": "0.1.0",
   "package": "PQXDH-lean",
   "language": "lean",

@@ -62,7 +62,7 @@ lake build
 
 ## Documentation
 
-The documentation is available online at **[beneficial-ai-foundation.github.io/signal-shot-PQXDH](https://beneficial-ai-foundation.github.io/signal-shot-PQXDH/)**.
+The documentation is available online at **[beneficial-ai-foundation.github.io/PQXDH](https://beneficial-ai-foundation.github.io/PQXDH/)**.
 
 The `docs/` directory contains a [Verso](https://github.com/leanprover/verso)-based literate document with prose explanations and verified code excerpts.
 
