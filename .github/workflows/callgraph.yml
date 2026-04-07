@@ -2,7 +2,7 @@ name: Call Graph
 
 on:
   push:
-    branches: [master, X3DH_security_properties]
+    branches: [main, X3DH_security_properties]
   workflow_dispatch:
 
 concurrency:
