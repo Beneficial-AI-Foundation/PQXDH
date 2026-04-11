@@ -208,6 +208,7 @@ Theorem overview:
   - **Theorem 3** (post-quantum computational, CryptoVerif): session key
     secrecy under IND-CCA (KEM) + PRF + IND-CPA/INT-CTXT + EUF-CMA (at
     time of exchange). **No DH assumption.**
+  - **Theorem 4** (§5.3.1): CCR ⇏ SH-CR and SH-CR ⇏ CCR (incomparable KEM notions).
   - **Theorem 5** (§4): Kyber is SH-CR under ROM for internal hashes.
   - **Theorem 6** (§4): classical assumptions + SH-CR → PQSPK agreement.
 
@@ -359,6 +360,44 @@ theorem PQXDH_postquantum_security
         (Sig_EUF_CMA PK_sig SK_sig M S_sig sig)) :
     HNDL_Resistance G PK_kem SK_kem CT_kem SS kem
         ((G × G × G × G) × SS) SK_session kdf := by
+  sorry
+
+/-! ## Theorem 4 — CCR and SH-CR are incomparable (§5.3.1)
+
+**Context:** The paper introduces SH-CR (Definition 1) as the KEM binding
+property needed for PQXDH. A natural question is whether existing notions
+suffice. CCR (Ciphertext Collision Resistance, from Cremers–Dax–Medinger
+2023) is the closest prior notion.
+
+Theorem 4 shows that CCR and SH-CR are logically independent: neither
+implies the other. The proof constructs artificial counterexample schemes
+for each direction.
+
+**Separation 1 (CCR ⇏ SH-CR):** Construct a KEM where encaps' ignores the
+last bit of the public key and keygen' appends 0 to all public keys. This
+is CCR-secure (the adversary doesn't have sk), but not SH-CR (the adversary
+has sk and can flip the last bit of pk to get pk' with same decapsulation).
+
+**Separation 2 (SH-CR ⇏ CCR):** Construct a KEM where encaps only returns
+ciphertexts in {0, 1} with negligible probability, and decaps returns 0
+on input 1 and 1 on input 0. This is SH-CR (0 and 1 are never honest
+ciphertexts) but not CCR (the adversary can simply swap 0 ↔ 1).
+
+This theorem is orthogonal to the protocol security results (Theorems 1–3)
+and the Kyber-specific result (Theorem 5). -/
+
+/-- Theorem 4, §5.3.1, p. 480: CCR does not imply SH-CR. There exists a
+KEM that is CCR-secure but not SH-CR-secure. -/
+theorem CCR_not_implies_SH_CR :
+    ¬ (∀ (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS),
+        KEM_CCR PK SK_kem CT SS kem → KEM_SH_CR PK SK_kem CT SS kem) := by
+  sorry
+
+/-- Theorem 4, §5.3.1, p. 480: SH-CR does not imply CCR. There exists a
+KEM that is SH-CR-secure but not CCR-secure. -/
+theorem SH_CR_not_implies_CCR :
+    ¬ (∀ (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS),
+        KEM_SH_CR PK SK_kem CT SS kem → KEM_CCR PK SK_kem CT SS kem) := by
   sorry
 
 /-! ## Theorem 5 — Kyber is SH-CR (§4)

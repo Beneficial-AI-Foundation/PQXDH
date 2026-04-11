@@ -271,6 +271,24 @@ correctly under sk must be the one honestly generated for the
 matching public key.
 -/
 
+/-- §5.3.1, p. 480: Ciphertext Collision Resistance (CCR), from [22] (Cremers, Dax, Medinger 2023).
+
+Game:
+  1. Challenger runs (pk, sk) ← KEM.keygen, gives pk to adversary.
+  2. Challenger computes (ss, ct) ← KEM.encaps(pk), gives ct to adversary.
+  3. Adversary outputs ct'.
+
+  Winning condition: ct' ≠ ct ∧ KEM.decaps(sk, ct') = ss.
+
+That is: the adversary, given only the public key and an honest ciphertext,
+finds a *different* ciphertext ct' that decapsulates (under the honest sk) to
+the same shared secret ss.
+
+Difference from SH-CR: in CCR the adversary does NOT receive sk (the secret key)
+and cannot choose the public key. In SH-CR the adversary receives sk and chooses
+an arbitrary public key pk'. Theorem 4 shows these notions are incomparable. -/
+opaque KEM_CCR (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS) : Prop
+
 /-- Definition 1, §5.3.1, p. 480: Semi-Honest Collision Resistance (SH-CR).
 
 Game (2 phases):
