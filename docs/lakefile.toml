@@ -2,9 +2,13 @@ name = "PQXDHDocs"
 defaultTargets = ["PQXDHDocs", "docs"]
 
 [[require]]
-name = "verso"
-git = "https://github.com/leanprover/verso"
+name = "versoBlueprint"
+git = "https://github.com/ejgallego/verso-blueprint"
 rev = "v4.28.0"
+
+[[require]]
+name = "PQXDH-lean"
+path = ".."
 
 [[lean_lib]]
 name = "PQXDHDocs"

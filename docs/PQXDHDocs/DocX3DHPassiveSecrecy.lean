@@ -1,10 +1,22 @@
-import Verso
 import VersoManual
+import VersoBlueprint
+import PQXDHLean.X3DH.X3DHPassiveMessageSecrecy
+
 open Verso.Genre Manual
-set_option doc.verso true
-set_option pp.rawOnError true
+open Informal
+
+set_option verso.exampleProject ".."
+set_option verso.exampleModule "PQXDHLean.X3DH.X3DHPassiveMessageSecrecy"
 
 #doc (Manual) "Passive Message Secrecy" =>
+%%%
+tag := "passive_secrecy"
+%%%
+
+:::group "passive_secrecy_core"
+Passive message secrecy game, DDH reduction, and tight security bound
+under the Random Oracle Model.
+:::
 
 Passive message secrecy for X3DH under the Random Oracle Model,
 using VCV-io for security game definitions.
@@ -23,130 +35,84 @@ random whenever the KDF input contains a fresh random component
 (as happens when DH3 is replaced with a random group element in
 the DDH reduction).
 
+:::definition "exec_game" (lean := "execGame") (parent := "passive_secrecy_core")
 To compute probabilities, the KDF oracle is implemented as
-fresh uniform samples (equivalent to ROM for single-query games):
-
-```
-noncomputable def execGame
-    (comp : OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool) :
-    ProbComp Bool :=
-  let kdfImpl : QueryImpl (KDFOracle (G × G × G × G) SK) ProbComp :=
-    fun _ => $ᵗ SK
-  let idImpl : QueryImpl unifSpec ProbComp := QueryImpl.ofLift unifSpec ProbComp
-  simulateQ (idImpl + kdfImpl) comp
-```
+fresh uniform samples (equivalent to ROM for single-query games).
+This bridges VCV-io's oracle computations to concrete probability
+distributions.
+:::
 
 # Passive adversary
 
-A passive adversary sees the public transcript and a candidate
-session key. It has ROM access and outputs a Bool guess:
-
-```
-abbrev PassiveAdversary (G SK : Type) :=
-  G → G → G → G → G → SK → OracleComp (KDFOracle (G × G × G × G) SK) Bool
-```
+:::definition "passive_adversary" (lean := "PassiveAdversary") (parent := "passive_secrecy_core")
+A passive adversary sees the public transcript (five group elements)
+and a candidate session key. It has ROM access and outputs a Bool guess.
+:::
 
 # Two-game formulation
 
 Both games share a common structure that samples keys, computes
 public values and the DH tuple, then obtains a session key via
-a callback:
+a callback. The real and random games differ only in how the
+session key is obtained.
 
-```
-private def passiveGame (g : G)
-    (adv : PassiveAdversary G SK)
-    (getSK : (G × G × G × G) →
-             OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) SK) :
-    OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
-  let ikₐ ← $ᵗ F; let ekₐ ← $ᵗ F
-  let ikᵦ ← $ᵗ F; let spkᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
-  let IKₐ := ikₐ • g; let EKₐ := ekₐ • g
-  let IKᵦ := ikᵦ • g; let SPKᵦ := spkᵦ • g; let OPKᵦ := opkᵦ • g
-  let dh := X3DH_Alice ikₐ ekₐ IKᵦ SPKᵦ (some OPKᵦ)
-  let sk ← getSK dh
-  adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
-```
+:::definition "passive_real" (lean := "passiveReal") (parent := "passive_secrecy_core")
+In the real game, the session key is obtained by querying the
+random oracle on the actual DH tuple.
+:::
 
-The real and random games differ only in `getSK`:
-
-```
--- Real: query ROM on DH tuple
-def passiveReal (g : G) (adv : PassiveAdversary G SK) :=
-  passiveGame g adv fun dh =>
-    query (spec := unifSpec + KDFOracle (G × G × G × G) SK) (Sum.inr dh)
-
--- Random: sample uniformly, ignore DH tuple
-def passiveRand (g : G) (adv : PassiveAdversary G SK) :=
-  passiveGame g adv fun _ => $ᵗ SK
-```
+:::definition "passive_rand" (lean := "passiveRand") (parent := "passive_secrecy_core")
+In the random game, the session key is sampled uniformly at random,
+independent of the DH tuple.
+:::
 
 # Advantage
 
-```
-noncomputable def passiveSecrecyAdvantage (g : G)
-    (adv : PassiveAdversary G SK) : ℝ :=
-  ProbComp.boolDistAdvantage
-    (execGame (passiveReal g adv))
-    (execGame (passiveRand g adv))
-```
-
-The advantage is |Pr\[true | real\] - Pr\[true | rand\]|.
-A value of 0 means the adversary cannot distinguish the games.
+:::definition "passive_secrecy_advantage" (lean := "passiveSecrecyAdvantage") (parent := "passive_secrecy_core")
+The passive secrecy advantage measures an adversary's ability to
+distinguish the real game from the random game. A value of 0 means
+the adversary cannot distinguish them.
+:::
 
 # DDH reduction
 
+:::definition "ddh_reduction" (lean := "ddhReduction") (parent := "passive_secrecy_core")
 Given a passive adversary A, we construct a DDH adversary B that
-embeds the DDH challenge `(g, EKₐ, SPKᵦ, T)` as DH3:
-
-```
-noncomputable def ddhReduction
-    (adv : PassiveAdversary G SK) :
-    DiffieHellman.DDHAdversary F G :=
-  fun g EKₐ SPKᵦ T =>
-    let inner : OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool := do
-      let ikₐ ← $ᵗ F; let ikᵦ ← $ᵗ F; let opkᵦ ← $ᵗ F
-      let IKₐ := ikₐ • g; let IKᵦ := ikᵦ • g; let OPKᵦ := opkᵦ • g
-      let dh := (ikₐ • SPKᵦ, ikᵦ • EKₐ, T, opkᵦ • EKₐ)
-      let sk ← query (spec := unifSpec + KDFOracle (G × G × G × G) SK)
-                  (Sum.inr dh)
-      adv IKₐ EKₐ IKᵦ SPKᵦ OPKᵦ sk
-    execGame inner
-```
-
-No internal coin flip: the DDH experiment's own bit handles
-real/random branching. This makes the bound tight (no factor of 2).
+embeds the DDH challenge (g, EK_a, SPK_b, T) as DH3. No internal
+coin flip: the DDH experiment's own bit handles real/random branching.
+This makes the bound tight (no factor of 2).
+:::
 
 # Distributional equivalences
 
 The core of the reduction: the executed passive games have the
 same distributions as the DDH games composed with the reduction.
 
-- `passiveReal_eq_ddhExpReal`: the real passive game equals the
-  DDH real game composed with the reduction (by sampling order
-  independence and `smul_smul` + `mul_comm`).
+The first equivalence shows that the real passive game equals the
+DDH real game composed with the reduction (by sampling order
+independence and `smul_smul` + `mul_comm`).
 
-- `passiveRand_eq_ddhExpRand`: the random passive game equals
-  the DDH random game. The RHS has an extra unused draw `c`
-  from DDH; the proof adds a matching unused draw to the LHS
-  via `probOutput_bind_const`, then permutes independent draws
-  via the `perm_draws` tactic.
+The second equivalence shows that the random passive game equals
+the DDH random game. The RHS has an extra unused draw from DDH;
+the proof adds a matching unused draw to the LHS via
+`probOutput_bind_const`, then permutes independent draws via the
+`perm_draws` tactic.
 
 Both proofs are fully mechanized (no `sorry`) using the custom
 `perm_draws` tactic, which automatically computes the draw
-permutation via de Bruijn index analysis and emits the
-minimal swap sequence.
+permutation via de Bruijn index analysis and emits the minimal
+swap sequence.
 
 # Security theorem
 
-```
-theorem passive_secrecy_le_ddh (g : G)
-    (adv : PassiveAdversary G SK) :
-    passiveSecrecyAdvantage g adv ≤
-    ProbComp.boolDistAdvantage
-      (DiffieHellman.ddhExpReal g (ddhReduction adv))
-      (DiffieHellman.ddhExpRand g (ddhReduction adv))
-```
+:::theorem "passive_secrecy_le_ddh" (lean := "passive_secrecy_le_ddh") (parent := "passive_secrecy_core") (tags := "x3dh, security, ddh, rom") (effort := "medium") (priority := "high")
+The passive secrecy advantage of any adversary is bounded by
+the DDH advantage of {uses "ddh_reduction"}[]. This is a tight
+reduction: no factor-of-2 loss.
+:::
 
-The proof unfolds `passiveSecrecyAdvantage`, shows the two
-`boolDistAdvantage` expressions are equal (via the distributional
-equivalence lemmas), and concludes by `linarith`.
+:::proof "passive_secrecy_le_ddh"
+Unfold {uses "passive_secrecy_advantage"}[], show the two
+`boolDistAdvantage` expressions are equal via the distributional
+equivalence lemmas, and conclude by `linarith`.
+:::

@@ -1,99 +1,109 @@
-import Verso
 import VersoManual
+import VersoBlueprint
+import PQXDHLean.X3DH.X3DH
+import PQXDHDocs.DocPermDraws
 import PQXDHDocs.DocX3DHPassiveSecrecy
+
 open Verso.Genre Manual
-set_option doc.verso true
-set_option pp.rawOnError true
+open Informal
+
+set_option verso.exampleProject ".."
+set_option verso.exampleModule "PQXDHLean.X3DH.X3DH"
 
 #doc (Manual) "The X3DH Protocol" =>
+%%%
+tag := "x3dh"
+%%%
+
+:::group "x3dh_core"
+Core X3DH definitions and end-to-end correctness results.
+:::
 
 X3DH (Extended Triple Diffie-Hellman) key agreement protocol,
 following Bhargavan et al. (USENIX Security 2024).
 
 # Key pairs
 
+:::definition "x3dh_keypair" (lean := "KeyPair") (parent := "x3dh_core")
 A key pair binds a private scalar (in a field F) to its public key
 (a group element), derived from a shared generator. The generator
 is a type parameter, enforcing that all key pairs in a session share
-the same generator by construction.
-
-```
-structure KeyPair (F G : Type _) [Field F] [AddCommGroup G] [Module F G]
-    (G₀ : G) where
-  priv : F
-  pub : G
-  pub_eq : pub = DH priv G₀
-```
+the same generator by construction. The defining invariant is that
+the public key is obtained by applying {uses "dh_spec"}[] to the
+private scalar and the generator.
+:::
 
 # Shared secret computation
 
-Alice and Bob each compute four DH values:
-- DH1 = DH(ikₐ, SPKᵦ) — mutual authentication (Alice's identity)
-- DH2 = DH(ekₐ, IKᵦ) — mutual authentication (Bob's identity)
-- DH3 = DH(ekₐ, SPKᵦ) — forward secrecy
-- DH4 = DH(ekₐ, OPKᵦ) — replay protection (when OPK is present)
-
+:::definition "x3dh_alice" (lean := "X3DH_Alice") (parent := "x3dh_core")
+Alice computes four DH values from her private keys and Bob's public keys:
+DH1 = DH(ik_a, SPK_b) for mutual authentication (Alice's identity),
+DH2 = DH(ek_a, IK_b) for mutual authentication (Bob's identity),
+DH3 = DH(ek_a, SPK_b) for forward secrecy,
+DH4 = DH(ek_a, OPK_b) for replay protection (when OPK is present).
 When OPK is absent, DH4 defaults to 0 (the group identity).
+:::
 
-```
-def X3DH_Alice
-    (ikₐ ekₐ : F) (IKᵦ SPKᵦ : G) (OPKᵦ : Option G) : G × G × G × G :=
-  (DH ikₐ SPKᵦ, DH ekₐ IKᵦ, DH ekₐ SPKᵦ, DH ekₐ (OPKᵦ.getD 0))
-
-def X3DH_Bob
-    (ikᵦ spkᵦ : F) (opkᵦ : Option F) (IKₐ EKₐ : G) : G × G × G × G :=
-  (DH spkᵦ IKₐ, DH ikᵦ EKₐ, DH spkᵦ EKₐ, DH (opkᵦ.getD 0) EKₐ)
-```
+:::definition "x3dh_bob" (lean := "X3DH_Bob") (parent := "x3dh_core")
+Bob computes the same four DH values from his private keys and Alice's
+public keys. The protocol is well-formed when Alice's and Bob's tuples
+coincide.
+:::
 
 # Correctness
 
-If all key pairs are honestly generated from the same generator,
-then Alice and Bob compute identical DH tuples:
+:::theorem "x3dh_agree" (lean := "X3DH_agree") (parent := "x3dh_core") (tags := "x3dh, agreement, classical") (effort := "medium") (priority := "high")
+If all key pairs are honestly generated from the same generator, then Alice
+and Bob compute identical DH tuples. The key algebraic input is
+{uses "dh_spec"}[] commutativity.
+:::
 
-```
-theorem X3DH_agree
-    {G₀ : G}
-    (ikₐ ekₐ : KeyPair F G G₀)
-    (ikᵦ spkᵦ : KeyPair F G G₀)
-    (opkᵦ : Option (KeyPair F G G₀)) :
-    X3DH_Alice ikₐ.priv ekₐ.priv ikᵦ.pub spkᵦ.pub (opkᵦ.map KeyPair.pub) =
-    X3DH_Bob ikᵦ.priv spkᵦ.priv (opkᵦ.map KeyPair.priv) ikₐ.pub ekₐ.pub
-```
+:::proof "x3dh_agree"
+Work by cases on OPK, then apply `simp` with the `Module F G` lemmas
+(`smul_smul`, `mul_comm`) plus each key pair's generation equation.
+:::
 
-The proof works by cases on OPK, then applies `simp` with the
-`Module F G` lemmas (`smul_smul`, `mul_comm`) plus each key pair's
-generation equation.
+# Session key derivation
 
-*Session key derivation*
+:::definition "x3dh_sk_alice" (lean := "X3DH_SK_Alice") (parent := "x3dh_core")
+Alice's session key is obtained by applying {uses "kdf_spec"}[] to
+her DH tuple from {uses "x3dh_alice"}[].
+:::
 
-Both parties feed the DH tuple into a KDF to obtain a session key:
+:::definition "x3dh_sk_bob" (lean := "X3DH_SK_Bob") (parent := "x3dh_core")
+Bob's session key is obtained by applying {uses "kdf_spec"}[] to
+his DH tuple from {uses "x3dh_bob"}[].
+:::
 
-```
-def X3DH_SK_Alice (kdf : KDF (G × G × G × G) SK)
-    (ikₐ ekₐ : F) (IKᵦ SPKᵦ : G) (OPKᵦ : Option G) : SK :=
-  kdf.derive (X3DH_Alice ikₐ ekₐ IKᵦ SPKᵦ OPKᵦ)
-```
+:::theorem "x3dh_session_key_agree" (lean := "X3DH_session_key_agree") (parent := "x3dh_core") (tags := "x3dh, kdf, agreement") (effort := "small") (priority := "high")
+Alice and Bob derive the same session key from the same {uses "kdf_spec"}[]
+because the DH tuples agree by {uses "x3dh_agree"}[].
+:::
 
-Since the DH tuples are equal (by `X3DH_agree`), the derived session
-keys are equal (`X3DH_session_key_agree`).
+:::proof "x3dh_session_key_agree"
+Expand the two session-key definitions and rewrite the DH tuples using
+{uses "x3dh_agree"}[].
+:::
 
-*Handshake correctness*
+# Handshake: first authenticated message
 
-End-to-end correctness: Bob can decrypt Alice's first message.
+Alice encrypts her first message using AEAD with the derived session
+key and associated data AD = IK_a || IK_b (Figure 1, Bhargavan et al.).
+Bob decrypts with his SK and the same AD. If decryption succeeds,
+the handshake is complete.
 
-```
-theorem X3DH_handshake_correct
-    (kdf : KDF (G × G × G × G) SK)
-    (aead : AEAD SK PT CT_aead (G × G))
-    {G₀ : G}
-    (ikₐ ekₐ ikᵦ spkᵦ : KeyPair F G G₀)
-    (opkᵦ : Option (KeyPair F G G₀))
-    (msg : PT) (ct : CT_aead)
-    (h_enc : ct = aead.encrypt (X3DH_SK_Alice kdf ...) msg (ikₐ.pub, ikᵦ.pub)) :
-    aead.decrypt (X3DH_SK_Bob kdf ...) ct (ikₐ.pub, ikᵦ.pub) = some msg
-```
+:::theorem "x3dh_handshake_correct" (lean := "X3DH_handshake_correct") (parent := "x3dh_core") (tags := "x3dh, handshake, aead") (effort := "medium") (priority := "high")
+Bob can decrypt Alice's first message. This theorem composes
+{uses "x3dh_agree"}[], {uses "x3dh_session_key_agree"}[], and
+{uses "aead_spec"}[] correctness.
+:::
 
-This composes DH agreement, session key agreement via KDF,
-and AEAD correctness.
+:::proof "x3dh_handshake_correct"
+First identify Alice's and Bob's session keys using
+{uses "x3dh_session_key_agree"}[]. Then rewrite the ciphertext hypothesis and
+apply AEAD correctness.
+:::
+
+{include 1 PQXDHDocs.DocPermDraws}
 
 {include 1 PQXDHDocs.DocX3DHPassiveSecrecy}

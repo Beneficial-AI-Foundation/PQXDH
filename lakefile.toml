@@ -19,10 +19,5 @@ name = "VCVio"
 git = "https://github.com/Verified-zkEVM/VCV-io.git"
 rev = "ebea2fa"
 
-[[require]]
-name = "subverso"
-git = "https://github.com/leanprover/subverso.git"
-rev = "af9f9b2a4ded35975794530858214271293e34ce"
-
 [[lean_lib]]
 name = "PQXDHLean"

@@ -1,38 +1,49 @@
-import Verso
 import VersoManual
+import VersoBlueprint
+import PQXDHLean.KDF
+
 open Verso.Genre Manual
-set_option doc.verso true
-set_option pp.rawOnError true
+open Informal
+
+set_option verso.exampleProject ".."
+set_option verso.exampleModule "PQXDHLean.KDF"
 
 #doc (Manual) "Key Derivation Function" =>
+%%%
+tag := "kdf"
+%%%
+
+:::group "kdf_core"
+Core interface for deterministic and random-oracle key derivation.
+:::
 
 A KDF deterministically derives a fixed-size key from variable-length
 input material. In X3DH the input is the concatenation of the
 DH outputs and the result is the session key SK.
 
+The concrete instantiation is HKDF (RFC 5869) with SHA-256.
+
 Two formalizations coexist, modeling different aspects of the KDF.
 
-*Deterministic KDF (for correctness proofs)*
+# Deterministic KDF
 
-```
-structure KDF (I K : Type _) where
-  derive : I → K
-```
-
-Used in the correctness proofs (`X3DH_agree`, `X3DH_handshake_correct`),
-which only need "same input → same output" — no randomness or
+:::definition "kdf_spec" (lean := "KDF") (parent := "kdf_core")
+A KDF is modeled as a deterministic map from input material to a derived key.
+The abstraction is intentionally minimal so protocol proofs can reason only
+about equality of derived outputs from equal transcripts.
+Used in the correctness proofs ({uses "x3dh_agree"}[], {uses "x3dh_handshake_correct"}[]),
+which only need "same input implies same output" --- no randomness or
 security assumptions.
+:::
 
-*Random Oracle KDF (for security proofs)*
+# Random Oracle KDF
 
-```
-abbrev KDFOracle (I K : Type) := I →ₒ K
-```
-
-An oracle `I →ₒ K` implemented by VCV-io's `randomOracle`
+:::definition "kdf_oracle" (lean := "KDFOracle") (parent := "kdf_core")
+An oracle type `I -> K` implemented by VCV-io's `randomOracle`
 (lazy cached uniform sampling). Used in the security proofs
 (passive message secrecy), where the KDF is modeled as a random
-oracle per the paper's assumption 4 (§2.5).
+oracle per the paper's assumption 4 (section 2.5).
+:::
 
 The paper makes the same distinction: correctness is unconditional,
 security assumes the ROM.
