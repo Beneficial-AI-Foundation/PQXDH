@@ -35,16 +35,22 @@ apply directly without unfolding.
 
 # Notation
 
-The formalization uses additive group notation (Mathlib convention)
-instead of the multiplicative notation from textbooks.
-For example, `g^a` becomes `a * G₀`, and `(g^a)^b = g^(ab)` becomes
-`b * (a * G₀) = (b * a) * G₀`.
+The formalization uses additive group notation following the Mathlib
+convention, instead of the multiplicative notation from textbooks:
+
+- `g^a` becomes `a • G₀` (scalar multiplication)
+- `(g^a)^b = g^{ab}` becomes `b • (a • G₀) = (b * a) • G₀`
+- `g^a * g^b = g^{a+b}` becomes `a • G₀ + b • G₀ = (a + b) • G₀`
 
 # Algebraic properties
 
-Because DH is an `abbrev`, these properties follow directly from the `Module F G` API:
-commutativity via `smul_smul` + `mul_comm`,
-associativity via `mul_smul`,
-zero via `zero_smul`,
-one via `one_smul`,
-and addition via `add_smul`.
+Because `DH` is declared as an `abbrev`, it is definitionally equal
+to Mathlib's scalar multiplication `a • B`. All algebraic properties
+are inherited directly from the `Module F G` typeclass API in Mathlib
+(`Mathlib.Algebra.Module.Basic`), with no additional proofs needed:
+
+- *Commutativity*: `DH a (DH b P) = DH b (DH a P)` from `smul_smul` + `mul_comm` (Mathlib)
+- *Associativity*: `DH a (DH b B) = DH (a * b) B` from `mul_smul` (Mathlib)
+- *Zero*: `DH 0 B = 0` from `zero_smul` (Mathlib)
+- *One*: `DH 1 B = B` from `one_smul` (Mathlib)
+- *Addition*: `DH (a + b) B = DH a B + DH b B` from `add_smul` (Mathlib)

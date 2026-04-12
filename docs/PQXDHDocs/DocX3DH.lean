@@ -1,6 +1,7 @@
 import VersoManual
 import VersoBlueprint
 import PQXDHLean.X3DH.X3DH
+import PQXDHDocs.SourceBlock
 import PQXDHDocs.DocPermDraws
 import PQXDHDocs.DocX3DHPassiveSecrecy
 
@@ -62,6 +63,9 @@ and Bob compute identical DH tuples. The key algebraic input is
 Work by cases on OPK, then apply `simp` with the `Module F G` lemmas
 (`smul_smul`, `mul_comm`) plus each key pair's generation equation.
 :::
+
+```source X3DH_agree
+```
 
 # Session key derivation
 

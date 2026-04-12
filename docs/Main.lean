@@ -43,6 +43,28 @@ r#"
   margin: 0.3em 0;
 }
 
+/* Proof source card — no purple left border */
+.proof-source-card {
+  margin: 0.8rem 0;
+  border: none;
+  border-left: none;
+  background: transparent;
+  overflow: hidden;
+}
+.proof-source-card.bp_code_panel {
+  border-left: none !important;
+}
+.proof-source-code {
+  margin: 0;
+  padding: 0.8rem 1rem;
+  font-family: monospace;
+  font-size: 0.88em;
+  line-height: 1.6;
+  white-space: pre;
+  overflow-x: auto;
+  color: #24292E;
+}
+
 /* Show code bodies by default (open collapsed details) */
 details.bp_code_block[open] > summary {
   margin-bottom: 0.5rem;
@@ -116,6 +138,111 @@ r#"
   /* Set modern style by default */
   onReady(function() {
     document.documentElement.setAttribute('data-bp-style', 'modern');
+  });
+
+  /* Transform proof source blocks: card styling + syntax highlighting */
+  onReady(function() {
+    var markerText = '-- PROOF-SOURCE';
+    document.querySelectorAll('pre').forEach(function(el) {
+      var text = el.textContent || '';
+      if (text.trimStart().indexOf(markerText) !== 0) return;
+      /* Remove marker line */
+      var idx = text.indexOf(markerText);
+      var rest = text.substring(idx + markerText.length);
+      var nlIdx = rest.indexOf('\n');
+      var code = nlIdx >= 0 ? rest.substring(nlIdx + 1) : rest;
+      var keywords = /\b(by|cases|simp|exact|subst|rw|rewrite|apply|intro|intros|have|show|suffices|induction|constructor|refine|calc|ring|omega|norm_num|linarith|aesop|trivial|contradiction|exfalso|congr|ext|funext|sorry|with|match|fun|let|do|if|then|else|for|in|return|pure|try|catch|throw|unless|where|only|guard|logInfo|throwError)\b/g;
+      var consts = /\b(none|some|true|false)\b/g;
+      /* Escape HTML */
+      var html = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      /* Highlight */
+      html = html.replace(/(--[^\n]*)/g, '<span style="color:#6A737D">$1</span>');
+      html = html.replace(keywords, '<span style="color:#D73A49">$1</span>');
+      html = html.replace(consts, '<span style="color:#005CC5">$1</span>');
+      html = html.replace(/(\|) /g, '<span style="color:#D73A49">$1</span> ');
+      /* Find the nearest theorem/definition (not proof) for context */
+      var prev = el.previousElementSibling;
+      var theoremLabel = '';
+      while (prev) {
+        if (prev.classList && (prev.classList.contains('bp_kind_theorem_wrapper') ||
+            prev.classList.contains('bp_kind_definition_wrapper') ||
+            prev.classList.contains('bp_kind_lemma_wrapper'))) {
+          var cap = prev.querySelector('.bp_caption');
+          var lab = prev.querySelector('.bp_label');
+          if (cap && lab) theoremLabel = cap.textContent.trim() + ' ' + lab.textContent.trim();
+          break;
+        }
+        /* Also check inside proof wrappers for a preceding theorem */
+        if (prev.classList && prev.classList.contains('bp_kind_proof_wrapper')) {
+          prev = prev.previousElementSibling;
+          continue;
+        }
+        /* Check code panel wrappers */
+        if (prev.classList && prev.classList.contains('bp_code_panel_wrapper')) {
+          prev = prev.previousElementSibling;
+          continue;
+        }
+        prev = prev.previousElementSibling;
+      }
+      var title = theoremLabel ? 'Proof for ' + theoremLabel : 'Proof';
+      /* Wrap in foldable card like blueprint code blocks */
+      var wrapper = document.createElement('div');
+      wrapper.className = 'bp_wrapper bp_code_panel_wrapper';
+      var details = document.createElement('details');
+      details.className = 'bp_code_block bp_code_panel proof-source-card';
+      details.setAttribute('open', '');
+      var summary = document.createElement('summary');
+      summary.className = 'bp_heading lemma_thmheading';
+      summary.innerHTML = '<span class="bp_caption lemma_thmcaption bp_code_summary_text">Code for ' + title + '</span>';
+      var pre = document.createElement('pre');
+      pre.className = 'proof-source-code';
+      pre.innerHTML = html;
+      details.appendChild(summary);
+      details.appendChild(pre);
+      wrapper.appendChild(details);
+      el.parentNode.replaceChild(wrapper, el);
+    });
+  });
+
+  /* Make proof blocks foldable and rename to "Proof for Theorem X.Y" */
+  onReady(function() {
+    document.querySelectorAll('.bp_kind_proof_wrapper').forEach(function(proofEl) {
+      /* Find preceding theorem */
+      var prev = proofEl.previousElementSibling;
+      var theoremLabel = '';
+      while (prev) {
+        if (prev.classList && (prev.classList.contains('bp_kind_theorem_wrapper') ||
+            prev.classList.contains('bp_kind_definition_wrapper') ||
+            prev.classList.contains('bp_kind_lemma_wrapper'))) {
+          var cap = prev.querySelector('.bp_caption');
+          var lab = prev.querySelector('.bp_label');
+          if (cap && lab) theoremLabel = cap.textContent.trim() + ' ' + lab.textContent.trim();
+          break;
+        }
+        if (prev.classList && (prev.classList.contains('bp_kind_proof_wrapper') ||
+            prev.classList.contains('bp_code_panel_wrapper'))) {
+          prev = prev.previousElementSibling;
+          continue;
+        }
+        prev = prev.previousElementSibling;
+      }
+      var title = theoremLabel ? 'Proof for ' + theoremLabel : 'Proof';
+      /* Wrap in foldable details */
+      var heading = proofEl.querySelector('.bp_kind_proof_heading');
+      var content = proofEl.querySelector('.bp_kind_proof_content');
+      if (heading && content) {
+        var details = document.createElement('details');
+        details.className = 'bp_code_block';
+        details.setAttribute('open', '');
+        var summary = document.createElement('summary');
+        summary.className = 'bp_heading lemma_thmheading';
+        summary.innerHTML = '<span class="bp_caption lemma_thmcaption">' + title + '</span>';
+        details.appendChild(summary);
+        details.appendChild(content.cloneNode(true));
+        proofEl.innerHTML = '';
+        proofEl.appendChild(details);
+      }
+    });
   });
 
   /* Suppress empty Tippy tooltips */
