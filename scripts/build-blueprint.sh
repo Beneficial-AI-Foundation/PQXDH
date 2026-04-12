@@ -40,6 +40,9 @@ lake -d docs build docs
 echo "[build-blueprint] generating blueprint -> ${out_root}"
 "docs/.lake/build/bin/docs" --output "$out_root"
 
+echo "[build-blueprint] adding Lean syntax highlighting"
+node --experimental-vm-modules scripts/highlight-lean.mjs "$out_root" || echo "[build-blueprint] warning: syntax highlighting failed (node/shiki not available)"
+
 echo "[build-blueprint] done"
 echo "[build-blueprint] output:"
 readlink -f "$out_root"
