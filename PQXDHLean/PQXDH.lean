@@ -331,7 +331,29 @@ Security of the session key rests entirely on the KEM and KDF.
   - Theorem 3 provides post-quantum forward secrecy (session key
     secrecy) without any DH assumption.
   - Together: PQXDH is at least as secure as X3DH classically
-    (Theorem 2), and additionally HNDL-resistant (Theorem 3). -/
+    (Theorem 2), and additionally HNDL-resistant (Theorem 3).
+
+**Why PRF instead of ROM/QROM (§3.5, p. 475):**
+  The classical Theorem 2 models the KDF (HKDF-SHA-256) as a
+  Random Oracle (ROM). The natural quantum analogue would use the
+  Quantum Random Oracle Model (QROM), where the adversary queries
+  the oracle in superposition. However, CryptoVerif's post-quantum
+  soundness result does not capture the QROM, so the paper falls
+  back to the PRF assumption.
+
+  This is not merely a tool limitation — PRF is a theoretically
+  legitimate and arguably preferable choice:
+  - ROM/QROM assumes the KDF is an *ideal* random function
+    (information-theoretic), which is a strong assumption.
+  - PRF assumes only *computational* indistinguishability from
+    random when keyed — a weaker, standard-model assumption.
+  - Standard-model proofs (PRF) are considered stronger than
+    ROM proofs, since there exist schemes provably secure in the
+    ROM that are insecure for any concrete hash instantiation
+    (Canetti–Goldreich–Halevi 1998).
+
+  The cost of PRF vs. ROM is a potentially looser reduction bound.
+  A QROM-based proof of Theorem 2 remains future work. -/
 
 /-- Theorem 3 (§3.2): Under IND-CCA for the KEM, if the KDF is a
 PRF, the AEAD is IND-CPA + INT-CTXT, and the signature scheme was
