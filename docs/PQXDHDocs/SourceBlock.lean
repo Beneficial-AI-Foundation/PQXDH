@@ -59,10 +59,10 @@ meta def source : SourceConfig → StrLit → DocElabM Term
 
     let parts := modName.components.map (·.toString)
     let relPath := String.intercalate "/" parts ++ ".lean"
-    let path : System.FilePath := ".." / relPath
-
-    unless ← path.pathExists do
-      throwError s!"source: source file not found at {path}"
+    -- Try CWD-relative first (lake -d docs from repo root), then ../
+    let candidates : List System.FilePath := [relPath, ".." / relPath]
+    let some path ← candidates.findM? (·.pathExists)
+      | throwError s!"source: source file not found (tried {candidates})"
 
     let contents ← IO.FS.readFile path
     let lines := contents.splitOn "\n"
