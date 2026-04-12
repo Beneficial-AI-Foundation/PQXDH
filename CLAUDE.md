@@ -64,3 +64,4 @@ Uses Verso framework with anchor-based code extraction:
 ## Commit Guidelines
 
 - Update documentation (README.md, CLAUDE.md) with every commit to keep it in sync with code changes
+- **Never perform destructive or shared-state actions** (push, force-push, revert, delete branches, modify branches other than the current working branch, etc.) **without explicitly asking for confirmation first.**
