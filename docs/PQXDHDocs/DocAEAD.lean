@@ -23,7 +23,7 @@ associated data (AD). In X3DH/PQXDH:
 
 - The session key SK (derived by the KDF) is the AEAD key.
 - Alice encrypts her first message using SK.
-- The associated data AD = IK_a^pk || IK_b^pk binds the ciphertext
+- The associated data AD = IKₐᵖᵏ ‖ IKᵦᵖᵏ binds the ciphertext
   to both parties' identities, preventing key-mismatch attacks.
 
 The concrete instantiation is AES-256 in CBC mode with HMAC

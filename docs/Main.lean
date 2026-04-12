@@ -63,11 +63,15 @@ r#"
   white-space: pre;
   overflow-x: auto;
   color: #24292E;
+  background: var(--bp-color-surface-muted, #f8fafc);
+  border-left: 3px solid #6F42C1;
+  border-radius: 0 4px 4px 0;
 }
 
-/* Show code bodies by default (open collapsed details) */
-details.bp_code_block[open] > summary {
-  margin-bottom: 0.5rem;
+
+/* Hide "Code for ..." cards — L∃∀N links already show declarations */
+.bp_code_panel_wrapper {
+  display: none !important;
 }
 
 /* Blueprint heading: "Definition 1.1 (name)" pattern */
@@ -110,14 +114,8 @@ r#"
     });
   });
 
-  /* Open all code blocks and render docstrings as markdown */
+  /* Render markdown in docstrings */
   onReady(function() {
-    /* Open code blocks first */
-    document.querySelectorAll('details.bp_code_block').forEach(function(d) {
-      d.setAttribute('open', '');
-    });
-
-    /* Render markdown in docstrings (re-run after opening details) */
     if (typeof marked !== 'undefined') {
       document.querySelectorAll('pre.docstring, code.docstring').forEach(function(el) {
         if (el.dataset.rendered) return;
@@ -140,74 +138,37 @@ r#"
     document.documentElement.setAttribute('data-bp-style', 'modern');
   });
 
-  /* Transform proof source blocks: card styling + syntax highlighting */
+  /* Enhance proof cards: rename captions, extract source, add L∃∀N via blueprint's own preview system */
   onReady(function() {
     var markerText = '-- PROOF-SOURCE';
-    document.querySelectorAll('pre').forEach(function(el) {
+    var proofSourcesByTitle = {};
+    /* Extract and highlight proof source blocks */
+    var allPres = document.querySelectorAll('pre');
+    for (var i = allPres.length - 1; i >= 0; i--) {
+      var el = allPres[i];
       var text = el.textContent || '';
-      if (text.trimStart().indexOf(markerText) !== 0) return;
-      /* Remove marker line */
+      if (text.trimStart().indexOf(markerText) !== 0) continue;
       var idx = text.indexOf(markerText);
       var rest = text.substring(idx + markerText.length);
       var nlIdx = rest.indexOf('\n');
       var code = nlIdx >= 0 ? rest.substring(nlIdx + 1) : rest;
-      var keywords = /\b(by|cases|simp|exact|subst|rw|rewrite|apply|intro|intros|have|show|suffices|induction|constructor|refine|calc|ring|omega|norm_num|linarith|aesop|trivial|contradiction|exfalso|congr|ext|funext|sorry|with|match|fun|let|do|if|then|else|for|in|return|pure|try|catch|throw|unless|where|only|guard|logInfo|throwError)\b/g;
-      var consts = /\b(none|some|true|false)\b/g;
-      /* Escape HTML */
       var html = code.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      /* Highlight */
       html = html.replace(/(--[^\n]*)/g, '<span style="color:#6A737D">$1</span>');
-      html = html.replace(keywords, '<span style="color:#D73A49">$1</span>');
-      html = html.replace(consts, '<span style="color:#005CC5">$1</span>');
+      html = html.replace(/\b(by|cases|simp|exact|subst|rw|rewrite|apply|intro|intros|have|show|suffices|induction|constructor|refine|calc|ring|omega|norm_num|linarith|aesop|trivial|contradiction|exfalso|congr|ext|funext|sorry|with|match|fun|let|do|if|then|else|for|in|return|pure|try|catch|throw|unless|where|only|guard|logInfo|throwError)\b/g, '<span style="color:#D73A49">$1</span>');
+      html = html.replace(/\b(none|some|true|false)\b/g, '<span style="color:#005CC5">$1</span>');
       html = html.replace(/(\|) /g, '<span style="color:#D73A49">$1</span> ');
-      /* Find the nearest theorem/definition (not proof) for context */
       var prev = el.previousElementSibling;
-      var theoremLabel = '';
       while (prev) {
-        if (prev.classList && (prev.classList.contains('bp_kind_theorem_wrapper') ||
-            prev.classList.contains('bp_kind_definition_wrapper') ||
-            prev.classList.contains('bp_kind_lemma_wrapper'))) {
-          var cap = prev.querySelector('.bp_caption');
-          var lab = prev.querySelector('.bp_label');
-          if (cap && lab) theoremLabel = cap.textContent.trim() + ' ' + lab.textContent.trim();
-          break;
-        }
-        /* Also check inside proof wrappers for a preceding theorem */
         if (prev.classList && prev.classList.contains('bp_kind_proof_wrapper')) {
-          prev = prev.previousElementSibling;
-          continue;
-        }
-        /* Check code panel wrappers */
-        if (prev.classList && prev.classList.contains('bp_code_panel_wrapper')) {
-          prev = prev.previousElementSibling;
-          continue;
+          proofSourcesByTitle[prev.getAttribute('title') || ''] = html;
+          break;
         }
         prev = prev.previousElementSibling;
       }
-      var title = theoremLabel ? 'Proof for ' + theoremLabel : 'Proof';
-      /* Wrap in foldable card like blueprint code blocks */
-      var wrapper = document.createElement('div');
-      wrapper.className = 'bp_wrapper bp_code_panel_wrapper';
-      var details = document.createElement('details');
-      details.className = 'bp_code_block bp_code_panel proof-source-card';
-      details.setAttribute('open', '');
-      var summary = document.createElement('summary');
-      summary.className = 'bp_heading lemma_thmheading';
-      summary.innerHTML = '<span class="bp_caption lemma_thmcaption bp_code_summary_text">Code for ' + title + '</span>';
-      var pre = document.createElement('pre');
-      pre.className = 'proof-source-code';
-      pre.innerHTML = html;
-      details.appendChild(summary);
-      details.appendChild(pre);
-      wrapper.appendChild(details);
-      el.parentNode.replaceChild(wrapper, el);
-    });
-  });
-
-  /* Make proof blocks foldable and rename to "Proof for Theorem X.Y" */
-  onReady(function() {
+      el.parentNode.removeChild(el);
+    }
+    /* Enhance proof blocks */
     document.querySelectorAll('.bp_kind_proof_wrapper').forEach(function(proofEl) {
-      /* Find preceding theorem */
       var prev = proofEl.previousElementSibling;
       var theoremLabel = '';
       while (prev) {
@@ -221,26 +182,76 @@ r#"
         }
         if (prev.classList && (prev.classList.contains('bp_kind_proof_wrapper') ||
             prev.classList.contains('bp_code_panel_wrapper'))) {
-          prev = prev.previousElementSibling;
-          continue;
+          prev = prev.previousElementSibling; continue;
         }
         prev = prev.previousElementSibling;
       }
-      var title = theoremLabel ? 'Proof for ' + theoremLabel : 'Proof';
-      /* Wrap in foldable details */
+      if (theoremLabel) {
+        var proofCaption = proofEl.querySelector('.bp_kind_proof_caption');
+        if (proofCaption) proofCaption.textContent = 'Proof for ' + theoremLabel;
+      }
+      var sourceHtml = proofSourcesByTitle[proofEl.getAttribute('title') || ''];
+      if (!sourceHtml) return;
       var heading = proofEl.querySelector('.bp_kind_proof_heading');
-      var content = proofEl.querySelector('.bp_kind_proof_content');
-      if (heading && content) {
-        var details = document.createElement('details');
-        details.className = 'bp_code_block';
-        details.setAttribute('open', '');
-        var summary = document.createElement('summary');
-        summary.className = 'bp_heading lemma_thmheading';
-        summary.innerHTML = '<span class="bp_caption lemma_thmcaption">' + title + '</span>';
-        details.appendChild(summary);
-        details.appendChild(content.cloneNode(true));
-        proofEl.innerHTML = '';
-        proofEl.appendChild(details);
+      if (!heading) return;
+      var proofId = 'bp-proof-source-' + (proofEl.getAttribute('title') || 'unknown');
+      /* Build exact same DOM structure as theorem L∃∀N links */
+      var extras = document.createElement('div');
+      extras.className = 'bp_extras thm_header_extras';
+      var slot = document.createElement('span');
+      slot.className = 'bp_extra_slot bp_extra_slot_code';
+      var root = document.createElement('span');
+      root.className = 'bp_code_summary_preview_root';
+      /* Trigger */
+      var wrap = document.createElement('span');
+      wrap.className = 'bp_code_summary_preview_wrap bp_code_summary_preview_wrap_active';
+      wrap.setAttribute('data-bp-preview-id', proofId);
+      wrap.setAttribute('data-bp-preview-title', theoremLabel ? 'Proof for ' + theoremLabel : 'Proof');
+      wrap.setAttribute('tabindex', '0');
+      wrap.setAttribute('role', 'button');
+      wrap.setAttribute('aria-label', 'Proof source');
+      wrap.innerHTML = '<span class="bp_code_link bp_code_link_status bp_code_link_status_proved" title="Proof source"><span class="bp_code_status_symbol">✓</span><span class="bp_code_link_label">L∃∀N</span></span>';
+      /* Template with proof source content */
+      var tpl = document.createElement('template');
+      tpl.className = 'bp_code_summary_preview_tpl';
+      tpl.setAttribute('data-bp-preview-id', proofId);
+      tpl.innerHTML = '<div class="bp_code_summary_preview_content"><pre class="proof-source-code" style="margin:0">' + sourceHtml + '</pre></div>';
+      /* Panel (will be populated by blueprint JS) */
+      var aside = document.createElement('aside');
+      aside.className = 'bp_code_summary_preview_panel bp_preview_panel';
+      aside.setAttribute('data-bp-preview-mode', 'hover');
+      aside.setAttribute('data-bp-preview-placement', 'anchored');
+      aside.setAttribute('hidden', '');
+      aside.innerHTML = '<div class="bp_code_summary_preview_header bp_preview_panel_header"><div class="bp_code_summary_preview_title bp_preview_panel_title"></div><button type="button" class="bp_code_summary_preview_close bp_preview_panel_close" aria-label="Close">Close</button></div><div class="bp_code_summary_preview_body bp_preview_panel_body"></div>';
+      root.appendChild(wrap);
+      root.appendChild(tpl);
+      root.appendChild(aside);
+      slot.appendChild(root);
+      extras.appendChild(slot);
+      heading.appendChild(extras);
+    });
+    /* Re-run blueprint's preview binding on newly created elements */
+    document.querySelectorAll('.bp_code_summary_preview_root').forEach(function(root) {
+      if (root.getAttribute('data-bp-code-summary-preview-bound') === '1') return;
+      if (window.bpPreviewUtils && typeof window.bpPreviewUtils.bindTemplatePreview === 'function') {
+        var panel = root.querySelector('.bp_code_summary_preview_panel');
+        if (!panel) return;
+        root.setAttribute('data-bp-code-summary-preview-bound', '1');
+        window.bpPreviewUtils.bindTemplatePreview({
+          root: root,
+          previewRoot: root,
+          triggerRoot: root,
+          panel: panel,
+          templateSelector: 'template.bp_code_summary_preview_tpl[data-bp-preview-id]',
+          triggerSelector: '.bp_code_summary_preview_wrap_active[data-bp-preview-id]',
+          keyAttr: 'data-bp-preview-id',
+          titleAttr: 'data-bp-preview-title',
+          titleSelector: '.bp_code_summary_preview_title',
+          bodySelector: '.bp_code_summary_preview_body',
+          closeSelector: '.bp_code_summary_preview_close',
+          triggerBoundAttr: 'data-bp-code-summary-trigger-bound',
+          defaults: { mode: 'hover', placement: 'anchored' }
+        });
       }
     });
   });

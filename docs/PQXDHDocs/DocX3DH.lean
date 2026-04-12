@@ -89,10 +89,13 @@ Expand the two session-key definitions and rewrite the DH tuples using
 {uses "x3dh_agree"}[].
 :::
 
+```source X3DH_session_key_agree
+```
+
 # Handshake: first authenticated message
 
 Alice encrypts her first message using AEAD with the derived session
-key and associated data AD = IK_a || IK_b (Figure 1, Bhargavan et al.).
+key and associated data AD = IKₐ ‖ IKᵦ (Figure 1, Bhargavan et al.).
 Bob decrypts with his SK and the same AD. If decryption succeeds,
 the handshake is complete.
 
@@ -107,6 +110,9 @@ First identify Alice's and Bob's session keys using
 {uses "x3dh_session_key_agree"}[]. Then rewrite the ciphertext hypothesis and
 apply AEAD correctness.
 :::
+
+```source X3DH_handshake_correct
+```
 
 {include 1 PQXDHDocs.DocPermDraws}
 

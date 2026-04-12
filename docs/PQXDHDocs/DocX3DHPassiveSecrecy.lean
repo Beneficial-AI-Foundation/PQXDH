@@ -1,6 +1,7 @@
 import VersoManual
 import VersoBlueprint
 import PQXDHLean.X3DH.X3DHPassiveMessageSecrecy
+import PQXDHDocs.SourceBlock
 
 open Verso.Genre Manual
 open Informal
@@ -116,3 +117,6 @@ Unfold {uses "passive_secrecy_advantage"}[], show the two
 `boolDistAdvantage` expressions are equal via the distributional
 equivalence lemmas, and conclude by `linarith`.
 :::
+
+```source passive_secrecy_le_ddh
+```
