@@ -24,8 +24,6 @@ open Verso.Genre.Manual.InlineLean
 set_option doc.verso true
 set_option pp.rawOnError true
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.X3DH.X3DH"
 
 #doc (Manual) "PQXDH in Lean" =>
 %%%

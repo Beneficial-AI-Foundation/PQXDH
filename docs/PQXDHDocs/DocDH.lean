@@ -5,8 +5,6 @@ import PQXDHLean.X3DH.DH
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.X3DH.DH"
 
 #doc (Manual) "Diffie-Hellman" =>
 %%%

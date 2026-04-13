@@ -5,8 +5,6 @@ import PQXDHLean.SecurityDefs
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.SecurityDefs"
 
 #doc (Manual) "Security Definitions" =>
 %%%

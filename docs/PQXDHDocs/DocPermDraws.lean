@@ -5,8 +5,6 @@ import PQXDHLean.Tactics.PermDraws
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.Tactics.PermDraws"
 
 #doc (Manual) "The PermDraws Tactic" =>
 %%%

@@ -5,8 +5,6 @@ import PQXDHLean.AEAD
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.AEAD"
 
 #doc (Manual) "Authenticated Encryption with Associated Data" =>
 %%%

@@ -8,8 +8,6 @@ import PQXDHDocs.DocX3DHPassiveSecrecy
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.X3DH.X3DH"
 
 #doc (Manual) "The X3DH Protocol" =>
 %%%

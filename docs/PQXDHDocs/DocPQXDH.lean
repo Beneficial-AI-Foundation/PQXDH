@@ -5,8 +5,6 @@ import PQXDHLean.PQXDH
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.PQXDH"
 
 #doc (Manual) "The PQXDH Protocol" =>
 %%%

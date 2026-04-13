@@ -6,8 +6,6 @@ import PQXDHDocs.SourceBlock
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.X3DH.X3DHPassiveMessageSecrecy"
 
 #doc (Manual) "Passive Message Secrecy" =>
 %%%

@@ -5,8 +5,6 @@ import PQXDHLean.KEM
 open Verso.Genre Manual
 open Informal
 
-set_option verso.exampleProject ".."
-set_option verso.exampleModule "PQXDHLean.KEM"
 
 #doc (Manual) "Key Encapsulation Mechanism" =>
 %%%
