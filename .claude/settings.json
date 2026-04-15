@@ -12,7 +12,14 @@
       "Bash(git add:*)",
       "Bash(git push:*)",
       "Bash(.lake/build/bin/docs)",
-      "Bash(grep doc-comment:*)"
+      "Bash(grep doc-comment:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(python3 -c \"print\\(round\\(\\(1500.01 - 1500.0\\) * 0.15, 2\\)\\)\")",
+      "Bash(printf 'view exam with answers\\\\n1\\\\nquit\\\\n')",
+      "Bash(find . -name \"__pycache__\" -exec rm -rf {} +)",
+      "Bash(python3 -c \"from overseer import server, cli, agent; print\\('All imports OK'\\)\")",
+      "Bash(ls data/classes/*otp*)",
+      "Bash(unzip -l /tmp/test_download.zip)"
     ]
   }
 }

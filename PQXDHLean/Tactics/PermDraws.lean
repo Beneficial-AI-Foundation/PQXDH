@@ -23,7 +23,7 @@ namespace PQXDHLean.Tactics
 -- ============================================================
 
 /-- Find an application of `name` anywhere in `e`. -/
-private partial def findApp? (name : Name) (e : Expr) : Option Expr :=
+partial def findApp? (name : Name) (e : Expr) : Option Expr :=
   if e.getAppFn.isConstOf name then some e
   else match e with
     | .app f a => findApp? name f |>.orElse (fun _ => findApp? name a)
@@ -41,7 +41,7 @@ private partial def findApp? (name : Name) (e : Expr) : Option Expr :=
 
 /-- Extract the computation from a `probOutput comp z` expression.
     Returns `(comp, z)`. -/
-private def matchProbOutput? (e : Expr) : Option (Expr × Expr) := do
+def matchProbOutput? (e : Expr) : Option (Expr × Expr) := do
   let app ← findApp? ``probOutput e
   let args := app.getAppArgs
   guard (args.size ≥ 2)
@@ -49,7 +49,7 @@ private def matchProbOutput? (e : Expr) : Option (Expr × Expr) := do
 
 /-- Extract the computation from a `probEvent comp p` expression.
     Returns `(comp, p)`. -/
-private def matchProbEvent? (e : Expr) : Option (Expr × Expr) := do
+def matchProbEvent? (e : Expr) : Option (Expr × Expr) := do
   let app ← findApp? ``probEvent e
   let args := app.getAppArgs
   guard (args.size ≥ 2)
@@ -57,7 +57,7 @@ private def matchProbEvent? (e : Expr) : Option (Expr × Expr) := do
 
 /-- Parse goal `Pr[= z | lhs] = Pr[= z | rhs]`.
     Returns `(lhsComp, rhsComp, z)`. -/
-private def parseProbEqSides (target : Expr) :
+def parseProbEqSides (target : Expr) :
     MetaM (Option (Expr × Expr × Expr)) := do
   let target ← instantiateMVars target
   let target := target.consumeMData
@@ -82,7 +82,7 @@ private def parseProbEqSides (target : Expr) :
     The body has loose bvar references:
       bvar 0 = innermost (last) draw,
       bvar (n-1) = outermost (first) draw. -/
-private partial def extractBindChain (e : Expr) :
+partial def extractBindChain (e : Expr) :
     MetaM (Array Expr × Expr) := do
   let e ← whnfR e
   if e.getAppFn.isConstOf ``Bind.bind && e.getAppNumArgs ≥ 6 then
@@ -103,7 +103,7 @@ private partial def extractBindChain (e : Expr) :
 /-- Parallel traversal of two expressions to collect `(bvar_L, bvar_R)` pairs
     at corresponding positions. Both expressions should be structurally
     identical except for bvar indices. -/
-private partial def collectBVarPairs :
+partial def collectBVarPairs :
     Expr → Expr → Array (Nat × Nat) → Array (Nat × Nat)
   | .bvar i, .bvar j, acc => acc.push (i, j)
   | .app f₁ a₁, .app f₂ a₂, acc =>
@@ -125,7 +125,7 @@ private partial def collectBVarPairs :
 /-- Given bvar pairs and draw counts, compute the permutation.
     `perm[lhsPos] = rhsPos` for each LHS draw position.
     Unused LHS draws (newly inserted) are mapped to unused RHS positions. -/
-private def computePermutation (pairs : Array (Nat × Nat))
+def computePermutation (pairs : Array (Nat × Nat))
     (nL nR : Nat) : MetaM (Array Nat) := do
   let mut perm : Array (Option Nat) := Array.mk <| List.replicate nL none
   let mut usedRhs : Array Bool := Array.mk <| List.replicate nR false
@@ -163,7 +163,7 @@ private def computePermutation (pairs : Array (Nat × Nat))
 /-- Decompose a permutation into adjacent transpositions via bubble sort.
     Input: `targetIndices[i]` = where element at position `i` should go.
     Output: sequence of depths (swap positions `depth` and `depth+1`). -/
-private def bubbleSortSwaps (targetIndices : Array Nat) : Array Nat := Id.run do
+def bubbleSortSwaps (targetIndices : Array Nat) : Array Nat := Id.run do
   let mut arr := targetIndices
   let mut swaps : Array Nat := #[]
   let n := arr.size
@@ -186,7 +186,7 @@ private def bubbleSortSwaps (targetIndices : Array Nat) : Array Nat := Id.run do
 /-- Build proof term for swapping adjacent draws at given depth.
     Depth 0: `probEvent_bind_bind_swap _ _ _ _`
     Depth n+1: `probEvent_bind_congr fun _ _ => (inner)` -/
-private def mkSwapProofTerm (depth : Nat) : TacticM (TSyntax `term) := do
+def mkSwapProofTerm (depth : Nat) : TacticM (TSyntax `term) := do
   match depth with
   | 0 => `(term| probEvent_bind_bind_swap _ _ _ _)
   | n + 1 =>
@@ -195,7 +195,7 @@ private def mkSwapProofTerm (depth : Nat) : TacticM (TSyntax `term) := do
 
 /-- Emit a single adjacent transposition at `depth`, targeting LHS only.
     Handles the `probOutput`↔`probEvent` conversion. -/
-private def emitLhsSwap (depth : Nat) : TacticM Unit := do
+def emitLhsSwap (depth : Nat) : TacticM Unit := do
   let proof ← mkSwapProofTerm depth
   -- Try with probEvent conversion first
   try
@@ -215,7 +215,7 @@ private def emitLhsSwap (depth : Nat) : TacticM Unit := do
 /-- Insert one unused draw at position 0 in LHS.
     `sampleExpr` is the draw computation to prepend (e.g., `$ᵗ F`).
     `z` is the output value from the `Pr[= z | ...]` goal. -/
-private def emitInsertUnusedDraw (sampleExpr z : Expr) : TacticM Unit := do
+def emitInsertUnusedDraw (sampleExpr z : Expr) : TacticM Unit := do
   let sampleSyn ← PrettyPrinter.delab sampleExpr
   let zSyn ← PrettyPrinter.delab z
   try
@@ -239,7 +239,7 @@ set_option linter.style.emptyLine false in
     possibly differing in draw order and unused draws.
 
     All rewrites target the LHS only (via `conv_lhs`). -/
-elab "perm_draws" : tactic => withMainContext do
+def permDrawsImpl : TacticM Unit := withMainContext do
   let target ← getMainTarget
   let some (lhsComp, rhsComp, z) ← parseProbEqSides target
     | throwError "perm_draws: goal is not of the form Pr[... | LHS] = Pr[... | RHS]"
@@ -290,5 +290,8 @@ elab "perm_draws" : tactic => withMainContext do
     emitLhsSwap depth
 
   logInfo m!"perm_draws: done"
+
+/-- Tactic syntax for `perm_draws`. -/
+elab "perm_draws" : tactic => permDrawsImpl
 
 end PQXDHLean.Tactics

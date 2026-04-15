@@ -1,26 +1,40 @@
-import Verso
 import VersoManual
+import VersoBlueprint
+import PQXDHLean.AEAD
+
 open Verso.Genre Manual
-set_option doc.verso true
-set_option pp.rawOnError true
+open Informal
+
 
 #doc (Manual) "Authenticated Encryption with Associated Data" =>
+%%%
+tag := "aead"
+%%%
+
+:::group "aead_core"
+Core interface and correctness for authenticated encryption.
+:::
 
 An AEAD scheme provides both confidentiality and integrity for a
 plaintext message, while binding the ciphertext to unencrypted
-associated data (AD).
+associated data (AD). In X3DH/PQXDH:
 
-*Structure*
+- The session key SK (derived by the KDF) is the AEAD key.
+- Alice encrypts her first message using SK.
+- The associated data AD = IKₐᵖᵏ ‖ IKᵦᵖᵏ binds the ciphertext
+  to both parties' identities, preventing key-mismatch attacks.
 
-```
-structure AEAD (K PT CT AD : Type _) where
-  encrypt : K → PT → AD → CT
-  decrypt : K → CT → AD → Option PT
-  correctness : ∀ (k : K) (pt : PT) (ad : AD),
-    decrypt k (encrypt k pt ad) ad = some pt
-```
+The concrete instantiation is AES-256 in CBC mode with HMAC
+(Encrypt-Then-MAC). The paper assumes IND-CPA and INT-CTXT,
+which together imply IND-CCA2 for AEAD schemes (section 2.5, assumption 3).
 
-The `correctness` field guarantees that decrypting an honestly
-encrypted ciphertext with the correct key and AD recovers the
-original plaintext. In X3DH, the associated data is the pair
-`(IKₐ, IKᵦ)` of identity public keys.
+# Structure
+
+:::definition "aead_spec" (lean := "AEAD") (parent := "aead_core")
+An AEAD is modeled by encrypt and decrypt operations together with an honest
+round-trip correctness guarantee. The structure is parameterized by key type
+`K` (session key from {uses "kdf_spec"}[]), plaintext type `PT`, ciphertext
+type `CT`, and associated data type `AD`. The built-in `correctness` field
+guarantees that decrypting an honestly encrypted ciphertext with the correct
+key and AD always recovers the original plaintext.
+:::

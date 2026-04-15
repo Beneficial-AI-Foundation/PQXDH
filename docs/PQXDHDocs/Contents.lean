@@ -5,6 +5,8 @@ Author: David Thrane Christiansen
 -/
 
 import VersoManual
+import VersoBlueprint.Commands.Graph
+import VersoBlueprint.Commands.Summary
 
 import PQXDHDocs.DocDH
 import PQXDHDocs.DocKDF
@@ -17,9 +19,11 @@ import PQXDHDocs.DocSecurityDefs
 import PQXDHDocs.DocPQXDH
 
 open Verso.Genre Manual
+open Verso.Genre.Manual.InlineLean
 
 set_option doc.verso true
 set_option pp.rawOnError true
+
 
 #doc (Manual) "PQXDH in Lean" =>
 %%%
@@ -40,6 +44,9 @@ The source code is available on [GitHub](https://github.com/Beneficial-AI-Founda
 {include 1 PQXDHDocs.DocAEAD}
 {include 1 PQXDHDocs.DocKEM}
 {include 1 PQXDHDocs.DocX3DH}
-{include 1 PQXDHDocs.DocPermDraws}
 {include 1 PQXDHDocs.DocPQXDH}
 {include 1 PQXDHDocs.DocSecurityDefs}
+
+{blueprint_graph}
+
+{blueprint_summary}
