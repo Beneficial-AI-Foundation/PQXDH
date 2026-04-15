@@ -1,124 +1,75 @@
-# Setting Up Verso-Blueprint 
+# PQXDH Documentation Project
 
-This guide explains how to set up Verso-Blueprint documentation for a Lean 4 project.
+Verso-Blueprint documentation for the PQXDH Lean 4 formalization.
 
-## Prerequisites
+Built with [verso-blueprint](https://github.com/ejgallego/verso-blueprint) (v4.28.0),
+which extends [Verso](https://github.com/leanprover/verso) with blueprint-style
+rendering for mathematical formalizations.
 
-- A working Lean 4 project with `lakefile.toml`
-- `elan` installed
+## Dependencies
 
-## Directory Structure
+The docs project (`docs/lakefile.toml`) depends on:
 
-```
-your-project/
-├── lakefile.toml          # Main project lakefile
-├── lean-toolchain
-├── YourLib/               # Your Lean source files
-│   └── *.lean
-└── docs/
-    ├── lakefile.toml      # Docs project lakefile
-    ├── lean-toolchain
-    ├── Main.lean
-    └── YourDocs/          # Documentation source files
-        └── *.lean
-```
+- **versoBlueprint** — documentation framework (fetched from git)
+- **PQXDH-lean** — the parent Lean library (via `path = ".."`)
 
-## Step 1: Set Up the Docs Project
+Transitive dependencies (`subverso`, Verso core) are resolved automatically
+by Lake from the verso-blueprint manifest. The main project lakefile does
+**not** need to list them.
 
-Create `docs/lakefile.toml`:
+## Building
 
-```toml
-name = "YourDocs"
-defaultTargets = ["YourDocs", "docs"]
-
-[[require]]
-name = "verso"
-git = "https://github.com/leanprover/verso"
-rev = "main"  # or a specific commit
-
-[[lean_lib]]
-name = "YourDocs"
-
-[[lean_exe]]
-name = "docs"
-root = "Main"
-```
-
-Create `docs/lean-toolchain` with the same Lean version as your main project.
-
-## Step 2: Build the Docs Project
+From the repository root (not from `docs/`):
 
 ```bash
-cd docs
+# Build the Lean library first
 lake build
-```
 
-This will fetch Verso and its dependencies, including `subverso`.
+# Build the documentation executable
+lake -d docs build
 
-## Step 3: Add Subverso to the Main Project
-
-Look up the `subverso` commit from `docs/lake-manifest.json`:
-
-```bash
-grep -A2 '"name": "subverso"' docs/lake-manifest.json
-```
-
-Add `subverso` (not `verso`) to your main project's `lakefile.toml`:
-
-```toml
-[[require]]
-name = "subverso"
-git = "https://github.com/leanprover/subverso"
-rev = "<commit-from-lake-manifest>"
-```
-
-## Step 4: Build the Main Project
-
-Build with `--keep-toolchain` to prevent the lean-toolchain from updating to subverso's version:
-
-```bash
-lake build --keep-toolchain
-```
-
-## Step 5: Configure Example Project Path
-
-In your documentation Lean files, set the `verso.exampleProject` option to point to your main project:
-
-```lean
-set_option verso.exampleProject "."
-```
-
-The path is relative to the workspace root when running `lake -d docs build` from the main project directory.
-
-## Building Documentation
-
-From the main project root:
-
-```bash
-lake -d docs build docs
-```
-
-Or create a build script (e.g., `scripts/build-blueprint.sh`):
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-
-cd "$(dirname "$0")/.."
-
-out_root="${1:-_out/blueprint}"
-mkdir -p "$out_root"
-
-lake -d docs build docs
-"docs/.lake/build/bin/docs" --output "$out_root"
-
-echo "Output: $(readlink -f "$out_root")"
-```
-
-## Serving the Documentation
-
-```bash
+# Generate HTML and serve locally
+./scripts/build-blueprint.sh
 python3 -m http.server 8080 -d _out/blueprint
 ```
 
-Then open http://localhost:8080 in your browser.
+Then open http://localhost:8080.
+
+## Project structure
+
+```
+docs/
+├── lakefile.toml              # Depends on versoBlueprint + parent project
+├── lean-toolchain             # Must match parent (v4.28.0)
+├── lake-manifest.json         # Pinned dependency versions
+├── Main.lean                  # Entry point: CSS, JS, blueprint config
+├── PQXDHDocs.lean             # Top-level document definition
+└── PQXDHDocs/
+    ├── Contents.lean          # Imports all chapters, opens Verso namespaces
+    ├── SourceBlock.lean       # Custom code block: extracts proof bodies from source
+    ├── DocDH.lean             # Diffie-Hellman
+    ├── DocKDF.lean            # Key Derivation Function
+    ├── DocAEAD.lean           # Authenticated Encryption
+    ├── DocKEM.lean            # Key Encapsulation Mechanism
+    ├── DocX3DH.lean           # X3DH Protocol (includes PermDraws + PassiveSecrecy)
+    ├── DocPermDraws.lean      # perm_draws Tactic (subsection of X3DH)
+    ├── DocX3DHPassiveSecrecy.lean  # Passive Message Secrecy (subsection of X3DH)
+    ├── DocPQXDH.lean          # PQXDH Protocol
+    └── DocSecurityDefs.lean   # Security Definitions and Assumptions
+```
+
+## How it works
+
+- Each `Doc*.lean` file is a Verso document chapter using `#doc (Manual)` blocks.
+- Definitions and theorems use `(lean := "DeclarationName")` to link prose
+  to Lean declarations, which Verso resolves at elaboration time.
+- Proof bodies are extracted via `` ```source DeclarationName `` blocks
+  (implemented in `SourceBlock.lean`), which read the actual source file
+  and display the proof text.
+- Cross-references between chapters use `{uses "tag"}[]` where tags are
+  defined by `:::definition` and `:::theorem` blocks.
+
+## Lean version
+
+Both the library and docs must use the same Lean toolchain. Currently
+`leanprover/lean4:v4.28.0`, matching Mathlib and verso-blueprint.

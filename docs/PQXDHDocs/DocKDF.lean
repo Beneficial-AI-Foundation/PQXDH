@@ -19,7 +19,8 @@ A KDF deterministically derives a fixed-size key from variable-length
 input material. In X3DH, the input is the concatenation of the
 DH outputs and the result is the session key (SK).
 
-The concrete instantiation is HKDF (RFC 5869) with SHA-256.
+The concrete instantiation is HKDF (RFC 5869) with SHA-256
+(§2.5, p. 473, Bhargavan et al.).
 
 Two formalizations coexist, modeling different aspects of the KDF.
 

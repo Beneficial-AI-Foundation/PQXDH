@@ -26,8 +26,9 @@ encapsulates to get (ct, ss), appends ss to her KDF input, and
 sends ct to Bob. Bob decapsulates to recover ss.
 
 The concrete instantiation is Kyber-1024 (ML-KEM), a lattice-based
-KEM secure under the Module-LWE assumption. The paper assumes the
-KEM is IND-CCA (section 2.5, assumption 1.B).
+KEM secure under the Module-LWE assumption (§2.5, p. 472, Bhargavan
+et al.). The paper assumes the KEM is IND-CCA (section 2.5,
+assumption 1.B).
 
 # Structure
 

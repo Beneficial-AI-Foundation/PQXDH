@@ -22,8 +22,8 @@ using VCV-io for security game definitions.
 
 # Random Oracle Model
 
-In the real protocol, the KDF (HKDF-SHA-256) is a deterministic
-function. In the security proof, we replace it with a *random
+In the real protocol, the KDF (HKDF-SHA-256, §2.5, p. 473) is a
+deterministic function. In the security proof, we replace it with a *random
 oracle*: a function that, on each new input, returns a uniformly
 random output and caches it for consistency (same input always
 gives the same output).

@@ -8,9 +8,9 @@ Diffie-Hellman as scalar multiplication over `[Field F] [Module F G]`.
 
 | Textbook (multiplicative) | This file (additive)             |
 |---------------------------|----------------------------------|
-| `g^a`                     | `a • G₀`                         |
-| `(g^a)^b = g^{ab}`        | `b • (a • G₀) = (b * a) • G₀`    |
-| `g^a · g^b = g^{a+b}`     | `a • G₀ + b • G₀ = (a+b) • G₀`   |
+| `gᵃ`                     | `a • G₀`                         |
+| `(gᵃ)ᵇ = gᵃᵇ`            | `b • (a • G₀) = (b * a) • G₀`    |
+| `gᵃ · gᵇ = gᵃ⁺ᵇ`         | `a • G₀ + b • G₀ = (a+b) • G₀`   |
 -/
 import Mathlib.Algebra.Module.Basic
 

@@ -36,9 +36,9 @@ apply directly without unfolding.
 The formalization uses additive group notation following the Mathlib
 convention, instead of the multiplicative notation from textbooks:
 
-- `g^a` becomes `a • G₀` (scalar multiplication)
-- `(g^a)^b = g^{ab}` becomes `b • (a • G₀) = (b * a) • G₀`
-- `g^a * g^b = g^{a+b}` becomes `a • G₀ + b • G₀ = (a + b) • G₀`
+- `gᵃ` becomes `a • G₀` (scalar multiplication)
+- `(gᵃ)ᵇ = gᵃᵇ` becomes `b • (a • G₀) = (b * a) • G₀`
+- `gᵃ · gᵇ = gᵃ⁺ᵇ` becomes `a • G₀ + b • G₀ = (a + b) • G₀`
 
 # Algebraic properties
 
