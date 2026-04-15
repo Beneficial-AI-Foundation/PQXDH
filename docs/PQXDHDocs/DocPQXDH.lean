@@ -69,14 +69,16 @@ then Alice and Bob derive the same PQXDH session key. Composes
 # Security properties
 
 :::theorem "pqxdh_symbolic_security" (lean := "PQXDH_symbolic_security") (parent := "pqxdh_core") (tags := "pqxdh, security, symbolic") (effort := "large") (priority := "high")
-Symbolic security of PQXDH: under the Dolev-Yao attacker model,
-the protocol satisfies message secrecy and peer authentication.
+Symbolic security of PQXDH (Theorem 1): under the Dolev-Yao attacker model,
+the protocol satisfies peer authentication, forward secrecy, KCI resistance,
+session independence, and HNDL resistance.
 :::
 
 :::theorem "pqxdh_classical_security" (lean := "PQXDH_classical_security") (parent := "pqxdh_core") (tags := "pqxdh, security, classical") (effort := "large") (priority := "high")
-Classical computational security: under GapDH, KDF-as-random-oracle,
-and AEAD IND-CPA + INT-CTXT assumptions, the protocol achieves
-message secrecy and forward secrecy.
+Classical computational security (Theorem 2): under GapDH,
+KDF-as-random-oracle, AEAD IND-CPA + INT-CTXT, and Sig EUF-CMA
+assumptions, the protocol achieves message secrecy and peer
+authentication.
 :::
 
 :::theorem "pqxdh_postquantum_security" (lean := "PQXDH_postquantum_security") (parent := "pqxdh_core") (tags := "pqxdh, security, postquantum") (effort := "large") (priority := "high")

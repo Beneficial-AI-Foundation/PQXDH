@@ -121,7 +121,9 @@ satisfies SH-CR under this assumption (Theorem 5, section 5.3.2).
 
 :::definition "message_secrecy" (lean := "MessageSecrecy") (parent := "security_defs_core")
 Message secrecy: the session key is indistinguishable from random
-to a passive adversary, parameterized by a freshness condition.
+in the AKE security game, where the adversary may control the network,
+corrupt long-term keys, and reveal session keys, subject to a freshness
+condition on the test session.
 :::
 
 :::definition "peer_auth" (lean := "PeerAuth") (parent := "security_defs_core")
@@ -130,8 +132,10 @@ was used in the computation.
 :::
 
 :::definition "peer_auth_pq" (lean := "PeerAuthPQ") (parent := "security_defs_core")
-Post-quantum peer authentication: peer authentication under
-quantum adversaries, using the KEM layer for additional binding.
+Extended peer authentication: {uses "peer_auth"}[] plus agreement over the
+post-quantum signed pre-key (PQSPK / KEM public key). Standard peer
+authentication does not guarantee PQSPK agreement; this stronger property
+requires the additional SH-CR assumption on the KEM (Theorem 6).
 :::
 
 :::theorem "peer_auth_pq_implies_peer_auth" (lean := "PeerAuthPQ_implies_PeerAuth") (parent := "security_defs_core") (tags := "security, auth, pq") (effort := "small") (priority := "medium")

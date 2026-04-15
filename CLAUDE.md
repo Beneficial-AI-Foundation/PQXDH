@@ -26,6 +26,7 @@ Lean 4 formalization of the PQXDH (Post-Quantum Extended Diffie-Hellman) key agr
 The formalization builds up through composition of abstract cryptographic primitives:
 
 ```
+── X3DH (classical core) ──────────────────────────────────
 DH (abstract group operations)
     ↓ X3DH_agree theorem
 KDF (DH tuple → session key)
@@ -36,11 +37,19 @@ AEAD (encrypt/decrypt with SK)
 DDH assumption + Random Oracle Model
     ↓ passiveReal_eq_ddhExpReal, passiveRand_eq_ddhExpRand
     ↓ passive_secrecy_le_ddh theorem (security)
+
+── PQXDH (post-quantum extension) ─────────────────────────
+X3DH + KEM (post-quantum KEM layer)
+    ↓ PQXDH_agree theorem (correctness)
+SecurityDefs (GapDH, KEM IND-CCA, KDF ROM/PRF, AEAD, Sig)
+    ↓ PQXDH_symbolic_security       (Theorem 1, Dolev-Yao)
+    ↓ PQXDH_classical_security      (Theorem 2, computational)
+    ↓ PQXDH_postquantum_security    (Theorem 3, HNDL)
 ```
 
 ### Core Components (PQXDHLean/)
 
-- **X3DH/DH.lean**: Diffie-Hellman over any `AddCommGroup`. Key property: `DH_comm` (commutativity makes X3DH work)
+- **X3DH/DH.lean**: Diffie-Hellman over any `AddCommGroup`. Key property: DH commutativity (via `smul_smul` + `mul_comm` from Mathlib)
 - **X3DH/X3DH.lean**: Protocol definition with 4-DH computation and three main theorems: `X3DH_agree`, `X3DH_session_key_agree`, `X3DH_handshake_correct`
 - **X3DH/X3DHPassiveMessageSecrecy.lean**: Passive secrecy game, DDH reduction, distributional equivalences, and `passive_secrecy_le_ddh` theorem. Uses VCV-io for oracle computations and DDH assumption
 - **KDF.lean**: Key Derivation Function interface (`derive : I → K`)
