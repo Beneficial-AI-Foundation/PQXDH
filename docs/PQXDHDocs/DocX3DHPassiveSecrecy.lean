@@ -1,6 +1,6 @@
 import VersoManual
 import VersoBlueprint
-import PQXDHLean.X3DH.X3DHPassiveMessageSecrecy
+import PQXDHLean.X3DH.X3DHPassiveMessageSecrecyUniform
 import PQXDHDocs.SourceBlock
 
 open Verso.Genre Manual
@@ -28,17 +28,18 @@ oracle*: a function that, on each new input, returns a uniformly
 random output and caches it for consistency (same input always
 gives the same output).
 
-This is the standard ROM assumption from the paper (assumption 4).
-It lets us argue that the session key is indistinguishable from
-random whenever the KDF input contains a fresh random component
-(as happens when DH3 is replaced with a random group element in
-the DDH reduction).
+The PQXDH specification (Section 4) states that the security
+analysis models "the hash function as a random oracle." In the
+ROM, the random oracle is a public function: all parties,
+including the adversary, can query it. This justifies giving
+the passive adversary oracle access to the KDF.
 
 :::definition "exec_game" (lean := "execGame") (parent := "passive_secrecy_core")
-To compute probabilities, the KDF oracle is implemented as
-fresh uniform samples (equivalent to ROM for single-query games).
-This bridges VCV-io's oracle computations to concrete probability
-distributions.
+To compute probabilities, the KDF oracle must be implemented
+concretely. Currently, `execGame` uses `uniformSampleImpl` (fresh
+uniform samples ignoring the input), not VCVio's `randomOracle`
+(lazy cached sampling). This strips ROM consistency and makes the
+security theorem vacuously true — see the known limitation below.
 :::
 
 # Passive adversary
@@ -102,12 +103,35 @@ Both proofs are fully mechanized (no `sorry`) using the custom
 permutation via de Bruijn index analysis and emits the minimal
 swap sequence.
 
+# Known limitation
+
+`execGame` implements the KDF via `uniformSampleImpl`, which
+returns a fresh uniform sample on every query, ignoring the input.
+This strips ROM consistency (same input → same output), so the
+adversary's KDF queries return independent fresh samples rather
+than cached values. Both the real and random games therefore give
+the adversary an independent uniform session key, making the
+passive secrecy advantage 0 for all adversaries. The theorem
+below is vacuously true (`0 ≤ |...|`).
+
+A meaningful security statement requires replacing
+`uniformSampleImpl` with VCVio's `randomOracle` in `execGame`.
+The proof would then need game-hopping and an identical-until-bad
+argument: the bad event is the adversary querying ROM on the DH
+tuple, and bounding its probability is where DDH does real work.
+VCVio's ROM game-hopping infrastructure is still under development
+(cf. the `sorry` proofs in `Examples/BR93.lean`).
+
 # Security theorem
 
 :::theorem "passive_secrecy_le_ddh" (lean := "passive_secrecy_le_ddh") (parent := "passive_secrecy_core") (tags := "x3dh, security, ddh, rom") (effort := "medium") (priority := "high")
 The passive secrecy advantage of any adversary is bounded by
 the DDH advantage of {uses "ddh_reduction"}[]. This is a tight
 reduction: no factor-of-2 loss.
+
+**Caveat:** This bound is currently vacuous because `execGame`
+uses `uniformSampleImpl` instead of `randomOracle`. See the
+known limitation above.
 :::
 
 :::proof "passive_secrecy_le_ddh"

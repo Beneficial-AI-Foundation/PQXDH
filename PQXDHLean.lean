@@ -1,6 +1,7 @@
 import PQXDHLean.X3DH.DH
 import PQXDHLean.X3DH.X3DH
-import PQXDHLean.X3DH.X3DHPassiveMessageSecrecy
+import PQXDHLean.X3DH.X3DHPassiveMessageSecrecyUniform
+import PQXDHLean.X3DH.X3DHPassiveMessageSecrecyROM
 import PQXDHLean.KDF
 import PQXDHLean.AEAD
 import PQXDHLean.KEM

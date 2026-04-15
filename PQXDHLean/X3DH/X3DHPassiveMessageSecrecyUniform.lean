@@ -30,6 +30,31 @@ to `(G × G × G × G) →ₒ SK`: on first query for input `x`, the
 oracle samples `$ᵗ SK` uniformly and caches the result. Same input
 always returns the same output.
 
+The PQXDH specification (Section 4) states that the security
+analysis models "the hash function as a random oracle." In the
+ROM, the random oracle is a public function: all parties,
+including the adversary, can query it. This justifies giving
+the passive adversary oracle access to the KDF
+(`OracleComp (KDFOracle ...) Bool`).
+
+## Known limitation: `execGame` uses `uniformSampleImpl`
+
+`execGame` currently implements the KDF via `uniformSampleImpl`,
+which returns a fresh uniform sample on every query, ignoring
+the input. This strips ROM consistency (same input → same output),
+collapsing the real/random distinction: both games give the
+adversary an independent uniform session key. The passive secrecy
+advantage is therefore 0 for all adversaries, and the theorem
+`passive_secrecy_le_ddh` is vacuously true (`0 ≤ |...|`).
+
+A meaningful security statement requires replacing
+`uniformSampleImpl` with VCVio's `randomOracle` in `execGame`.
+With a proper ROM, the proof requires game-hopping and an
+identical-until-bad argument (the bad event being the adversary
+querying ROM on the DH tuple), which is where DDH does real work.
+VCVio's ROM game-hopping infrastructure is still under development
+(cf. BR93 example).
+
 ## VCV-io notation
 
 - `$ᵗ F`: sample uniformly from finite type `F` (`SampleableType`)
@@ -118,21 +143,32 @@ def passiveRand
 /-! ## Executing the games
 
 To compute probabilities, the KDF oracle must be implemented.
-We use `uniformSampleImpl` — each oracle query returns a fresh
-uniform sample `$ᵗ SK`. This is equivalent to the lazy
-`randomOracle` for games that make a single fresh query (the
-adversary cannot correlate multiple queries to the same input
-since it cannot compute the DH tuple from public keys).
 
-The key advantage: `uniformSampleImpl.evalDist_simulateQ` is
-`@[simp]` and eliminates the `simulateQ` layer entirely:
-  `evalDist (simulateQ uniformSampleImpl oa) = evalDist oa`
-This lets us work at the `ProbComp` level directly, where
-`probOutput_bind_bind_swap` and `probOutput_bind_congr'` apply. -/
+**TODO: replace `uniformSampleImpl` with `randomOracle`.**
+
+Currently, `execGame` uses `uniformSampleImpl` — each oracle query
+returns a fresh uniform sample `$ᵗ SK`, ignoring the input. This
+strips ROM consistency (same input → same output). Because the
+adversary's KDF queries also return independent fresh samples,
+the real and random games become distributionally identical:
+in both, `sk` is an independent uniform draw. The passive secrecy
+advantage is 0 for all adversaries, making `passive_secrecy_le_ddh`
+vacuously true.
+
+The correct implementation uses VCVio's `randomOracle` (lazy cached
+uniform sampling), following the pattern in `BR93.lean`:
+  `(simulateQ (idImpl + randomOracle) comp).run' ∅`
+This preserves ROM consistency and makes the security statement
+meaningful: the DDH reduction must then argue (via game-hopping
+and an identical-until-bad bound) that the adversary cannot query
+ROM on the DH tuple. -/
 
 /-- Execute an oracle computation implementing the KDF as
-fresh uniform samples (equivalent to ROM for single-query games).
-unifSpec queries are forwarded as-is; KDF queries return `$ᵗ SK`. -/
+fresh uniform samples.
+
+**Caveat:** This uses `uniformSampleImpl`, not `randomOracle`.
+See the module docstring for why this makes the security theorem
+vacuous and the planned fix. -/
 noncomputable def execGame
     (comp : OracleComp (unifSpec + KDFOracle (G × G × G × G) SK) Bool) :
     ProbComp Bool :=

@@ -19,7 +19,7 @@ lake -d docs build
 
 Lean 4 formalization of the PQXDH (Post-Quantum Extended Diffie-Hellman) key agreement protocol, following the USENIX Security 2024 paper by Bhargavan et al. Currently focuses on X3DH, the classical Diffie-Hellman core.
 
-**Status**: X3DH correctness proofs complete. Passive message secrecy proved (tight DDH reduction under ROM). No active adversary model yet.
+**Status**: X3DH correctness proofs complete. Passive message secrecy theorem stated with tight DDH reduction, but `execGame` uses `uniformSampleImpl` instead of `randomOracle`, making the bound vacuously true (see known limitation below). No active adversary model yet.
 
 ## Architecture
 
@@ -51,7 +51,8 @@ SecurityDefs (GapDH, KEM IND-CCA, KDF ROM/PRF, AEAD, Sig)
 
 - **X3DH/DH.lean**: Diffie-Hellman over any `AddCommGroup`. Key property: DH commutativity (via `smul_smul` + `mul_comm` from Mathlib)
 - **X3DH/X3DH.lean**: Protocol definition with 4-DH computation and three main theorems: `X3DH_agree`, `X3DH_session_key_agree`, `X3DH_handshake_correct`
-- **X3DH/X3DHPassiveMessageSecrecy.lean**: Passive secrecy game, DDH reduction, distributional equivalences, and `passive_secrecy_le_ddh` theorem. Uses VCV-io for oracle computations and DDH assumption
+- **X3DH/X3DHPassiveMessageSecrecyUniform.lean**: Passive secrecy game, DDH reduction, distributional equivalences, and `passive_secrecy_le_ddh` theorem using `uniformSampleImpl`. **Known limitation:** `execGame` uses stateless fresh samples instead of `randomOracle` (lazy cached ROM), collapsing the real/random distinction and making the theorem vacuously true
+- **X3DH/X3DHPassiveMessageSecrecyROM.lean**: ROM-based passive secrecy definitions with `execGame` using VCVio's `randomOracle` (lazy cached sampling). Security proofs require game-hopping infrastructure that VCVio is still developing (cf. `Examples/BR93.lean`)
 - **KDF.lean**: Key Derivation Function interface (`derive : I → K`)
 - **AEAD.lean**: Authenticated Encryption with Associated Data. Correctness axiom ensures decrypt recovers plaintext
 - **KEM.lean**: Key Encapsulation Mechanism for post-quantum layer
