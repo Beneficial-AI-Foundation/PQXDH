@@ -25,7 +25,7 @@ associated data (AD). In X3DH/PQXDH:
   to both parties' identities, preventing key-mismatch attacks.
 
 The concrete instantiation is AES-256 in CBC mode with HMAC
-(Encrypt-Then-Mac). The paper assumes IND-CPA and IND-CTXT,
+(Encrypt-Then-MAC). The paper assumes IND-CPA and INT-CTXT,
 which together imply IND-CCA2 for AEAD schemes (section 2.5, assumption 3).
 
 # Structure

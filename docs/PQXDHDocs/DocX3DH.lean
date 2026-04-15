@@ -93,9 +93,9 @@ Expand the two session-key definitions and rewrite the DH tuples using
 # Handshake: first authenticated message
 
 Alice encrypts her first message using AEAD with the derived session
-key and associated data AD = IKₐ ‖ IKᵦ (Figure 1, Bhargavan et al.).
-Bob decrypts with his SK and the same AD. If decryption succeeds,
-the handshake is complete.
+key and associated data AD = IKₐᵖᵏ ‖ IKᵦᵖᵏ (Figure 1, Bhargavan et al.
+(USENIX Security 2024)). Bob decrypts with his session key and the same
+AD. If decryption succeeds, the handshake is complete.
 
 :::theorem "x3dh_handshake_correct" (lean := "X3DH_handshake_correct") (parent := "x3dh_core") (tags := "x3dh, handshake, aead") (effort := "medium") (priority := "high")
 Bob can decrypt Alice's first message. This theorem composes

@@ -12,7 +12,7 @@ tag := "security_defs"
 %%%
 
 :::group "security_defs_core"
-Formal security definitions and assumptions for PQXDH, following Bhargavan et al.
+Formal security definitions and assumptions for PQXDH, following Bhargavan et al. (USENIX Security 2024).
 :::
 
 This chapter collects the security definitions and cryptographic assumptions
@@ -39,6 +39,29 @@ A signature scheme with sign and verify operations, plus an honest
 round-trip correctness guarantee.
 :::
 
+# Adversary models
+
+:::definition "dolev_yao" (lean := "DolevYao") (parent := "security_defs_core")
+The Dolev-Yao adversary model (symbolic/ProVerif). The adversary controls
+the network (active MitM) but cryptographic primitives are ideal black boxes.
+Security properties are expressed as correspondence assertions. Used in
+Theorem 1 (section 3.1).
+:::
+
+:::definition "ake_query" (lean := "AKE_Query") (parent := "security_defs_core")
+Oracle queries available to the adversary in the computational AKE security
+game: `NewSession`, `Send`, `Corrupt`, `RevealSessionKey`, and `Test`.
+Models the interface between adversary and challenger in CryptoVerif
+(section 3.2).
+:::
+
+:::definition "freshness_condition" (lean := "Freshness") (parent := "security_defs_core")
+Freshness condition for the AKE security game. A test session is *fresh*
+if the adversary has not trivially obtained the answer — e.g., has not
+revealed the test/partner session key or corrupted both long-term keys
+before session completion (section 3.3).
+:::
+
 # Cryptographic assumptions
 
 :::definition "gapdh_hard" (lean := "GapDH_Hard") (parent := "security_defs_core")
@@ -54,11 +77,13 @@ oracle for other ciphertexts (section 2.5, assumption 1.B).
 
 :::definition "kdf_random_oracle" (lean := "KDF_RandomOracle") (parent := "security_defs_core")
 The KDF behaves as a random oracle: its output is indistinguishable from
-a uniformly random key (section 2.5, assumption 2).
+a uniformly random key (section 2.5, assumption 4).
 :::
 
 :::definition "kdf_prf" (lean := "KDF_PRF") (parent := "security_defs_core")
-The KDF is a pseudorandom function (alternative to the ROM assumption).
+The KDF is a pseudorandom function. Used in the post-quantum proof
+(Theorem 3) instead of ROM, because CryptoVerif's post-quantum
+soundness result does not capture the QROM (section 2.5 and section 3.5).
 :::
 
 :::definition "aead_ind_cpa_int_ctxt" (lean := "AEAD_IND_CPA_INT_CTXT") (parent := "security_defs_core")
@@ -68,7 +93,28 @@ AEAD satisfies both IND-CPA and INT-CTXT, which together imply IND-CCA2
 
 :::definition "sig_euf_cma" (lean := "Sig_EUF_CMA") (parent := "security_defs_core")
 The signature scheme is existentially unforgeable under chosen message attacks
-(section 2.5, assumption 5).
+(section 2.5, assumption 2).
+:::
+
+:::definition "held_at_exchange" (lean := "HeldAtExchange") (parent := "security_defs_core")
+Temporal qualification for a cryptographic assumption: the assumption held
+at the time the key exchange completed, but may have been broken since
+(e.g., by a quantum computer). Used in Theorem 3, where `Sig_EUF_CMA`
+is required only at exchange time.
+:::
+
+:::definition "kem_sh_cr" (lean := "KEM_SH_CR") (parent := "security_defs_core")
+Semi-Honest Collision Resistance (Definition 1, section 4): an adversary
+who knows the KEM secret key cannot find a different ciphertext that
+decapsulates to the same shared secret. Prevents the KEM re-encapsulation
+attack discovered in PQXDH v1.
+:::
+
+:::definition "kem_internal_hash_rom" (lean := "KEM_InternalHash_ROM") (parent := "security_defs_core")
+The hash functions internal to Kyber (H, G, XOF) behave as Random Oracles.
+Distinct from {uses "kdf_random_oracle"}[] — this concerns hashes *inside*
+the KEM construction, not the protocol-level KDF. The paper proves Kyber
+satisfies SH-CR under this assumption (Theorem 5, section 5.3.2).
 :::
 
 # Security properties

@@ -26,8 +26,8 @@ mentioned. Protocol proofs (X3DH, PQXDH) import only this file.
 
 :::definition "dh_spec" (lean := "DH") (parent := "dh_core")
 Abstract Diffie-Hellman is modeled as scalar multiplication
-in a module over a field. `DH a B` is an `abbrev` for `a * B`
-(Mathlib's `Module` scalar action), so all `Module` lemmas
+in a module over a field. `DH a B` is an `abbrev` for `a • B`
+(Mathlib's scalar multiplication), so all `Module` lemmas
 apply directly without unfolding.
 :::
 

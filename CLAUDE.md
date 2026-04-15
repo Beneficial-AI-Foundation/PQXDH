@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 lake build
 
 # Build documentation
-lake build pqxdhdocs
+lake -d docs build
 
 # Generate blueprint HTML (outputs to _out/blueprint/)
 ./scripts/build-blueprint.sh
@@ -45,15 +45,18 @@ DDH assumption + Random Oracle Model
 - **X3DH/X3DHPassiveMessageSecrecy.lean**: Passive secrecy game, DDH reduction, distributional equivalences, and `passive_secrecy_le_ddh` theorem. Uses VCV-io for oracle computations and DDH assumption
 - **KDF.lean**: Key Derivation Function interface (`derive : I → K`)
 - **AEAD.lean**: Authenticated Encryption with Associated Data. Correctness axiom ensures decrypt recovers plaintext
-- **KEM.lean**: Key Encapsulation Mechanism for post-quantum layer (not yet integrated into X3DH)
+- **KEM.lean**: Key Encapsulation Mechanism for post-quantum layer
+- **PQXDH.lean**: PQXDH protocol extending X3DH with KEM. Security theorems stated with `sorry` (match CryptoVerif/ProVerif results)
+- **SecurityDefs.lean**: Cryptographic assumptions (GapDH, KEM IND-CCA, KDF ROM/PRF, AEAD, Sig EUF-CMA), adversary models (Dolev-Yao, AKE), and security properties
+- **Examples/X3DHExample.lean**: Concrete X3DH protocol run over rationals
 - **Tactics/PermDraws.lean**: `perm_draws` tactic — automatically proves distributional equivalences between computations that differ only in the order of independent uniform draws
 
 ### Documentation (docs/)
 
-Uses Verso framework with anchor-based code extraction:
-- Source files use `-- ANCHOR: name` / `-- ANCHOR_END: name` markers
-- Doc files reference anchors via `` ```anchor name `` blocks
-- `verso.exampleProject` must be `"."` (workspace root)
+Uses Verso Blueprint framework with source-based code extraction:
+- Doc files use `` ```source DeclarationName `` blocks to extract proof bodies from Lean source
+- `SourceBlock.lean` resolves declarations by name, finds the module, and reads the source file
+- Build: `lake -d docs build` compiles the documentation; `./scripts/build-blueprint.sh` generates HTML
 
 ## Key Patterns
 

@@ -68,9 +68,9 @@ def G₀ : ℚ := 1
 -- Key pairs: KeyPair ℚ ℚ G₀
 def alice_IK : KeyPair ℚ ℚ G₀ := ⟨3, DH 3 G₀, rfl⟩
 def alice_EK : KeyPair ℚ ℚ G₀ := ⟨5, DH 5 G₀, rfl⟩
-def bob_IK   : KeyPair ℚ ℚ G₀ := ⟨7, DH 7 G₀, rfl⟩
-def bob_SPK  : KeyPair ℚ ℚ G₀ := ⟨11, DH 11 G₀, rfl⟩
-def bob_OPK  : KeyPair ℚ ℚ G₀ := ⟨13, DH 13 G₀, rfl⟩
+def bob_IK : KeyPair ℚ ℚ G₀ := ⟨7, DH 7 G₀, rfl⟩
+def bob_SPK : KeyPair ℚ ℚ G₀ := ⟨11, DH 11 G₀, rfl⟩
+def bob_OPK : KeyPair ℚ ℚ G₀ := ⟨13, DH 13 G₀, rfl⟩
 
 /-! ## Protocol run -/
 

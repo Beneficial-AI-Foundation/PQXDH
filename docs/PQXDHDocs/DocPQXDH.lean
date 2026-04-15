@@ -28,6 +28,12 @@ identity key, signed pre-key, one-time pre-key, post-quantum signed pre-key,
 and associated signatures. Signature verification is included as a method.
 :::
 
+:::definition "pqxdh_verify_signatures" (lean := "PQXDHBundle.verify_signatures") (parent := "pqxdh_core")
+Alice verifies both bundle signatures (SPK and PQSPK) under Bob's identity
+public key before proceeding. Returns `true` iff both signatures are valid
+(Figure 1).
+:::
+
 # Shared secret computation
 
 :::definition "pqxdh_alice" (lean := "PQXDH_Alice") (parent := "pqxdh_core")
@@ -68,7 +74,7 @@ the protocol satisfies message secrecy and peer authentication.
 :::
 
 :::theorem "pqxdh_classical_security" (lean := "PQXDH_classical_security") (parent := "pqxdh_core") (tags := "pqxdh, security, classical") (effort := "large") (priority := "high")
-Classical computational security: under Gap-DH, KDF-as-random-oracle,
+Classical computational security: under GapDH, KDF-as-random-oracle,
 and AEAD IND-CPA + INT-CTXT assumptions, the protocol achieves
 message secrecy and forward secrecy.
 :::
@@ -76,6 +82,13 @@ message secrecy and forward secrecy.
 :::theorem "pqxdh_postquantum_security" (lean := "PQXDH_postquantum_security") (parent := "pqxdh_core") (tags := "pqxdh, security, postquantum") (effort := "large") (priority := "high")
 Post-quantum security: under KEM IND-CCA and additional assumptions,
 the protocol achieves message secrecy even against quantum adversaries.
+:::
+
+:::theorem "kyber_sh_cr" (lean := "Kyber_SH_CR") (parent := "pqxdh_core") (tags := "pqxdh, kem, sh-cr") (effort := "medium") (priority := "medium")
+Kyber-1024 (ML-KEM) satisfies Semi-Honest Collision Resistance
+under the Random Oracle Model for its internal hash functions
+(Theorem 5, section 4). Required by Theorem 6 to guarantee
+PQSPK agreement.
 :::
 
 :::theorem "pqxdh_kem_pubkey_agreement" (lean := "PQXDH_KEM_pubkey_agreement") (parent := "pqxdh_core") (tags := "pqxdh, kem, agreement") (effort := "small") (priority := "medium")
