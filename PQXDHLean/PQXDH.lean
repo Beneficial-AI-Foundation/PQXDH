@@ -63,12 +63,12 @@ post-quantum KEM public key and signatures authenticating the signed prekeys.
 "In the initial message to Alex, Blake includes PQSPKᵦᵖᵏ and
 sign(PQSPKᵦᵖᵏ, IKᵦˢᵏ)." (§2.3, item 2, p. 472) -/
 structure PQXDHBundle (G PK_kem S_sig : Type _) [AddCommGroup G] where
-  IKᵦ : G            -- long-term identity public key
-  SPKᵦ : G           -- signed prekey (medium-term)
-  sig_spk : S_sig     -- signature over SPKᵦ under IKᵦ
-  OPKᵦ : G           -- one-time prekey
-  PQSPK : PK_kem     -- post-quantum signed prekey (KEM public key)
-  sig_pqspk : S_sig   -- signature over PQSPK under IKᵦ
+  IKᵦ : G             -- long-term identity public key
+  SPKᵦ : G            -- signed prekey (medium-term)
+  sig_spk : S_sig      -- signature over SPKᵦ under IKᵦ
+  OPKᵦ : Option G     -- one-time prekey (optional; absent when the server has no remaining OPKs)
+  PQSPK : PK_kem      -- post-quantum signed prekey (KEM public key)
+  sig_pqspk : S_sig    -- signature over PQSPK under IKᵦ
 
 /-! ## Signature verification
 
@@ -94,10 +94,11 @@ Alice computes the four classical DH values plus the KEM shared secret.
 The five values are concatenated and fed to the KDF.
 -/
 
-/-- §2.3, p. 472 and Figure 1, p. 471: Alice's view of the PQXDH key exchange.
+/-- §2.3, p. 472 and Figure 4, p. 484: Alice's view of the PQXDH key exchange.
 Four DH values plus the KEM encapsulation output (ct, ss).
 "When computing the session secret, Alex also computes CT, SS ← KEM.encaps(PQSPKᵦᵖᵏ)
-and concatenates SS to the X3DH Key Derivation Function input." (§2.3, item 3) -/
+and concatenates SS to the X3DH Key Derivation Function input." (§2.3, item 3)
+When no OPK is present, DH4 defaults to 0 (the group identity). -/
 def PQXDH_Alice
     {PK_kem SK_kem CT SS S_sig : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
@@ -106,24 +107,25 @@ def PQXDH_Alice
   let dh := (DH ikₐ bundle.SPKᵦ,
              DH ekₐ bundle.IKᵦ,
              DH ekₐ bundle.SPKᵦ,
-             DH ekₐ bundle.OPKᵦ)
+             DH ekₐ (bundle.OPKᵦ.getD 0))
   let kem_out := kem.encaps bundle.PQSPK
   (dh, kem_out)
 
-/-- §2.3, p. 472 and Figure 1, p. 471: Bob's view of the PQXDH key exchange.
+/-- §2.3, p. 472 and Figure 4, p. 484: Bob's view of the PQXDH key exchange.
 Four DH values plus the KEM decapsulation of ct.
 "Blake uses their private key to compute SS = KEM.decaps(CT, PQSPKᵦˢᵏ)
-and also concatenates it to the X3DH Key Derivation Function input." (§2.3, item 5) -/
+and also concatenates it to the X3DH Key Derivation Function input." (§2.3, item 5)
+When no OPK was used, `opkᵦ` is `none` and DH4 defaults to 0. -/
 def PQXDH_Bob
     {PK_kem SK_kem CT SS : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
-    (ikᵦ spkᵦ opkᵦ : F) (sk_kem : SK_kem)
+    (ikᵦ spkᵦ : F) (opkᵦ : Option F) (sk_kem : SK_kem)
     (IKₐ EKₐ : G) (ct : CT) :
     (G × G × G × G) × SS :=
   let dh := (DH spkᵦ IKₐ,
              DH ikᵦ EKₐ,
              DH spkᵦ EKₐ,
-             DH opkᵦ EKₐ)
+             DH (opkᵦ.getD 0) EKₐ)
   let ss := kem.decaps sk_kem ct
   (dh, ss)
 
@@ -151,13 +153,13 @@ def PQXDH_SK_Alice
   let (dh, (_, ss)) := PQXDH_Alice kem ikₐ ekₐ bundle
   kdf.derive (dh, ss)
 
-/-- Figure 1, p. 471: Bob derives the PQXDH session key
+/-- Figure 4, p. 484: Bob derives the PQXDH session key
 SKₐ = kdf(spkᵦ • IKₐ ‖ ikᵦ • EKₐ ‖ spkᵦ • EKₐ ‖ SS). -/
 def PQXDH_SK_Bob
     {PK_kem SK_kem CT SS : Type _}
     (kem : KEM PK_kem SK_kem CT SS)
     (kdf : KDF ((G × G × G × G) × SS) SK)
-    (ikᵦ spkᵦ opkᵦ : F) (sk_kem : SK_kem)
+    (ikᵦ spkᵦ : F) (opkᵦ : Option F) (sk_kem : SK_kem)
     (IKₐ EKₐ : G) (ct : CT) : SK :=
   let (dh, ss) := PQXDH_Bob kem ikᵦ spkᵦ opkᵦ sk_kem IKₐ EKₐ ct
   kdf.derive (dh, ss)
@@ -188,15 +190,15 @@ theorem PQXDH_agree
     (hSPKᵦ : SPKᵦ = DH spkᵦ G₀)
     (hOPKᵦ : OPKᵦ = DH opkᵦ G₀)
     (bundle : PQXDHBundle G PK_kem S_sig)
-    (hBundle : bundle = ⟨IKᵦ, SPKᵦ, s1, OPKᵦ, pk_kem, s2⟩)
+    (hBundle : bundle = ⟨IKᵦ, SPKᵦ, s1, some OPKᵦ, pk_kem, s2⟩)
     (ct : CT) (ss : SS)
     (hEncaps : kem.encaps pk_kem = (ct, ss))
     (hDecaps : kem.decaps sk_kem ct = ss) :
     PQXDH_SK_Alice kem kdf ikₐ ekₐ bundle =
-    PQXDH_SK_Bob kem kdf ikᵦ spkᵦ opkᵦ sk_kem IKₐ EKₐ ct := by
+    PQXDH_SK_Bob kem kdf ikᵦ spkᵦ (some opkᵦ) sk_kem IKₐ EKₐ ct := by
   subst hIKₐ; subst hEKₐ; subst hIKᵦ; subst hSPKᵦ; subst hOPKᵦ; subst hBundle
   simp only [PQXDH_SK_Alice, PQXDH_SK_Bob, PQXDH_Alice, PQXDH_Bob,
-             DH, smul_smul, mul_comm, hEncaps, hDecaps]
+             DH, smul_smul, mul_comm, hEncaps, hDecaps, Option.getD_some]
 
 /-! ## Security theorems
 
@@ -239,8 +241,14 @@ This is the umbrella result implied by the detailed symbolic
 Theorems 7, 8, 9 in Appendix A of the paper. -/
 
 /-- Theorem 1 (§3.1): In the Dolev-Yao model, PQXDH provides:
-  (1) peer authentication (including data agreement over IKₐ, IKᵦ,
-      SPKᵦ, OPKᵦ — the "shared pre-key" agreement),
+  (1) extended peer authentication (`PeerAuthPQ`) — agreement over IKₐ,
+      IKᵦ, SPKᵦ, OPKᵦ, **and** PQSPK (the KEM public key). In the
+      symbolic model the adversary cannot break signatures, so PQSPK
+      agreement follows directly from signature verification (Theorem 8
+      of Appendix A). This is strictly stronger than the classical
+      Theorem 2, which only gives `PeerAuth` without PQSPK agreement
+      and requires the additional SH-CR assumption to obtain it
+      (Theorem 6).
   (2) forward secrecy,
   (3) resistance to key compromise impersonation (KCI),
   (4) session independence,
@@ -259,7 +267,7 @@ theorem PQXDH_symbolic_security
     (kem : KEM PK_kem SK_kem CT_kem SS)
     (kdf : KDF ((G × G × G × G) × SS) SK_session)
     (_adversary : DolevYao) :
-    PeerAuth G PK_kem SK_kem CT_kem SS kem
+    PeerAuthPQ G PK_kem SK_kem CT_kem SS kem
         ((G × G × G × G) × SS) SK_session kdf ∧
     ForwardSecrecy G ((G × G × G × G) × SS) SK_session kdf ∧
     KCI_Resistance G ∧

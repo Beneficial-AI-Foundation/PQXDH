@@ -36,6 +36,9 @@ assumption 1.B).
 A KEM is modeled by encapsulation and decapsulation operations together with
 an honest round-trip property connecting them. The structure is parameterized
 by public key type `PK`, secret key type `SK_kem`, ciphertext type `CT`,
-and shared secret type `SS`. The built-in `correctness` field guarantees that
-if `encaps pk = (ct, ss)`, then `decaps sk ct = ss`.
+and shared secret type `SS`. The `matches` field identifies valid key pairs
+produced by honest key generation. The `correctness` field guarantees that
+for any such matching pair `(pk, sk)`, if `encaps pk = (ct, ss)` then
+`decaps sk ct = ss` — decapsulation with an unrelated secret key is not
+required to succeed.
 :::

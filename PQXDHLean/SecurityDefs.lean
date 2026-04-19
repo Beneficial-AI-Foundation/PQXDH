@@ -273,7 +273,7 @@ matching public key.
 
 /-- Definition 1, §5.3.1, p. 480: Semi-Honest Collision Resistance (SH-CR).
 
-Game (2 phases):
+Game (2 phases), following Definition 1 exactly:
 
   Setup: Challenger runs (pk, sk) ← KEM.keygen.
 
@@ -282,25 +282,26 @@ Game (2 phases):
   key pk' (possibly ≠ pk).
 
   Challenge: Challenger computes (ss, ct) ← KEM.encaps(pk').
-  Adversary receives ct.
 
-  Phase 2: Adversary outputs ct'.
+  Phase 2: Adversary receives (sk, ss, ct) and outputs ct'.
 
-  Winning condition: ct' ≠ ct ∧ KEM.decaps(sk, ct') = ss.
+  Winning condition: KEM.decaps(sk, ct') = ss ∧ (ct ≠ ct' ∨ pk ≠ pk').
 
-That is: the adversary, knowing sk, finds a *different* ciphertext
-ct' that decapsulates (under the honest sk) to the same shared
-secret ss that was encapsulated under the adversary-chosen pk'.
+That is: the adversary, knowing sk, finds *either* a different ciphertext
+ct' that decapsulates to ss, *or* produces any ciphertext that decapsulates
+to ss under a different public key pk'. The pk ≠ pk' disjunct captures
+the re-encapsulation scenario where the adversary chose a different public
+key but the honest sk still decapsulates correctly.
 
 Security means: the probability of winning is negligible.
 
-Formally:
-  Adv^{SH-CR}_{KEM}(A) =
+Formally (Definition 1, §5.3.1):
+  Adv^{SH-CR}_{A,KEM} =
     Pr[ (pk,sk) ← keygen;
         pk' ← A(sk);
         (ss, ct) ← encaps(pk');
-        ct' ← A(ct)
-      : ct' ≠ ct ∧ decaps(sk, ct') = ss ]
+        ct' ← A(sk, ss, ct)
+      : decaps(sk, ct') = ss ∧ (ct ≠ ct' ∨ pk ≠ pk') ]
 -/
 opaque KEM_SH_CR (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS) : Prop
 
