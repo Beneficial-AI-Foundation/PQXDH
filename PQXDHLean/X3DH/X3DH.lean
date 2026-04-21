@@ -38,6 +38,11 @@ structure KeyPair (F G : Type _) [Field F] [AddCommGroup G] [Module F G]
 
 /-! ## X3DH shared secret computation
 
+**Notation convention:**
+  - Lowercase names (`ikₐ`, `ekₐ`, `spkᵦ`, `opkᵦ`) denote **private keys** (scalars in `F`)
+  - Uppercase names (`IKᵦ`, `SPKᵦ`, `OPKᵦ`) denote **public keys** (group elements in `G`)
+  - Subscripts `ₐ` / `ᵦ` indicate the owner (Alice / Bob)
+
 Alice and Bob each compute DH values from their private keys
 and the other party's public keys:
 
@@ -98,13 +103,13 @@ def X3DH_SK_Alice
     (ikₐ ekₐ : F) (IKᵦ SPKᵦ : G) (OPKᵦ : Option G) : SK :=
   kdf.derive (X3DH_Alice ikₐ ekₐ IKᵦ SPKᵦ OPKᵦ)
 
-/-- Bob derives the session key SK_B = KDF(DH1 ‖ DH2 ‖ DH3 ‖ DH4). -/
+/-- Bob derives the session key SKᵦ = KDF(DH1 ‖ DH2 ‖ DH3 ‖ DH4). -/
 def X3DH_SK_Bob
     (kdf : KDF (G × G × G × G) SK)
     (ikᵦ spkᵦ : F) (opkᵦ : Option F) (IKₐ EKₐ : G) : SK :=
   kdf.derive (X3DH_Bob ikᵦ spkᵦ opkᵦ IKₐ EKₐ)
 
-/-- Session key agreement: SKₐ = SK_B.
+/-- Session key agreement: SKₐ = SKᵦ.
 Composes `X3DH_agree` with the determinism of the KDF. -/
 theorem X3DH_session_key_agree
     (kdf : KDF (G × G × G × G) SK)
