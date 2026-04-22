@@ -382,15 +382,34 @@ opaque PeerAuth (G : Type _) [AddCommGroup G]
     (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS)
     (I K : Type _) (kdf : KDF I K) : Prop
 
+/-- §5.3.2 p. 480: Agreement over the post-quantum signed prekey (PQSPK /
+KEM public key) — the extra conjunct that distinguishes `PeerAuthPQ`
+(Theorem 6) from `PeerAuth` (Theorem 2). Without this property a
+malicious server could substitute PQSPK without detection (the
+re-encapsulation attack). Established under the SH-CR assumption on
+the KEM (Theorem 6).
+
+Like the other security properties in this file, kept opaque: the
+internal structure documents the game but truth is axiomatically
+assumed when the corresponding theorem is discharged externally. -/
+opaque PQSPKAgreement (G : Type _) [AddCommGroup G]
+    (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS)
+    (I K : Type _) (kdf : KDF I K) : Prop
+
 /-- Theorem 6, §5.3.2 p. 480: Extended peer authentication — `PeerAuth` plus
 agreement over the post-quantum signed prekey (PQSPK / KEM public key).
 Standard `PeerAuth` (Theorem 2) does NOT guarantee PQSPK agreement.
 A malicious server could substitute PQSPK without detection (the
 re-encapsulation attack). This stronger property requires the
-additional SH-CR assumption on the KEM (Theorem 6). -/
-opaque PeerAuthPQ (G : Type _) [AddCommGroup G]
+additional SH-CR assumption on the KEM (Theorem 6).
+
+Definitionally the conjunction of `PeerAuth` and `PQSPKAgreement`, so
+`PeerAuthPQ_implies_PeerAuth` falls out as `And.left`. -/
+def PeerAuthPQ (G : Type _) [AddCommGroup G]
     (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS)
-    (I K : Type _) (kdf : KDF I K) : Prop
+    (I K : Type _) (kdf : KDF I K) : Prop :=
+  PeerAuth G PK SK_kem CT SS kem I K kdf ∧
+  PQSPKAgreement G PK SK_kem CT SS kem I K kdf
 
 /-- `PeerAuthPQ` implies `PeerAuth`: PQSPK agreement is strictly
 stronger, adding one more agreed parameter. -/
@@ -399,8 +418,8 @@ theorem PeerAuthPQ_implies_PeerAuth
     (PK SK_kem CT SS : Type _) (kem : KEM PK SK_kem CT SS)
     (I K : Type _) (kdf : KDF I K) :
     PeerAuthPQ G PK SK_kem CT SS kem I K kdf →
-    PeerAuth G PK SK_kem CT SS kem I K kdf := by
-  sorry
+    PeerAuth G PK SK_kem CT SS kem I K kdf :=
+  And.left
 
 /-- §2.4, p. 472 "Forward secrecy" and Theorem 1, §5.2 p. 479:
 Forward secrecy — even if all long-term identity keys (IKₐ, IKᵦ)
