@@ -9,11 +9,14 @@ distinguish the session key from a random key.
 
 ## The game
 
-  1. Sample all private keys uniformly from F.
+  1. Sample the 5 private keys uniformly from F:
+     ikₐ, ekₐ (Alice's identity + ephemeral),
+     ikᵦ, spkᵦ, opkᵦ (Bob's identity + signed prekey + one-time prekey).
   2. Compute public keys and the four DH values via X3DH.
   3. Query the KDF oracle (random oracle) on the DH tuple to get
      the real session key.
-  4. Sample a random key.
+  4. Sample a random key uniformly from SK (same distribution as the
+     KDF's output space).
   5. Flip a bit b; give the adversary the public transcript
      and either the real key (b = true) or the random key.
   6. The adversary outputs a guess b'.
@@ -169,6 +172,13 @@ noncomputable def passiveSecrecyAdvantage
 The reduction receives the DDH challenge `(g, EKₐ, SPKᵦ, T)`,
 embeds T as DH3, queries the ROM on the resulting DH tuple to
 get a session key, and passes it directly to the adversary.
+
+Why DH3? Among the four X3DH DH values, DH3 = ekₐ • SPKᵦ is the
+only one whose computation needs both of the secret scalars
+hidden in the DDH challenge (ekₐ and spkᵦ). The other DH values
+(DH1, DH2, DH4) each involve at least one scalar the reduction
+samples itself (ikₐ, ikᵦ, or opkᵦ), so they can be computed
+honestly. Embedding T at DH3 is what makes the reduction possible.
 
 No internal coin flip — the DDH experiment's own bit handles
 the real/random branching. The reduction simply forwards the
