@@ -173,12 +173,17 @@ The reduction receives the DDH challenge `(g, EKₐ, SPKᵦ, T)`,
 embeds T as DH3, queries the ROM on the resulting DH tuple to
 get a session key, and passes it directly to the adversary.
 
-Why DH3? Among the four X3DH DH values, DH3 = ekₐ • SPKᵦ is the
-only one whose computation needs both of the secret scalars
-hidden in the DDH challenge (ekₐ and spkᵦ). The other DH values
-(DH1, DH2, DH4) each involve at least one scalar the reduction
-samples itself (ikₐ, ikᵦ, or opkᵦ), so they can be computed
-honestly. Embedding T at DH3 is what makes the reduction possible.
+Why the reduction embeds T as DH3? The DDH challenge fixes two
+group elements (A, B) whose discrete logs are hidden from the
+reduction; these are installed as EKₐ and SPKᵦ in the simulated
+game, while ikₐ, ikᵦ, opkᵦ are sampled by the reduction itself.
+Of the four DH values, three can then be computed directly from
+the public keys and the reduction's own scalars: DH1 = ikₐ • SPKᵦ
+uses ikₐ, and DH2 = ekₐ • IKᵦ, DH4 = ekₐ • OPKᵦ are recovered via
+DH commutativity as ikᵦ • EKₐ and opkᵦ • EKₐ. DH3 = ekₐ • SPKᵦ is
+the only one requiring both hidden scalars — exactly the product
+ab • g that the challenge T encodes. So T is embedded at DH3, and
+the rest of the tuple is filled in honestly.
 
 No internal coin flip — the DDH experiment's own bit handles
 the real/random branching. The reduction simply forwards the
