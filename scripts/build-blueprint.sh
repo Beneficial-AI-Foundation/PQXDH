@@ -34,11 +34,11 @@ cd "$(dirname "$0")/.."
 out_root="${1:-_out/blueprint}"
 mkdir -p "$out_root"
 
-echo "[build-blueprint] building docs executable"
-lake -d docs build docs
+echo "[build-blueprint] building doc modules"
+lake -d docs build PQXDHDocs
 
 echo "[build-blueprint] generating blueprint -> ${out_root}"
-"docs/.lake/build/bin/docs" --output "$out_root"
+(cd docs && lake env lean --run Main.lean --output "../$out_root")
 
 echo "[build-blueprint] done"
 echo "[build-blueprint] output:"

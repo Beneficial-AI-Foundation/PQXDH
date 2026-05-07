@@ -3,7 +3,7 @@ defaultTargets = ["PQXDHDocs", "docs"]
 
 [[require]]
 name = "versoBlueprint"
-git = "https://github.com/ejgallego/verso-blueprint"
+git = "https://github.com/leanprover/verso-blueprint"
 rev = "v4.28.0"
 
 [[require]]
