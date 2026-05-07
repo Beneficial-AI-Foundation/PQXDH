@@ -8,7 +8,7 @@
    "inherited": false,
    "dir": "..",
    "configFile": "lakefile.toml"},
-  {"url": "https://github.com/ejgallego/verso-blueprint",
+  {"url": "https://github.com/leanprover/verso-blueprint",
    "type": "git",
    "subDir": null,
    "scope": "",

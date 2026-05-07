@@ -40,6 +40,7 @@ jobs:
       - name: Download Mathlib cache
         run: |
           lake exe cache get 2>&1 || echo "cache get returned non-zero (may be partial)"
+          lake -d docs exe cache get 2>&1 || echo "docs cache get returned non-zero (may be partial)"
 
       - name: Update VCVio dependency
         run: |
@@ -51,21 +52,12 @@ jobs:
 
       - name: Build Verso docs
         run: |
-          lake -d docs build docs
+          lake -d docs build PQXDHDocs
 
       - name: Generate documentation site
+        working-directory: docs
         run: |
-          docs/.lake/build/bin/docs --output site
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Add Lean syntax highlighting
-        run: |
-          npm ci
-          node --experimental-vm-modules scripts/highlight-lean.mjs site
+          lake env lean --run Main.lean --output ../site
 
       - name: Add root landing page
         run: |

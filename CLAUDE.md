@@ -8,10 +8,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # Build the main library
 lake build
 
-# Build documentation
-lake -d docs build
+# Build documentation modules
+lake -d docs build PQXDHDocs
 
-# Generate blueprint HTML (outputs to _out/blueprint/)
+# Link references and generate blueprint HTML
+cd docs && lake env lean --run Main.lean --output ../site
+
+# Or use the convenience script (outputs to _out/blueprint/)
 ./scripts/build-blueprint.sh
 ```
 
