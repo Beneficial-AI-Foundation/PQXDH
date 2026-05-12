@@ -1,8 +1,8 @@
-# PQXDH Documentation
+# PostQuantumeXtendedDiffieHellman-model
 
-[Verso](https://github.com/leanprover/verso)-based documentation for the [PQXDH-lean](https://github.com/Beneficial-AI-Foundation/PQXDH) formalization, rendered with [verso-blueprint](https://github.com/ejgallego/verso-blueprint).
+[Verso](https://github.com/leanprover/verso)-based documentation for the [PQXDH-lean](https://github.com/Beneficial-AI-Foundation/PostQuantumeXtendedDiffieHellman-model) formalization, rendered with [verso-blueprint](https://github.com/ejgallego/verso-blueprint).
 
-**Live site**: [beneficial-ai-foundation.github.io/PQXDH](https://beneficial-ai-foundation.github.io/PQXDH/)
+**Live site**: [beneficial-ai-foundation.github.io/PostQuantumeXtendedDiffieHellman-model](https://beneficial-ai-foundation.github.io/PostQuantumeXtendedDiffieHellman-model/)
 
 ## Chapters
 
